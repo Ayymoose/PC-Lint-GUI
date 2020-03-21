@@ -61,23 +61,23 @@
 //! [2]
 QT_BEGIN_NAMESPACE
 namespace Ui {
-class Notepad;
+class MainWindow;
 }
 QT_END_NAMESPACE
 //! [2]
 
 //! [3]
-class Notepad : public QMainWindow
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 //! [3]
 
 //! [4]
 public:
-    explicit Notepad(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
 //! [4]
 //! [5]
-    ~Notepad();
+    ~MainWindow();
 //! [5]
 
 private slots:
@@ -117,7 +117,7 @@ private slots:
     void on_actionLint_options_triggered();
 
 private:
-    Ui::Notepad *m_ui;
+    Ui::MainWindow *m_ui;
     QString currentFile;
     LintOptions m_lintOptions;
 //! [6]

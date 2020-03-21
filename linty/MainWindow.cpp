@@ -58,43 +58,43 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
-Notepad::Notepad(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    m_ui(new Ui::Notepad)
+    m_ui(new Ui::MainWindow)
 {
     m_ui->setupUi(this);
     this->setCentralWidget(m_ui->textEdit);
 
-    connect(m_ui->actionNew, &QAction::triggered, this, &Notepad::newDocument);
-    connect(m_ui->actionOpen, &QAction::triggered, this, &Notepad::open);
-    connect(m_ui->actionSave, &QAction::triggered, this, &Notepad::save);
-    connect(m_ui->actionSave_as, &QAction::triggered, this, &Notepad::saveAs);
-    connect(m_ui->actionExit, &QAction::triggered, this, &Notepad::exit);
-    connect(m_ui->actionCopy, &QAction::triggered, this, &Notepad::copy);
-    connect(m_ui->actionCut, &QAction::triggered, this, &Notepad::cut);
-    connect(m_ui->actionPaste, &QAction::triggered, this, &Notepad::paste);
-    connect(m_ui->actionUndo, &QAction::triggered, this, &Notepad::undo);
-    connect(m_ui->actionRedo, &QAction::triggered, this, &Notepad::redo);
-    connect(m_ui->actionFont, &QAction::triggered, this, &Notepad::selectFont);
-    connect(m_ui->actionBold, &QAction::triggered, this, &Notepad::setFontBold);
-    connect(m_ui->actionUnderline, &QAction::triggered, this, &Notepad::setFontUnderline);
-    connect(m_ui->actionItalic, &QAction::triggered, this, &Notepad::setFontItalic);
-    connect(m_ui->actionAbout, &QAction::triggered, this, &Notepad::about);
+    connect(m_ui->actionNew, &QAction::triggered, this, &MainWindow::newDocument);
+    connect(m_ui->actionOpen, &QAction::triggered, this, &MainWindow::open);
+    connect(m_ui->actionSave, &QAction::triggered, this, &MainWindow::save);
+    connect(m_ui->actionSave_as, &QAction::triggered, this, &MainWindow::saveAs);
+    connect(m_ui->actionExit, &QAction::triggered, this, &MainWindow::exit);
+    connect(m_ui->actionCopy, &QAction::triggered, this, &MainWindow::copy);
+    connect(m_ui->actionCut, &QAction::triggered, this, &MainWindow::cut);
+    connect(m_ui->actionPaste, &QAction::triggered, this, &MainWindow::paste);
+    connect(m_ui->actionUndo, &QAction::triggered, this, &MainWindow::undo);
+    connect(m_ui->actionRedo, &QAction::triggered, this, &MainWindow::redo);
+    connect(m_ui->actionFont, &QAction::triggered, this, &MainWindow::selectFont);
+    connect(m_ui->actionBold, &QAction::triggered, this, &MainWindow::setFontBold);
+    connect(m_ui->actionUnderline, &QAction::triggered, this, &MainWindow::setFontUnderline);
+    connect(m_ui->actionItalic, &QAction::triggered, this, &MainWindow::setFontItalic);
+    connect(m_ui->actionAbout, &QAction::triggered, this, &MainWindow::about);
 
 }
 
-Notepad::~Notepad()
+MainWindow::~MainWindow()
 {
     delete m_ui;
 }
 
-void Notepad::newDocument()
+void MainWindow::newDocument()
 {
     currentFile.clear();
     m_ui->textEdit->setText(QString());
 }
 
-void Notepad::open()
+void MainWindow::open()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Open the file");
     QFile file(fileName);
@@ -110,7 +110,7 @@ void Notepad::open()
     file.close();
 }
 
-void Notepad::save()
+void MainWindow::save()
 {
     QString fileName;
     // If we don't have a filename from before, get one.
@@ -132,7 +132,7 @@ void Notepad::save()
     file.close();
 }
 
-void Notepad::saveAs()
+void MainWindow::saveAs()
 {
     QString fileName = QFileDialog::getSaveFileName(this, "Save as");
     QFile file(fileName);
@@ -149,42 +149,42 @@ void Notepad::saveAs()
     file.close();
 }
 
-void Notepad::print()
+void MainWindow::print()
 {
 
 }
 
-void Notepad::exit()
+void MainWindow::exit()
 {
     QCoreApplication::quit();
 }
 
-void Notepad::copy()
+void MainWindow::copy()
 {
 
 }
 
-void Notepad::cut()
+void MainWindow::cut()
 {
 
 }
 
-void Notepad::paste()
+void MainWindow::paste()
 {
 
 }
 
-void Notepad::undo()
+void MainWindow::undo()
 {
      m_ui->textEdit->undo();
 }
 
-void Notepad::redo()
+void MainWindow::redo()
 {
     m_ui->textEdit->redo();
 }
 
-void Notepad::selectFont()
+void MainWindow::selectFont()
 {
     bool fontSelected;
     QFont font = QFontDialog::getFont(&fontSelected, this);
@@ -192,23 +192,23 @@ void Notepad::selectFont()
         m_ui->textEdit->setFont(font);
 }
 
-void Notepad::setFontUnderline(bool underline)
+void MainWindow::setFontUnderline(bool underline)
 {
     m_ui->textEdit->setFontUnderline(underline);
 }
 
-void Notepad::setFontItalic(bool italic)
+void MainWindow::setFontItalic(bool italic)
 {
     m_ui->textEdit->setFontItalic(italic);
 }
 
-void Notepad::setFontBold(bool bold)
+void MainWindow::setFontBold(bool bold)
 {
     bold ? m_ui->textEdit->setFontWeight(QFont::Bold) :
            m_ui->textEdit->setFontWeight(QFont::Normal);
 }
 
-void Notepad::about()
+void MainWindow::about()
 {
    QMessageBox::about(this, tr("About MDI"),
                 tr("The <b>Notepad</b> example demonstrates how to code a basic "
@@ -216,7 +216,7 @@ void Notepad::about()
 
 }
 
-void Notepad::on_actionLint_options_triggered()
+void MainWindow::on_actionLint_options_triggered()
 {
     m_lintOptions.setModal(true);
     m_lintOptions.loadSettings();

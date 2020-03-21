@@ -54,7 +54,7 @@
 int main(int argc, char *argv[])
 {
     QApplication EditorApp(argc, argv);
-    Notepad Editor;
+    MainWindow Editor;
     Editor.show();
 
     return EditorApp.exec();
