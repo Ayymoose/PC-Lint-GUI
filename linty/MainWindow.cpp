@@ -52,15 +52,6 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QMessageBox>
-#if defined(QT_PRINTSUPPORT_LIB)
-#include <QtPrintSupport/qtprintsupportglobal.h>
-#if QT_CONFIG(printer)
-#if QT_CONFIG(printdialog)
-#include <QPrintDialog>
-#endif // QT_CONFIG(printdialog)
-#include <QPrinter>
-#endif // QT_CONFIG(printer)
-#endif // QT_PRINTSUPPORT_LIB
 #include <QFont>
 #include <QFontDialog>
 
@@ -78,7 +69,6 @@ Notepad::Notepad(QWidget *parent) :
     connect(m_ui->actionOpen, &QAction::triggered, this, &Notepad::open);
     connect(m_ui->actionSave, &QAction::triggered, this, &Notepad::save);
     connect(m_ui->actionSave_as, &QAction::triggered, this, &Notepad::saveAs);
-    connect(m_ui->actionPrint, &QAction::triggered, this, &Notepad::print);
     connect(m_ui->actionExit, &QAction::triggered, this, &Notepad::exit);
     connect(m_ui->actionCopy, &QAction::triggered, this, &Notepad::copy);
     connect(m_ui->actionCut, &QAction::triggered, this, &Notepad::cut);
@@ -90,10 +80,6 @@ Notepad::Notepad(QWidget *parent) :
     connect(m_ui->actionUnderline, &QAction::triggered, this, &Notepad::setFontUnderline);
     connect(m_ui->actionItalic, &QAction::triggered, this, &Notepad::setFontItalic);
     connect(m_ui->actionAbout, &QAction::triggered, this, &Notepad::about);
-
-
-
-  //  QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, "D:\\");
 
 }
 
