@@ -259,8 +259,8 @@ void MainWindow::on_actionLint_triggered()
 
     // Check if lint file exists
     QString linterLintFile = m_lintOptions.getLinterLintFilePath().trimmed();
-    path.setPath(linterLintFile);
-    if (!path.exists())
+    fileInfo.setFile(linterLintFile);
+    if (!fileInfo.exists())
     {
         QMessageBox::critical(this,"Error", "Lint file does not exist: '" + linterLintFile + "'");
         return;
@@ -284,6 +284,9 @@ void MainWindow::on_actionLint_triggered()
     {
     case LINTER_EXECUTABLE_UNKNOWN:
         QMessageBox::critical(this,"Error", "Unknown lint executable specified: '" + linterExecutable + "'");
+        break;
+    case LINTER_TIMEOUT:
+        QMessageBox::critical(this,"Error", "Timed out running lint executable: '" + linterExecutable + "'");
         break;
     case LINTER_ERROR:
         QMessageBox::critical(this,"Error", "Linter encountered an error!");
