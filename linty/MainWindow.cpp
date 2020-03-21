@@ -64,8 +64,8 @@
 #include <QFont>
 #include <QFontDialog>
 
-#include "notepad.h"
-#include "ui_notepad.h"
+#include "MainWindow.h"
+#include "ui_MainWindow.h"
 
 Notepad::Notepad(QWidget *parent) :
     QMainWindow(parent),

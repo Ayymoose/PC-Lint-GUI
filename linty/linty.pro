@@ -1,22 +1,25 @@
 TEMPLATE = app
-TARGET = notepad
+TARGET = linty
 
 qtHaveModule(printsupport): QT += printsupport
 requires(qtConfig(fontdialog))
 
 SOURCES += \
     LintOptions.cpp \
-    main.cpp\
-    notepad.cpp
+    MainWindow.cpp \
+    main.cpp
 
-HEADERS += notepad.h \
-    LintOptions.h
+HEADERS += \
+    LintOptions.h \
+    MainWindow.h
 
-FORMS += notepad.ui \
-    LintOptions.ui
+FORMS += \
+    LintOptions.ui \
+    MainWindow.ui
 
 RESOURCES += \
-    notepad.qrc
+    linty.qrc \
+    linty.qrc
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/widgets/tutorials/notepad
