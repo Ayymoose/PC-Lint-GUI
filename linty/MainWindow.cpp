@@ -249,3 +249,10 @@ void Notepad::about()
                    "text editor using QtWidgets"));
 
 }
+
+void Notepad::on_actionLint_options_triggered()
+{
+    m_lintOptions.setModal(true);
+    m_lintOptions.exec();
+
+}

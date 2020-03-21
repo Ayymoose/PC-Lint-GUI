@@ -6,6 +6,7 @@ LintOptions::LintOptions(QWidget *parent) :
     ui(new Ui::LintOptions)
 {
     ui->setupUi(this);
+    setWindowFlags(this->windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
 LintOptions::~LintOptions()
