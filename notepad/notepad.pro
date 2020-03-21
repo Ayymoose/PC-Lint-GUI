@@ -5,12 +5,15 @@ qtHaveModule(printsupport): QT += printsupport
 requires(qtConfig(fontdialog))
 
 SOURCES += \
+    LintOptions.cpp \
     main.cpp\
     notepad.cpp
 
-HEADERS += notepad.h
+HEADERS += notepad.h \
+    LintOptions.h
 
-FORMS += notepad.ui
+FORMS += notepad.ui \
+    LintOptions.ui
 
 RESOURCES += \
     notepad.qrc
