@@ -69,49 +69,43 @@
 
 Notepad::Notepad(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::Notepad)
+    m_ui(new Ui::Notepad)
 {
-    ui->setupUi(this);
-    this->setCentralWidget(ui->textEdit);
+    m_ui->setupUi(this);
+    this->setCentralWidget(m_ui->textEdit);
 
-    connect(ui->actionNew, &QAction::triggered, this, &Notepad::newDocument);
-    connect(ui->actionOpen, &QAction::triggered, this, &Notepad::open);
-    connect(ui->actionSave, &QAction::triggered, this, &Notepad::save);
-    connect(ui->actionSave_as, &QAction::triggered, this, &Notepad::saveAs);
-    connect(ui->actionPrint, &QAction::triggered, this, &Notepad::print);
-    connect(ui->actionExit, &QAction::triggered, this, &Notepad::exit);
-    connect(ui->actionCopy, &QAction::triggered, this, &Notepad::copy);
-    connect(ui->actionCut, &QAction::triggered, this, &Notepad::cut);
-    connect(ui->actionPaste, &QAction::triggered, this, &Notepad::paste);
-    connect(ui->actionUndo, &QAction::triggered, this, &Notepad::undo);
-    connect(ui->actionRedo, &QAction::triggered, this, &Notepad::redo);
-    connect(ui->actionFont, &QAction::triggered, this, &Notepad::selectFont);
-    connect(ui->actionBold, &QAction::triggered, this, &Notepad::setFontBold);
-    connect(ui->actionUnderline, &QAction::triggered, this, &Notepad::setFontUnderline);
-    connect(ui->actionItalic, &QAction::triggered, this, &Notepad::setFontItalic);
-    connect(ui->actionAbout, &QAction::triggered, this, &Notepad::about);
+    connect(m_ui->actionNew, &QAction::triggered, this, &Notepad::newDocument);
+    connect(m_ui->actionOpen, &QAction::triggered, this, &Notepad::open);
+    connect(m_ui->actionSave, &QAction::triggered, this, &Notepad::save);
+    connect(m_ui->actionSave_as, &QAction::triggered, this, &Notepad::saveAs);
+    connect(m_ui->actionPrint, &QAction::triggered, this, &Notepad::print);
+    connect(m_ui->actionExit, &QAction::triggered, this, &Notepad::exit);
+    connect(m_ui->actionCopy, &QAction::triggered, this, &Notepad::copy);
+    connect(m_ui->actionCut, &QAction::triggered, this, &Notepad::cut);
+    connect(m_ui->actionPaste, &QAction::triggered, this, &Notepad::paste);
+    connect(m_ui->actionUndo, &QAction::triggered, this, &Notepad::undo);
+    connect(m_ui->actionRedo, &QAction::triggered, this, &Notepad::redo);
+    connect(m_ui->actionFont, &QAction::triggered, this, &Notepad::selectFont);
+    connect(m_ui->actionBold, &QAction::triggered, this, &Notepad::setFontBold);
+    connect(m_ui->actionUnderline, &QAction::triggered, this, &Notepad::setFontUnderline);
+    connect(m_ui->actionItalic, &QAction::triggered, this, &Notepad::setFontItalic);
+    connect(m_ui->actionAbout, &QAction::triggered, this, &Notepad::about);
 
-// Disable menu actions for unavailable features
-#if !QT_CONFIG(printer)
-    ui->actionPrint->setEnabled(false);
-#endif
 
-#if !QT_CONFIG(clipboard)
-    ui->actionCut->setEnabled(false);
-    ui->actionCopy->setEnabled(false);
-    ui->actionPaste->setEnabled(false);
-#endif
+
+  //  QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, "D:\\");
+
 }
 
 Notepad::~Notepad()
 {
-    delete ui;
+    delete m_ui;
 }
 
 void Notepad::newDocument()
 {
     currentFile.clear();
-    ui->textEdit->setText(QString());
+    m_ui->textEdit->setText(QString());
 }
 
 void Notepad::open()
@@ -126,7 +120,7 @@ void Notepad::open()
     setWindowTitle(fileName);
     QTextStream in(&file);
     QString text = in.readAll();
-    ui->textEdit->setText(text);
+    m_ui->textEdit->setText(text);
     file.close();
 }
 
@@ -147,7 +141,7 @@ void Notepad::save()
     }
     setWindowTitle(fileName);
     QTextStream out(&file);
-    QString text = ui->textEdit->toPlainText();
+    QString text = m_ui->textEdit->toPlainText();
     out << text;
     file.close();
 }
@@ -164,22 +158,14 @@ void Notepad::saveAs()
     currentFile = fileName;
     setWindowTitle(fileName);
     QTextStream out(&file);
-    QString text = ui->textEdit->toPlainText();
+    QString text = m_ui->textEdit->toPlainText();
     out << text;
     file.close();
 }
 
 void Notepad::print()
 {
-#if QT_CONFIG(printer)
-    QPrinter printDev;
-#if QT_CONFIG(printdialog)
-    QPrintDialog dialog(&printDev, this);
-    if (dialog.exec() == QDialog::Rejected)
-        return;
-#endif // QT_CONFIG(printdialog)
-    ui->textEdit->print(&printDev);
-#endif // QT_CONFIG(printer)
+
 }
 
 void Notepad::exit()
@@ -189,33 +175,27 @@ void Notepad::exit()
 
 void Notepad::copy()
 {
-#if QT_CONFIG(clipboard)
-    ui->textEdit->copy();
-#endif
+
 }
 
 void Notepad::cut()
 {
-#if QT_CONFIG(clipboard)
-    ui->textEdit->cut();
-#endif
+
 }
 
 void Notepad::paste()
 {
-#if QT_CONFIG(clipboard)
-    ui->textEdit->paste();
-#endif
+
 }
 
 void Notepad::undo()
 {
-     ui->textEdit->undo();
+     m_ui->textEdit->undo();
 }
 
 void Notepad::redo()
 {
-    ui->textEdit->redo();
+    m_ui->textEdit->redo();
 }
 
 void Notepad::selectFont()
@@ -223,23 +203,23 @@ void Notepad::selectFont()
     bool fontSelected;
     QFont font = QFontDialog::getFont(&fontSelected, this);
     if (fontSelected)
-        ui->textEdit->setFont(font);
+        m_ui->textEdit->setFont(font);
 }
 
 void Notepad::setFontUnderline(bool underline)
 {
-    ui->textEdit->setFontUnderline(underline);
+    m_ui->textEdit->setFontUnderline(underline);
 }
 
 void Notepad::setFontItalic(bool italic)
 {
-    ui->textEdit->setFontItalic(italic);
+    m_ui->textEdit->setFontItalic(italic);
 }
 
 void Notepad::setFontBold(bool bold)
 {
-    bold ? ui->textEdit->setFontWeight(QFont::Bold) :
-           ui->textEdit->setFontWeight(QFont::Normal);
+    bold ? m_ui->textEdit->setFontWeight(QFont::Bold) :
+           m_ui->textEdit->setFontWeight(QFont::Normal);
 }
 
 void Notepad::about()
@@ -253,6 +233,7 @@ void Notepad::about()
 void Notepad::on_actionLint_options_triggered()
 {
     m_lintOptions.setModal(true);
+    m_lintOptions.loadSettings();
     m_lintOptions.exec();
 
 }

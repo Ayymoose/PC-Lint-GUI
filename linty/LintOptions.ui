@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>555</width>
-    <height>327</height>
+    <height>238</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,90 +15,84 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="lintOptionsGroupBox">
      <property name="title">
       <string>GroupBox</string>
      </property>
-     <widget class="QWidget" name="gridLayoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>23</y>
-        <width>511</width>
-        <height>271</height>
-       </rect>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="2" column="0">
-        <widget class="QLabel" name="lintFileLntLabel">
-         <property name="text">
-          <string>Lint file (.lnt):</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEdit_2"/>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEdit_3"/>
-       </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="pushButton">
-         <property name="text">
-          <string>...</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="lineEdit"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="lintPathLabel">
-         <property name="text">
-          <string>Lint path:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QPushButton" name="pushButton_2">
-         <property name="text">
-          <string>...</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="lintOptionsLabel">
-         <property name="text">
-          <string>Lint options:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QDialogButtonBox" name="buttonBox">
-         <property name="standardButtons">
-          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Source directory (.c .h)</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="lineEdit_4"/>
-       </item>
-       <item row="0" column="2">
-        <widget class="QPushButton" name="pushButton_3">
-         <property name="text">
-          <string>...</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="1" column="0">
+         <widget class="QLabel" name="lintPathLabel">
+          <property name="text">
+           <string>Lint path:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="lintOptionsLabel">
+          <property name="text">
+           <string>Lint options:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QPushButton" name="lintFileButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="lintButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="sourceDirectoryLabel">
+          <property name="text">
+           <string>Source directory (.c .h):</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="sourceButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="sourceFileInputText"/>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lintFileInputText"/>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="lintOptionsInputText"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="lintFileLntLabel">
+          <property name="text">
+           <string>Lint file (.lnt):</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lintInputText"/>
+        </item>
+        <item row="4" column="1">
+         <widget class="QDialogButtonBox" name="buttonBox">
+          <property name="standardButtons">
+           <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

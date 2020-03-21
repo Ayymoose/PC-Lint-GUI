@@ -54,6 +54,7 @@
 //! [all]
 //! [1]
 #include <QMainWindow>
+
 #include "LintOptions.h"
 //! [1]
 
@@ -116,7 +117,7 @@ private slots:
     void on_actionLint_options_triggered();
 
 private:
-    Ui::Notepad *ui;
+    Ui::Notepad *m_ui;
     QString currentFile;
     LintOptions m_lintOptions;
 //! [6]

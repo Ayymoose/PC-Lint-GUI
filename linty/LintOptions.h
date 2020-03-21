@@ -2,6 +2,7 @@
 #define LINTOPTIONS_H
 
 #include <QDialog>
+#include <QSettings>
 
 namespace Ui {
 class LintOptions;
@@ -15,8 +16,24 @@ public:
     explicit LintOptions(QWidget *parent = nullptr);
     ~LintOptions();
 
+    // Common class needed for this maybe
+    void loadSettings();
+
+private slots:
+
+    void on_sourceButton_clicked();
+
+    void on_buttonBox_rejected();
+
+    void on_buttonBox_accepted();
+
+    void on_lintButton_clicked();
+
+    void on_lintFileButton_clicked();
+
 private:
-    Ui::LintOptions *ui;
+    Ui::LintOptions *m_ui;
+
 };
 
 #endif // LINTOPTIONS_H
