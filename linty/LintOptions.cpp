@@ -16,6 +16,29 @@ LintOptions::LintOptions(QWidget *parent) :
 
 }
 
+
+
+QString LintOptions::getLinterExecutablePath() const
+{
+    return m_ui->lintInputText->text();
+}
+
+QString LintOptions::getLinterLintFilePath() const
+{
+    return m_ui->lintFileInputText->text();
+}
+
+QString LintOptions::getLinterLintOptions() const
+{
+   return m_ui->lintOptionsInputText->text();
+}
+
+QString LintOptions::getLinterDirectory() const
+{
+    return m_ui->sourceFileInputText->text();
+}
+
+
 void LintOptions::loadSettings()
 {
     // Load settings

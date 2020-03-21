@@ -6,12 +6,14 @@ requires(qtConfig(fontdialog))
 
 SOURCES += \
     LintOptions.cpp \
+    Linter.cpp \
     MainWindow.cpp \
     Settings.cpp \
     main.cpp
 
 HEADERS += \
     LintOptions.h \
+    Linter.h \
     MainWindow.h \
     Settings.h
 

@@ -54,9 +54,14 @@
 #include <QMessageBox>
 #include <QFont>
 #include <QFontDialog>
+#include <QDebug>
+#include <QMessageBox>
+#include <QDir>
+#include <QFileInfo>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include "Linter.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -81,6 +86,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->actionItalic, &QAction::triggered, this, &MainWindow::setFontItalic);
     connect(m_ui->actionAbout, &QAction::triggered, this, &MainWindow::about);
 
+    // Load any settings we have
+    m_lintOptions.loadSettings();
 }
 
 MainWindow::~MainWindow()
@@ -222,4 +229,67 @@ void MainWindow::on_actionLint_options_triggered()
     m_lintOptions.loadSettings();
     m_lintOptions.exec();
 
+}
+
+void MainWindow::on_actionLint_triggered()
+{
+    // This function tries to call the linter
+    // The linter will attempt to lint the files specified in the directory we give it
+    // It will show all output in a list view where we can view it
+    // Should be in a separate thread really
+
+    QDir path;
+    QFileInfo fileInfo;
+
+    // Check if executable exists
+    QString linterExecutable = m_lintOptions.getLinterExecutablePath().trimmed();
+    fileInfo.setFile(linterExecutable);
+
+    if (!fileInfo.exists())
+    {
+        QMessageBox::critical(this,"Error", "Lint executable does not exist: '" + linterExecutable + "'");
+        return;
+    }
+
+    if (!fileInfo.isExecutable())
+    {
+        QMessageBox::critical(this,"Error", "Non-executable file specified: '" + linterExecutable + "'");
+        return;
+    }
+
+    // Check if lint file exists
+    QString linterLintFile = m_lintOptions.getLinterLintFilePath().trimmed();
+    path.setPath(linterLintFile);
+    if (!path.exists())
+    {
+        QMessageBox::critical(this,"Error", "Lint file does not exist: '" + linterLintFile + "'");
+        return;
+    }
+
+    // Check if the directory exists
+    QString linterLintDirectory = m_lintOptions.getLinterDirectory().trimmed();
+    path.setPath(linterLintDirectory);
+    if (!path.exists())
+    {
+        QMessageBox::critical(this,"Error", "Directory does not exist: '" + linterLintDirectory + "'");
+        return;
+    }
+
+    // Mmmm?
+    QString linterLintCommands = m_lintOptions.getLinterLintOptions().trimmed();
+
+    Linter linter;
+    LINTER_STATUS linterStatus = linter.lint(linterExecutable,linterLintFile, linterLintDirectory, linterLintCommands);
+    switch (linterStatus)
+    {
+    case LINTER_EXECUTABLE_UNKNOWN:
+        QMessageBox::critical(this,"Error", "Unknown lint executable specified: '" + linterExecutable + "'");
+        break;
+    case LINTER_ERROR:
+        QMessageBox::critical(this,"Error", "Linter encountered an error!");
+        break;
+    case LINTER_OK:
+
+        break;
+    }
 }

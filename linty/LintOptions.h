@@ -19,6 +19,11 @@ public:
     // Common class needed for this maybe
     void loadSettings();
 
+    QString getLinterExecutablePath() const;
+    QString getLinterLintFilePath() const;
+    QString getLinterLintOptions() const;
+    QString getLinterDirectory() const;
+
 private slots:
 
     void on_sourceButton_clicked();

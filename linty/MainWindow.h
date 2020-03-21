@@ -48,8 +48,8 @@
 **
 ****************************************************************************/
 
-#ifndef NOTEPAD_H
-#define NOTEPAD_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 //! [all]
 //! [1]
@@ -116,6 +116,8 @@ private slots:
 //! [6]
     void on_actionLint_options_triggered();
 
+    void on_actionLint_triggered();
+
 private:
     Ui::MainWindow *m_ui;
     QString currentFile;
@@ -124,4 +126,4 @@ private:
 };
 //! [all]
 
-#endif // NOTEPAD_H
+#endif // MAINWINDOW_H
