@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     QSize screenSize = screen->size();
 
     int x = (screenSize.width()-Editor.width()) / 2;
-    int y = (screenSize.height()-Editor.height()) / 2;
+    int y = (screenSize.height()-Editor.height() - 40) / 2;
     Editor.move(x, y);
     Editor.show();
 

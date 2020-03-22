@@ -3,6 +3,8 @@
 #include <QProcess>
 #include <QXmlStreamReader>
 #include <QTranslator>
+#include <QFileInfo>
+
 // Currently only
 // PC-Lint v9 is supported
 
@@ -16,10 +18,14 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
 
     // Test
 
-    QString test = "D:\\Users\\Ayman\\Downloads\\thief_2_service_release\\thief_2_service_release\\rdrive\\prj\\thief2\\src\\DARK\\CRCUTTY.C";
+    //QString test = "D:\\Users\\Ayman\\Downloads\\thief_2_service_release\\thief_2_service_release\\rdrive\\prj\\thief2\\src\\DARK\\CRCUTTY.C";
 
 
     QProcess lintProcess;
+
+    lintProcess.setWorkingDirectory("D:/Users/Ayman/Desktop/MerlinEmbedded/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/lint/");
+
+   // lintProcess.setWorkingDirectory(QFileInfo(linterFilePath).canonicalPath());
     QStringList lintArguments;
 
     // This is the extra file we must pass into the linter to produce XML output
@@ -40,9 +46,14 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
     {
         lintArguments << linterLintOptions;
     }
-    lintArguments << xmlArguments << linterFilePath << test;
 
-    qDebug() << "Process: " << linterExecutable;
+    // Lint only C files for now
+    lintArguments << xmlArguments << linterFilePath << (linterDirectory + "\\*.c");
+
+    qDebug() << "lint path: " << linterExecutable;
+    qDebug() << "lint file: " << linterFilePath;
+    qDebug() << "lint directory: " << linterDirectory;
+    qDebug() << "";
     qDebug() << "Arguments: " << lintArguments;
 
     lintProcess.setProgram(linterExecutable);
