@@ -56,6 +56,7 @@
 #include <QMainWindow>
 
 #include "LintOptions.h"
+#include "Linter.h"
 //! [1]
 
 //! [2]
@@ -122,6 +123,8 @@ private:
     Ui::MainWindow *m_ui;
     QString currentFile;
     LintOptions m_lintOptions;
+
+    void populateLintTable(const QList<lintMessage>& lintMessages);
 //! [6]
 };
 //! [all]

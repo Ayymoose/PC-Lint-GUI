@@ -68,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui(new Ui::MainWindow)
 {
     m_ui->setupUi(this);
-    this->setCentralWidget(m_ui->textEdit);
+  //  this->setCentralWidget(m_ui->textEdit);
 
     connect(m_ui->actionNew, &QAction::triggered, this, &MainWindow::newDocument);
     connect(m_ui->actionOpen, &QAction::triggered, this, &MainWindow::open);
@@ -201,7 +201,7 @@ void MainWindow::selectFont()
 
 void MainWindow::setFontUnderline(bool underline)
 {
-    m_ui->textEdit->setFontUnderline(underline);
+    //m_ui->textEdit->setFontUnderline(underline);
 }
 
 void MainWindow::setFontItalic(bool italic)
@@ -230,6 +230,13 @@ void MainWindow::on_actionLint_options_triggered()
     m_lintOptions.exec();
 
 }
+
+void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
+{
+    // Populate the table view with all the lint messages
+
+}
+
 
 void MainWindow::on_actionLint_triggered()
 {
@@ -279,11 +286,12 @@ void MainWindow::on_actionLint_triggered()
     QString linterLintCommands = m_lintOptions.getLinterLintOptions().trimmed();
 
     Linter linter;
-    LINTER_STATUS linterStatus = linter.lint(linterExecutable,linterLintFile, linterLintCommands, linterLintDirectory);
+    QList<lintMessage> lintMessages;
+    LINTER_STATUS linterStatus = linter.lint(linterExecutable,linterLintFile, linterLintCommands, linterLintDirectory, lintMessages);
     switch (linterStatus)
     {
-    case LINTER_EXECUTABLE_UNKNOWN:
-        QMessageBox::critical(this,"Error", "Unknown lint executable specified: '" + linterExecutable + "'");
+    case LINTER_UNSUPPORTED_VERSION:
+        QMessageBox::critical(this,"Error", "Unsupported lint version: '" + linterExecutable + "'");
         break;
     case LINTER_TIMEOUT:
         QMessageBox::critical(this,"Error", "Timed out running lint executable: '" + linterExecutable + "'");
@@ -292,7 +300,8 @@ void MainWindow::on_actionLint_triggered()
         QMessageBox::critical(this,"Error", "Linter encountered an error!");
         break;
     case LINTER_OK:
-
+        populateLintTable(lintMessages);
+        // Start populating the listview
         break;
     }
 }

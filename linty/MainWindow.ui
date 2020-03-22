@@ -59,7 +59,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QTableWidget" name="tableWidget">
+     <widget class="QTableWidget" name="tableLint">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -81,24 +81,64 @@
       <property name="mouseTracking">
        <bool>true</bool>
       </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>false</bool>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
+      <attribute name="horizontalHeaderVisible">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="horizontalHeaderHighlightSections">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="verticalHeaderVisible">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="verticalHeaderHighlightSections">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="verticalHeaderStretchLastSection">
+       <bool>false</bool>
+      </attribute>
       <row>
        <property name="text">
-        <string>Test</string>
+        <string/>
        </property>
       </row>
       <row>
        <property name="text">
-        <string>Test 1</string>
+        <string>New Row</string>
        </property>
       </row>
-      <column>
+      <row>
        <property name="text">
-        <string>Icon</string>
+        <string>New Row</string>
        </property>
-      </column>
+      </row>
+      <row>
+       <property name="text">
+        <string>New Row</string>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>New Row</string>
+       </property>
+      </row>
       <column>
        <property name="text">
         <string>Code</string>
@@ -121,52 +161,69 @@
       </column>
       <item row="0" column="0">
        <property name="text">
-        <string>Warning</string>
+        <string>500</string>
+       </property>
+       <property name="background">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>128</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </brush>
        </property>
       </item>
       <item row="0" column="1">
        <property name="text">
-        <string>500</string>
+        <string>Symbol 'fb_map' declared as &quot;C&quot; conflicts with line 181, file ..\src\vardefs.c</string>
        </property>
       </item>
       <item row="0" column="2">
        <property name="text">
-        <string>Symbol 'fb_map' declared as &quot;C&quot; conflicts with line 181, file ..\src\vardefs.c</string>
-       </property>
-      </item>
-      <item row="0" column="3">
-       <property name="text">
         <string>adc.c</string>
        </property>
       </item>
-      <item row="0" column="4">
+      <item row="0" column="3">
        <property name="text">
         <string>60</string>
        </property>
       </item>
       <item row="1" column="0">
        <property name="text">
-        <string>Error</string>
+        <string>600</string>
+       </property>
+       <property name="background">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>255</red>
+          <green>0</green>
+          <blue>0</blue>
+         </color>
+        </brush>
+       </property>
+       <property name="foreground">
+        <brush brushstyle="NoBrush">
+         <color alpha="255">
+          <red>0</red>
+          <green>170</green>
+          <blue>255</blue>
+         </color>
+        </brush>
        </property>
       </item>
       <item row="1" column="1">
        <property name="text">
-        <string>34</string>
+        <string>No explicit type given symbol 'PORT_t', int assumed</string>
        </property>
       </item>
       <item row="1" column="2">
        <property name="text">
-        <string>Error detected</string>
+        <string>test.c</string>
        </property>
       </item>
       <item row="1" column="3">
        <property name="text">
-        <string>source.c</string>
-       </property>
-      </item>
-      <item row="1" column="4">
-       <property name="text">
-        <string>342</string>
+        <string>34</string>
        </property>
       </item>
      </widget>
