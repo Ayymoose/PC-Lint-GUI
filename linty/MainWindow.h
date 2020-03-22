@@ -127,6 +127,7 @@ private:
     Icon m_icons;
 
     void populateLintTable(const QList<lintMessage>& lintMessages);
+    void configureLintTable();
 //! [6]
 };
 //! [all]

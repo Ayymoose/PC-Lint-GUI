@@ -23,12 +23,12 @@ typedef struct
 
 //Will be in a list of supported versions later
 #define LINT_VERSION "PC-lint for C/C++ (NT) Vers. 9.00c, Copyright Gimpel Software 1985-2009\r\n"
-
+/*
 enum SUPPORTED_LINTERS
 {
     //TODO: Finish
     PC_LINT_V9 = 0 // PC-lint for C/C++ (NT) Vers. 9.00c, Copyright Gimpel Software 1985-2009\r\n",
-};
+};*/
 
 
 // XML related definitions
@@ -40,7 +40,10 @@ enum SUPPORTED_LINTERS
 #define XML_CODE "code"
 #define XML_DESCRIPTION "description"
 
-
+// Linter output related
+#define TYPE_ERROR "Error"
+#define TYPE_INFORMATION "Info"
+#define TYPE_WARNING "Warning"
 
 
 class Linter

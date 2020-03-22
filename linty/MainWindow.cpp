@@ -91,6 +91,25 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Load icons
     m_icons.loadIcons();
+
+    // Configure the lint table
+    configureLintTable();
+}
+
+void MainWindow::configureLintTable()
+{
+
+    // Icon column width
+    m_ui->tableLint->setColumnWidth(0,24);
+
+    // Code width
+    m_ui->tableLint->setColumnWidth(1,40);
+
+    // Message width
+    m_ui->tableLint->setColumnWidth(2,800);
+
+
+
 }
 
 MainWindow::~MainWindow()
@@ -255,23 +274,17 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
         // Set item data
         QTableWidgetItem* typeWidget = new QTableWidgetItem;
 
-        if (type == "Error")
-        {
-            typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(*m_icons[ICON_ERROR]));
-            m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 0, typeWidget); // icon
-        }
-        else if (type == "Info")
-        {
+        QImage* icon = m_icons[ICON_ERROR];
+        Q_ASSERT(icon != nullptr);
 
-        }
-        else if (type == "Warning")
-        {
-
-        }
+        typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(*icon));
+        m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 0, typeWidget);
 
         m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 1, new QTableWidgetItem(code));
+
+
         m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 2, new QTableWidgetItem(description));
-        m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 3, new QTableWidgetItem(file));
+        m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 3, new QTableWidgetItem(QFileInfo(file).fileName()));
         m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 4, new QTableWidgetItem(line));
     }
 
