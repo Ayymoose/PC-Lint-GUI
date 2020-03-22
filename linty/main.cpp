@@ -50,11 +50,21 @@
 
 #include "MainWindow.h"
 #include <QApplication>
+#include <QScreen>
 
 int main(int argc, char *argv[])
 {
     QApplication EditorApp(argc, argv);
+
     MainWindow Editor;
+
+    // Center the screen
+    QScreen* screen = QGuiApplication::primaryScreen();
+    QSize screenSize = screen->size();
+
+    int x = (screenSize.width()-Editor.width()) / 2;
+    int y = (screenSize.height()-Editor.height()) / 2;
+    Editor.move(x, y);
     Editor.show();
 
     return EditorApp.exec();

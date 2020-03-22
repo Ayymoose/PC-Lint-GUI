@@ -68,7 +68,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui(new Ui::MainWindow)
 {
     m_ui->setupUi(this);
-  //  this->setCentralWidget(m_ui->textEdit);
 
     connect(m_ui->actionNew, &QAction::triggered, this, &MainWindow::newDocument);
     connect(m_ui->actionOpen, &QAction::triggered, this, &MainWindow::open);
