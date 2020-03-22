@@ -97,13 +97,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::newDocument()
 {
-    currentFile.clear();
-    m_ui->textEdit->setText(QString());
+  //  currentFile.clear();
+   // m_ui->textEdit->setText(QString());
 }
 
 void MainWindow::open()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Open the file");
+  /*  QString fileName = QFileDialog::getOpenFileName(this, "Open the file");
     QFile file(fileName);
     currentFile = fileName;
     if (!file.open(QIODevice::ReadOnly | QFile::Text)) {
@@ -114,12 +114,12 @@ void MainWindow::open()
     QTextStream in(&file);
     QString text = in.readAll();
     m_ui->textEdit->setText(text);
-    file.close();
+    file.close();*/
 }
 
 void MainWindow::save()
 {
-    QString fileName;
+   /* QString fileName;
     // If we don't have a filename from before, get one.
     if (currentFile.isEmpty()) {
         fileName = QFileDialog::getSaveFileName(this, "Save");
@@ -136,12 +136,12 @@ void MainWindow::save()
     QTextStream out(&file);
     QString text = m_ui->textEdit->toPlainText();
     out << text;
-    file.close();
+    file.close();*/
 }
 
 void MainWindow::saveAs()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, "Save as");
+  /*  QString fileName = QFileDialog::getSaveFileName(this, "Save as");
     QFile file(fileName);
 
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -153,7 +153,7 @@ void MainWindow::saveAs()
     QTextStream out(&file);
     QString text = m_ui->textEdit->toPlainText();
     out << text;
-    file.close();
+    file.close();*/
 }
 
 void MainWindow::print()
@@ -183,20 +183,20 @@ void MainWindow::paste()
 
 void MainWindow::undo()
 {
-     m_ui->textEdit->undo();
+   //  m_ui->textEdit->undo();
 }
 
 void MainWindow::redo()
 {
-    m_ui->textEdit->redo();
+   // m_ui->textEdit->redo();
 }
 
 void MainWindow::selectFont()
 {
-    bool fontSelected;
+    /*bool fontSelected;
     QFont font = QFontDialog::getFont(&fontSelected, this);
     if (fontSelected)
-        m_ui->textEdit->setFont(font);
+        m_ui->textEdit->setFont(font);*/
 }
 
 void MainWindow::setFontUnderline(bool underline)
@@ -206,20 +206,20 @@ void MainWindow::setFontUnderline(bool underline)
 
 void MainWindow::setFontItalic(bool italic)
 {
-    m_ui->textEdit->setFontItalic(italic);
+  //  m_ui->textEdit->setFontItalic(italic);
 }
 
 void MainWindow::setFontBold(bool bold)
 {
-    bold ? m_ui->textEdit->setFontWeight(QFont::Bold) :
-           m_ui->textEdit->setFontWeight(QFont::Normal);
+    /*bold ? m_ui->textEdit->setFontWeight(QFont::Bold) :
+           m_ui->textEdit->setFontWeight(QFont::Normal);*/
 }
 
 void MainWindow::about()
 {
-   QMessageBox::about(this, tr("About MDI"),
+   /*QMessageBox::about(this, tr("About MDI"),
                 tr("The <b>Notepad</b> example demonstrates how to code a basic "
-                   "text editor using QtWidgets"));
+                   "text editor using QtWidgets"));*/
 
 }
 
@@ -279,7 +279,7 @@ void MainWindow::on_actionLint_triggered()
     QString linterLintCommands = m_lintOptions.getLinterLintOptions().trimmed();
 
     Linter linter;
-    LINTER_STATUS linterStatus = linter.lint(linterExecutable,linterLintFile, linterLintDirectory, linterLintCommands);
+    LINTER_STATUS linterStatus = linter.lint(linterExecutable,linterLintFile, linterLintCommands, linterLintDirectory);
     switch (linterStatus)
     {
     case LINTER_EXECUTABLE_UNKNOWN:

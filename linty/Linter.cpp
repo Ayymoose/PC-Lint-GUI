@@ -12,45 +12,67 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
     // One of the inputs passed is empty or garbage
     // A non-lint executable was passed
 
-    // Check linter version (if we can't determine the version then return error)
+
+    // Test
+
+    QString test = "D:\\Users\\Ayman\\Downloads\\thief_2_service_release\\thief_2_service_release\\rdrive\\prj\\thief2\\src\\DARK\\CRCUTTY.C";
+
+
     QProcess lintProcess;
+    QStringList lintArguments;
+
+    // This is the extra file we must pass into the linter to produce XML output
+    QStringList xmlArguments;
+    xmlArguments << "-v"
+                 << "-width(0)"
+                 << "+xml(?xml version=""1.0"" ?)"
+                 << "-""format=<message><file>%f</file> <line>%l</line> <type>%t</type> <code>%n</code> <desc>%m</desc></message>"
+                 << "-""format_specific= "
+                 << "-hFs1"
+                 << "-pragma(message)";
+
+    // -v -width(0) +xml("?xml version="1.0" ?") +xml(doc) -"format=<message><file>%f</file> <line>%l</line> <type>%t</type> <code>%n</code> <desc>%m</desc></message>"
+
+    lintProcess.setProcessChannelMode(QProcess::MergedChannels);
+
+    // Add any options we have
+    if (linterLintOptions != "")
+    {
+        lintArguments << linterLintOptions;
+    }
+    lintArguments << xmlArguments << linterFilePath << test;
+
+    qDebug() << "Process: " << linterExecutable;
+    qDebug() << "Arguments: " << lintArguments;
+
     lintProcess.setProgram(linterExecutable);
+    lintProcess.setArguments(lintArguments);
     lintProcess.start();
 
-    if (!lintProcess.waitForStarted(1000))
+    if (!lintProcess.waitForStarted())
     {
         return LINTER_TIMEOUT;
     }
 
-    if (!lintProcess.waitForReadyRead(1000))
+    QByteArray lintData;
+
+    while(lintProcess.waitForReadyRead())
     {
-        return LINTER_TIMEOUT;
+        lintData.append(lintProcess.readAll());
     }
 
-    qDebug() << "lint readAll: " << lintProcess.readAll();
-    qDebug() << "lint stdout: " << lintProcess.readAllStandardOutput();
-    QString lintVersion = lintProcess.readAllStandardError();
-    qDebug() << "lint stderr: " << lintVersion;
-    qDebug() << "process error: " << lintProcess.error();
-    qDebug() << "process status: " << lintProcess.state();
+    qDebug() << lintData.data();
 
-
-    if (lintVersion != LINT_VERSION)
+    // Check linter version (if we can't determine the version then return error)
+  /*  if (lintVersion != LINT_VERSION)
     {
         return LINTER_EXECUTABLE_UNKNOWN;
-    }
-
-    // Try to generate an XML file
+    }*/
 
     // linterExecutablePath - Path to the linter executable (including)
     // linterFilePath       - Path to the actual lint file (including)
     // linterLintOptions    - Command line options to pass to the linter
     // linterDirectory      - The directory to lint (for now)
-
-    if (!lintProcess.waitForFinished(1000))
-    {
-        return LINTER_TIMEOUT;
-    }
 
     return LINTER_OK;
 }

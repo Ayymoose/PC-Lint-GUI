@@ -7,8 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>1024</width>
-    <height>768</height>
+    <height>900</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Notepad</string>
@@ -16,7 +22,154 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTextEdit" name="textEdit"/>
+     <widget class="QTextEdit" name="textEdit">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>1006</width>
+        <height>480</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>1006</width>
+        <height>480</height>
+       </size>
+      </property>
+      <property name="baseSize">
+       <size>
+        <width>320</width>
+        <height>240</height>
+       </size>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustIgnored</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTableWidget" name="tableWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>1006</width>
+        <height>207</height>
+       </size>
+      </property>
+      <property name="baseSize">
+       <size>
+        <width>1006</width>
+        <height>207</height>
+       </size>
+      </property>
+      <property name="mouseTracking">
+       <bool>true</bool>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+      <row>
+       <property name="text">
+        <string>Test</string>
+       </property>
+      </row>
+      <row>
+       <property name="text">
+        <string>Test 1</string>
+       </property>
+      </row>
+      <column>
+       <property name="text">
+        <string>Icon</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Code</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Message</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>File</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Line</string>
+       </property>
+      </column>
+      <item row="0" column="0">
+       <property name="text">
+        <string>Warning</string>
+       </property>
+      </item>
+      <item row="0" column="1">
+       <property name="text">
+        <string>500</string>
+       </property>
+      </item>
+      <item row="0" column="2">
+       <property name="text">
+        <string>Symbol 'fb_map' declared as &quot;C&quot; conflicts with line 181, file ..\src\vardefs.c</string>
+       </property>
+      </item>
+      <item row="0" column="3">
+       <property name="text">
+        <string>adc.c</string>
+       </property>
+      </item>
+      <item row="0" column="4">
+       <property name="text">
+        <string>60</string>
+       </property>
+      </item>
+      <item row="1" column="0">
+       <property name="text">
+        <string>Error</string>
+       </property>
+      </item>
+      <item row="1" column="1">
+       <property name="text">
+        <string>34</string>
+       </property>
+      </item>
+      <item row="1" column="2">
+       <property name="text">
+        <string>Error detected</string>
+       </property>
+      </item>
+      <item row="1" column="3">
+       <property name="text">
+        <string>source.c</string>
+       </property>
+      </item>
+      <item row="1" column="4">
+       <property name="text">
+        <string>342</string>
+       </property>
+      </item>
+     </widget>
     </item>
    </layout>
   </widget>
