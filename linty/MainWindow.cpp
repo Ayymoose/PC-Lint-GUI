@@ -88,6 +88,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Load any settings we have
     m_lintOptions.loadSettings();
+
+    // Load icons
+    m_icons.loadIcons();
 }
 
 MainWindow::~MainWindow()
@@ -235,6 +238,45 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
 {
     // Populate the table view with all the lint messages
 
+    // Clear all existing entries
+    m_ui->tableLint->clearContents();
+
+    for (const lintMessage& message : lintMessages)
+    {
+        QString code = message.code;
+        QString file = message.file;
+        QString line = message.line;
+        QString type = message.type;
+        QString description = message.description;
+
+        // Insert row
+        m_ui->tableLint->insertRow(m_ui->tableLint->rowCount());
+
+        // Set item data
+        QTableWidgetItem* typeWidget = new QTableWidgetItem;
+
+        if (type == "Error")
+        {
+            typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(*m_icons[ICON_ERROR]));
+            m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 0, typeWidget); // icon
+        }
+        else if (type == "Info")
+        {
+
+        }
+        else if (type == "Warning")
+        {
+
+        }
+
+        m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 1, new QTableWidgetItem(code));
+        m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 2, new QTableWidgetItem(description));
+        m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 3, new QTableWidgetItem(file));
+        m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 4, new QTableWidgetItem(line));
+    }
+
+    // Don't forget to free the memoryyyy
+
 }
 
 
@@ -301,7 +343,6 @@ void MainWindow::on_actionLint_triggered()
         break;
     case LINTER_OK:
         populateLintTable(lintMessages);
-        // Start populating the listview
         break;
     }
 }

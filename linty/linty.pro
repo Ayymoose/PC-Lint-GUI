@@ -5,6 +5,7 @@ qtHaveModule(printsupport): QT += printsupport xml
 requires(qtConfig(fontdialog))
 
 SOURCES += \
+    Icon.cpp \
     LintOptions.cpp \
     Linter.cpp \
     MainWindow.cpp \
@@ -12,6 +13,7 @@ SOURCES += \
     main.cpp
 
 HEADERS += \
+    Icon.h \
     LintOptions.h \
     Linter.h \
     MainWindow.h \

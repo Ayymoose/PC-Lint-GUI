@@ -106,7 +106,7 @@
        <bool>false</bool>
       </attribute>
       <attribute name="verticalHeaderVisible">
-       <bool>true</bool>
+       <bool>false</bool>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -114,31 +114,11 @@
       <attribute name="verticalHeaderStretchLastSection">
        <bool>false</bool>
       </attribute>
-      <row>
+      <column>
        <property name="text">
         <string/>
        </property>
-      </row>
-      <row>
-       <property name="text">
-        <string>New Row</string>
-       </property>
-      </row>
-      <row>
-       <property name="text">
-        <string>New Row</string>
-       </property>
-      </row>
-      <row>
-       <property name="text">
-        <string>New Row</string>
-       </property>
-      </row>
-      <row>
-       <property name="text">
-        <string>New Row</string>
-       </property>
-      </row>
+      </column>
       <column>
        <property name="text">
         <string>Code</string>
@@ -159,73 +139,6 @@
         <string>Line</string>
        </property>
       </column>
-      <item row="0" column="0">
-       <property name="text">
-        <string>500</string>
-       </property>
-       <property name="background">
-        <brush brushstyle="NoBrush">
-         <color alpha="255">
-          <red>128</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </property>
-      </item>
-      <item row="0" column="1">
-       <property name="text">
-        <string>Symbol 'fb_map' declared as &quot;C&quot; conflicts with line 181, file ..\src\vardefs.c</string>
-       </property>
-      </item>
-      <item row="0" column="2">
-       <property name="text">
-        <string>adc.c</string>
-       </property>
-      </item>
-      <item row="0" column="3">
-       <property name="text">
-        <string>60</string>
-       </property>
-      </item>
-      <item row="1" column="0">
-       <property name="text">
-        <string>600</string>
-       </property>
-       <property name="background">
-        <brush brushstyle="NoBrush">
-         <color alpha="255">
-          <red>255</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </property>
-       <property name="foreground">
-        <brush brushstyle="NoBrush">
-         <color alpha="255">
-          <red>0</red>
-          <green>170</green>
-          <blue>255</blue>
-         </color>
-        </brush>
-       </property>
-      </item>
-      <item row="1" column="1">
-       <property name="text">
-        <string>No explicit type given symbol 'PORT_t', int assumed</string>
-       </property>
-      </item>
-      <item row="1" column="2">
-       <property name="text">
-        <string>test.c</string>
-       </property>
-      </item>
-      <item row="1" column="3">
-       <property name="text">
-        <string>34</string>
-       </property>
-      </item>
      </widget>
     </item>
    </layout>

@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/info.png</file>
         <file>images/new.png</file>
         <file>images/open.png</file>
         <file>images/paste.png</file>
@@ -17,5 +16,8 @@
         <file>images/bold.png</file>
         <file>images/italic.png</file>
         <file>images/underline.png</file>
+        <file>images/error.png</file>
+        <file>images/warning.png</file>
+        <file>images/info.png</file>
     </qresource>
 </RCC>
