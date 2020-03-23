@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QProcess>
 #include <QXmlStreamReader>
-#include <QTranslator>
+#include "Log.h"
 #include <QFileInfo>
 
 // Currently only
@@ -15,17 +15,10 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
     // One of the inputs passed is empty or garbage
     // A non-lint executable was passed
 
-
-    // Test
-
-    //QString test = "D:\\Users\\Ayman\\Downloads\\thief_2_service_release\\thief_2_service_release\\rdrive\\prj\\thief2\\src\\DARK\\CRCUTTY.C";
-
-
     QProcess lintProcess;
-
-    lintProcess.setWorkingDirectory("D:/Users/Ayman/Desktop/MerlinEmbedded/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/lint/");
-
-   // lintProcess.setWorkingDirectory(QFileInfo(linterFilePath).canonicalPath());
+    qDebug() << "Setting working directory to: " << QFileInfo(linterFilePath).canonicalPath();
+    Log::log("Setting working directory to: " + QFileInfo(linterFilePath).canonicalPath());
+    lintProcess.setWorkingDirectory(QFileInfo(linterFilePath).canonicalPath());
     QStringList lintArguments;
 
     // This is the extra file we must pass into the linter to produce XML output
@@ -56,13 +49,19 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
     qDebug() << "";
     qDebug() << "Arguments: " << lintArguments;
 
+    Log::log("Lint path: " + linterExecutable);
+    Log::log("Lint file: " + linterFilePath);
+    Log::log("Lint directory: " + linterDirectory);
+    Log::log("Lint arguments: " + lintArguments.join(""));
+
     lintProcess.setProgram(linterExecutable);
     lintProcess.setArguments(lintArguments);
     lintProcess.start();
 
     if (!lintProcess.waitForStarted())
     {
-        return LINTER_TIMEOUT;
+        Log::log("### Failed to start lint executable because " + lintProcess.errorString());
+        return LINTER_FAIL;
     }
 
     QByteArray lintData;
@@ -78,6 +77,7 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
     // Check linter version (if we can't determine the version then return error)
     if (lintVersion != LINT_VERSION)
     {
+        Log::log("### Failed to start lint because version unsupported: " + QString(lintVersion));
         return LINTER_UNSUPPORTED_VERSION;
     }
 
@@ -142,6 +142,7 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
     if(lintXML.hasError())
     {
         qDebug() << lintXML.errorString();
+        Log::log("### Failed to parse XML because " + lintXML.errorString());
         return LINTER_ERROR;
     }
 

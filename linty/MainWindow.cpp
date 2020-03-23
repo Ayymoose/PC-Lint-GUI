@@ -347,8 +347,8 @@ void MainWindow::on_actionLint_triggered()
     case LINTER_UNSUPPORTED_VERSION:
         QMessageBox::critical(this,"Error", "Unsupported lint version: '" + linterExecutable + "'");
         break;
-    case LINTER_TIMEOUT:
-        QMessageBox::critical(this,"Error", "Timed out running lint executable: '" + linterExecutable + "'");
+    case LINTER_FAIL:
+        QMessageBox::critical(this,"Error", "Failed to run lint executable: '" + linterExecutable + "'");
         break;
     case LINTER_ERROR:
         QMessageBox::critical(this,"Error", "Linter encountered an error!");

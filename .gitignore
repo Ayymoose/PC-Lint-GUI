@@ -1,6 +1,8 @@
+linty/Debug/*
+linty/Release/*
 build
-linty/Debug/
-linty/Release/
+*.rar
+*.7z
 *.dll
 *.o
 *.exe
