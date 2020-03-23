@@ -1,4 +1,6 @@
-linty\Debug\*
-linty\Release\*
+build
+linty/Debug/
+linty/Release/
+*.dll
 *.o
 *.exe
