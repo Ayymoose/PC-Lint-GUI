@@ -69,6 +69,11 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
+
+    QFont font = this->document()->defaultFont();
+    font.setFamily("Consolas");
+    font.setPixelSize(16);
+    this->document()->setDefaultFont(font);
 }
 
 void CodeEditor::setLineNumberAreaColour(const QColor& colour)
