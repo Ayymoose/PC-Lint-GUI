@@ -1,0 +1,4 @@
+linty\Debug\*
+linty\Release\*
+*.o
+*.exe
