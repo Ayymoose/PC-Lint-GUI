@@ -145,7 +145,6 @@ selection-color: rgb(0, 0, 0);</string>
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="actionSave_as"/>
@@ -153,10 +152,7 @@ selection-color: rgb(0, 0, 0);</string>
    <addaction name="actionCopy"/>
    <addaction name="actionCut"/>
    <addaction name="actionPaste"/>
-   <addaction name="actionUndo"/>
-   <addaction name="actionRedo"/>
    <addaction name="separator"/>
-   <addaction name="actionFont"/>
    <addaction name="separator"/>
    <addaction name="actionAbout"/>
    <addaction name="separator"/>

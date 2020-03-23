@@ -71,7 +71,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // Turn UI into actual objects
     m_ui->setupUi(this);
 
-    connect(m_ui->actionNew, &QAction::triggered, this, &MainWindow::newDocument);
     connect(m_ui->actionOpen, &QAction::triggered, this, &MainWindow::open);
     connect(m_ui->actionSave, &QAction::triggered, this, &MainWindow::save);
     connect(m_ui->actionSave_as, &QAction::triggered, this, &MainWindow::saveAs);
@@ -79,9 +78,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->actionCopy, &QAction::triggered, this, &MainWindow::copy);
     connect(m_ui->actionCut, &QAction::triggered, this, &MainWindow::cut);
     connect(m_ui->actionPaste, &QAction::triggered, this, &MainWindow::paste);
-    connect(m_ui->actionUndo, &QAction::triggered, this, &MainWindow::undo);
-    connect(m_ui->actionRedo, &QAction::triggered, this, &MainWindow::redo);
-    connect(m_ui->actionFont, &QAction::triggered, this, &MainWindow::selectFont);
     connect(m_ui->actionAbout, &QAction::triggered, this, &MainWindow::about);
 
     // Load any settings we have
@@ -121,11 +117,6 @@ void MainWindow::configureLintTable()
 MainWindow::~MainWindow()
 {
     delete m_ui;
-}
-
-void MainWindow::newDocument()
-{
-   // m_ui->textEdit->setText(QString());
 }
 
 void MainWindow::open()
@@ -172,11 +163,6 @@ void MainWindow::saveAs()
     file.close();*/
 }
 
-void MainWindow::print()
-{
-
-}
-
 void MainWindow::exit()
 {
     QCoreApplication::quit();
@@ -195,24 +181,6 @@ void MainWindow::cut()
 void MainWindow::paste()
 {
 
-}
-
-void MainWindow::undo()
-{
-   //  m_ui->textEdit->undo();
-}
-
-void MainWindow::redo()
-{
-   // m_ui->textEdit->redo();
-}
-
-void MainWindow::selectFont()
-{
-    /*bool fontSelected;
-    QFont font = QFontDialog::getFont(&fontSelected, this);
-    if (fontSelected)
-        m_ui->textEdit->setFont(font);*/
 }
 
 void MainWindow::about()

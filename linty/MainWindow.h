@@ -74,20 +74,13 @@ public:
 
     ~MainWindow();
 
-signals:
-
-    void updateCE();
-
 private slots:
-    void newDocument();
 
     void open();
 
     void save();
 
     void saveAs();
-
-    void print();
 
     void exit();
 
@@ -96,12 +89,6 @@ private slots:
     void cut();
 
     void paste();
-
-    void undo();
-
-    void redo();
-
-    void selectFont();
 
     void about();
 
