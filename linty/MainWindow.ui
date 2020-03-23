@@ -149,7 +149,6 @@ selection-color: rgb(0, 0, 0);</string>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="actionSave_as"/>
-   <addaction name="actionPrint"/>
    <addaction name="separator"/>
    <addaction name="actionCopy"/>
    <addaction name="actionCut"/>
@@ -158,9 +157,6 @@ selection-color: rgb(0, 0, 0);</string>
    <addaction name="actionRedo"/>
    <addaction name="separator"/>
    <addaction name="actionFont"/>
-   <addaction name="actionBold"/>
-   <addaction name="actionItalic"/>
-   <addaction name="actionUnderline"/>
    <addaction name="separator"/>
    <addaction name="actionAbout"/>
    <addaction name="separator"/>
@@ -331,7 +327,7 @@ selection-color: rgb(0, 0, 0);</string>
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="linty.qrc">
+    <iconset>
      <normaloff>:/images/italic.png</normaloff>:/images/italic.png</iconset>
    </property>
    <property name="text">
@@ -349,7 +345,7 @@ selection-color: rgb(0, 0, 0);</string>
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="linty.qrc">
+    <iconset>
      <normaloff>:/images/bold.png</normaloff>:/images/bold.png</iconset>
    </property>
    <property name="text">
@@ -367,7 +363,7 @@ selection-color: rgb(0, 0, 0);</string>
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="linty.qrc">
+    <iconset>
      <normaloff>:/images/underline.png</normaloff>:/images/underline.png</iconset>
    </property>
    <property name="text">

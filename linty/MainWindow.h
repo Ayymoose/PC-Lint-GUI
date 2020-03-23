@@ -102,14 +102,7 @@ private slots:
 
     void selectFont();
 
-    void setFontBold(bool bold);
-
-    void setFontUnderline(bool underline);
-
-    void setFontItalic(bool italic);
-
     void about();
-
 
     void on_actionLint_options_triggered();
 

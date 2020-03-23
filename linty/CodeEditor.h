@@ -52,6 +52,12 @@
 #define CODEEDITOR_H
 
 #include <QPlainTextEdit>
+#include <QColor>
+
+
+
+#define LINE_NUMBER_AREA_COLOUR QColor(240,240,240)
+#define LINE_CURRENT_BACKGROUND_COLOUR QColor(252,249,241)
 
 QT_BEGIN_NAMESPACE
 class QPaintEvent;
@@ -73,6 +79,8 @@ public:
     int lineNumberAreaWidth();
     void loadFile(const QString& file);
     void selectLine(uint32_t line);
+    void setLineNumberAreaColour(const QColor& colour);
+    void setLineNumberBackgroundColour(const QColor& colour);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -86,6 +94,8 @@ private slots:
 
 private:
     QWidget *m_lineNumberArea;
+    QColor m_lineNumberAreaColour;
+    QColor m_lineNumberBackgroundColour;
 };
 
 class LineNumberArea : public QWidget

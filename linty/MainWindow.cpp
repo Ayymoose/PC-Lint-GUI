@@ -82,9 +82,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->actionUndo, &QAction::triggered, this, &MainWindow::undo);
     connect(m_ui->actionRedo, &QAction::triggered, this, &MainWindow::redo);
     connect(m_ui->actionFont, &QAction::triggered, this, &MainWindow::selectFont);
-    connect(m_ui->actionBold, &QAction::triggered, this, &MainWindow::setFontBold);
-    connect(m_ui->actionUnderline, &QAction::triggered, this, &MainWindow::setFontUnderline);
-    connect(m_ui->actionItalic, &QAction::triggered, this, &MainWindow::setFontItalic);
     connect(m_ui->actionAbout, &QAction::triggered, this, &MainWindow::about);
 
     // Load any settings we have
@@ -95,6 +92,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Configure the lint table
     configureLintTable();
+
+    // Configure the code editor
+    m_ui->codeEditor->setLineNumberAreaColour(LINE_NUMBER_AREA_COLOUR);
+    m_ui->codeEditor->setLineNumberBackgroundColour(LINE_CURRENT_BACKGROUND_COLOUR);
 }
 
 void MainWindow::configureLintTable()
@@ -208,22 +209,6 @@ void MainWindow::selectFont()
     QFont font = QFontDialog::getFont(&fontSelected, this);
     if (fontSelected)
         m_ui->textEdit->setFont(font);*/
-}
-
-void MainWindow::setFontUnderline(bool underline)
-{
-    //m_ui->textEdit->setFontUnderline(underline);
-}
-
-void MainWindow::setFontItalic(bool italic)
-{
-  //  m_ui->textEdit->setFontItalic(italic);
-}
-
-void MainWindow::setFontBold(bool bold)
-{
-    /*bold ? m_ui->textEdit->setFontWeight(QFont::Bold) :
-           m_ui->textEdit->setFontWeight(QFont::Normal);*/
 }
 
 void MainWindow::about()

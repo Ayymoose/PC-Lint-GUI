@@ -60,16 +60,25 @@
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
     m_lineNumberArea = new LineNumberArea(this);
+    m_lineNumberAreaColour = LINE_NUMBER_AREA_COLOUR;
+    m_lineNumberBackgroundColour = LINE_CURRENT_BACKGROUND_COLOUR;
 
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
     connect(this, &CodeEditor::updateRequest, this, &CodeEditor::updateLineNumberArea);
     connect(this, &CodeEditor::cursorPositionChanged, this, &CodeEditor::highlightCurrentLine);
 
     updateLineNumberAreaWidth(0);
-
     highlightCurrentLine();
+}
 
+void CodeEditor::setLineNumberAreaColour(const QColor& colour)
+{
+    m_lineNumberAreaColour = colour;
+}
 
+void CodeEditor::setLineNumberBackgroundColour(const QColor& colour)
+{
+    m_lineNumberBackgroundColour = colour;
 }
 
 // Loads a file into the editor
@@ -149,9 +158,7 @@ void CodeEditor::highlightCurrentLine()
     {
         QTextEdit::ExtraSelection selection;
 
-        QColor lineColor = QColor(Qt::yellow).lighter(160);
-
-        selection.format.setBackground(lineColor);
+        selection.format.setBackground(m_lineNumberBackgroundColour);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
         selection.cursor = textCursor();
         selection.cursor.clearSelection();
@@ -165,7 +172,7 @@ void CodeEditor::highlightCurrentLine()
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
     QPainter painter(m_lineNumberArea);
-    painter.fillRect(event->rect(), Qt::lightGray);
+    painter.fillRect(event->rect(), m_lineNumberAreaColour);
 
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();
