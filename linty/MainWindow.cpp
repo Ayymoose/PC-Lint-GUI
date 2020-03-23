@@ -334,18 +334,21 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
 
     QString fileToLoad = item->data(Qt::UserRole).value<QString>();
 
-    qDebug() << "Loading file: " << fileToLoad;
+    if (!fileToLoad.isEmpty())
+    {
+        qDebug() << "Loading file: " << fileToLoad;
 
-    // Load the file into the code editor
-    m_ui->codeEditor->loadFile(fileToLoad);
+        // Load the file into the code editor
+        m_ui->codeEditor->loadFile(fileToLoad);
 
-    // Select the line number
-    item = m_ui->lintTable->item(row,4);
-    uint32_t lineNumber = item->text().toUInt();
-    m_ui->codeEditor->selectLine(lineNumber);
+        // Select the line number
+        item = m_ui->lintTable->item(row,4);
+        uint32_t lineNumber = item->text().toUInt();
+        m_ui->codeEditor->selectLine(lineNumber);
 
-    // Update the status bar
-    m_ui->statusBar->showMessage("Loaded " + fileToLoad);
+        // Update the status bar
+        m_ui->statusBar->showMessage("Loaded " + fileToLoad);
+    }
 
 }
 
