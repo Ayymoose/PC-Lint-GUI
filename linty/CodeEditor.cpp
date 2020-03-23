@@ -106,7 +106,7 @@ int CodeEditor::lineNumberAreaWidth()
         ++digits;
     }
 
-    int space = 3 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
+    int space = 8 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
 
     return space;
 }
@@ -185,7 +185,7 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
         {
             QString number = QString::number(blockNumber + 1);
             painter.setPen(Qt::black);
-            painter.drawText(0, top, m_lineNumberArea->width(), fontMetrics().height(),Qt::AlignRight, number);
+            painter.drawText(0, top, m_lineNumberArea->width(), fontMetrics().height(),Qt::AlignLeft, number);
         }
 
         block = block.next();
