@@ -167,20 +167,22 @@ void CodeEditor::selectLine(uint32_t line)
     QTextCursor cursor(this->document()->findBlockByLineNumber(line-1));
     this->setTextCursor(cursor);
 
-    // Attempt to center scroll bar on selected line
+    // Center scroll bar on selected line
     uint32_t height = this->height();
-    uint32_t rows = height / 19; // 19 is the row height
-    int currentVerticalPosition = this->verticalScrollBar()->value();
-    int center;
-    if (rows % line < rows/2)
+    uint32_t rows = height / 19;
+    uint32_t bottom = this->verticalScrollBar()->value();
+    uint32_t top = bottom + rows;
+    // Determine if if in top half or bottom half
+    if (line > bottom + rows/2)
     {
-        center = rows/2 - ((currentVerticalPosition + rows) - line);
+        bottom += (rows/2 - (top - line));
     }
     else
     {
-        center = line + ((currentVerticalPosition + rows) - line);
+        bottom -= (rows/2 - (line - bottom));
     }
-    this->verticalScrollBar()->setValue(center);
+
+    this->verticalScrollBar()->setValue(bottom);
 }
 
 
