@@ -107,7 +107,6 @@ private:
 
     void populateLintTable(const QList<lintMessage>& lintMessages);
     void configureLintTable();
-
 };
 
 #endif // MAINWINDOW_H

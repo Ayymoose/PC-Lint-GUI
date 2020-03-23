@@ -50,7 +50,6 @@ void LintOptions::loadSettings()
     m_ui->lintOptionsInputText->setText(keyValues["LINT_COMMANDS"]); // Lint commands
     m_ui->sourceFileInputText->setText(keyValues["LINT_SOURCE"]); // Lint source
 
-    //qDebug() << keyValues;
 }
 
 
@@ -81,8 +80,14 @@ void LintOptions::on_buttonBox_accepted()
     Settings::writeINI("LINT_COMMANDS", m_ui->lintOptionsInputText->text()); // Lint commands
     Settings::writeINI("LINT_SOURCE", m_ui->sourceFileInputText->text()); // Lint source
 
-    Log::log("test write");
-
+    // Save last opened directory in case we need it
+  /*  QDir directory;
+    directory.setPath(m_ui->lintInputText->text());
+    if (directory.exists())
+    {
+        Settings::writeINI("LINT_LAST_OPENED_DIRECTORY", m_ui->sourceFileInputText->text()); // Lint source
+    }
+*/
     this->close();
 }
 

@@ -55,6 +55,7 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QApplication>
+#include <QScrollBar>
 #include "Log.h"
 
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
@@ -165,6 +166,21 @@ void CodeEditor::selectLine(uint32_t line)
     // line-1 because line number starts from 0
     QTextCursor cursor(this->document()->findBlockByLineNumber(line-1));
     this->setTextCursor(cursor);
+
+    // Attempt to center scroll bar on selected line
+    uint32_t height = this->height();
+    uint32_t rows = height / 19; // 19 is the row height
+    int currentVerticalPosition = this->verticalScrollBar()->value();
+    int center;
+    if (rows % line < rows/2)
+    {
+        center = rows/2 - ((currentVerticalPosition + rows) - line);
+    }
+    else
+    {
+        center = line + ((currentVerticalPosition + rows) - line);
+    }
+    this->verticalScrollBar()->setValue(center);
 }
 
 
