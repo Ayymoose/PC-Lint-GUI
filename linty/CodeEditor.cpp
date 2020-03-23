@@ -91,6 +91,11 @@ CodeEditor::~CodeEditor()
     delete m_lineNumberArea;
 }
 
+QString CodeEditor::loadedFile() const
+{
+    return m_currentFile;
+}
+
 // Loads a file into the editor
 void CodeEditor::loadFile(const QString& filename)
 {
@@ -100,6 +105,7 @@ void CodeEditor::loadFile(const QString& filename)
       QMessageBox::critical(this, "Error", "Cannot open file: " + file.errorString());
       return;
     }
+    m_currentFile = filename;
     QTextStream in(&file);
     QString text = in.readAll();
     this->setPlainText(text);

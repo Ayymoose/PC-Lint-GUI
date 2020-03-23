@@ -82,6 +82,7 @@ public:
     void selectLine(uint32_t line);
     void setLineNumberAreaColour(const QColor& colour);
     void setLineNumberBackgroundColour(const QColor& colour);
+    QString loadedFile() const;
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -97,6 +98,7 @@ private:
     QWidget *m_lineNumberArea;
     QColor m_lineNumberAreaColour;
     QColor m_lineNumberBackgroundColour;
+    QString m_currentFile;
 };
 
 class LineNumberArea : public QWidget

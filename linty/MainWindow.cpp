@@ -73,7 +73,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(m_ui->actionOpen, &QAction::triggered, this, &MainWindow::open);
     connect(m_ui->actionSave, &QAction::triggered, this, &MainWindow::save);
-    connect(m_ui->actionSave_as, &QAction::triggered, this, &MainWindow::saveAs);
     connect(m_ui->actionExit, &QAction::triggered, this, &MainWindow::exit);
     connect(m_ui->actionCopy, &QAction::triggered, this, &MainWindow::copy);
     connect(m_ui->actionCut, &QAction::triggered, this, &MainWindow::cut);
@@ -126,41 +125,23 @@ void MainWindow::open()
 
 void MainWindow::save()
 {
-   /* QString fileName;
-    // If we don't have a filename from before, get one.
-    if (currentFile.isEmpty()) {
-        fileName = QFileDialog::getSaveFileName(this, "Save");
-        currentFile = fileName;
-    } else {
-        fileName = currentFile;
-    }
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(this, "Warning", "Cannot save file: " + file.errorString());
-        return;
-    }
-    setWindowTitle(fileName);
-    QTextStream out(&file);
-    QString text = m_ui->textEdit->toPlainText();
-    out << text;
-    file.close();*/
-}
+    QString currentFile = m_ui->codeEditor->loadedFile();
+    // If we have a loaded file then save it
+    if (!currentFile.isEmpty())
+    {
+        QFile file(currentFile);
+        if (!file.open(QIODevice::WriteOnly | QFile::Text))
+        {
+            QMessageBox::critical(this, "Error", "Cannot save file: " + file.errorString());
+            return;
+        }
+        QTextStream out(&file);
+        QString text = m_ui->codeEditor->toPlainText();
+        out << text;
+        file.close();
 
-void MainWindow::saveAs()
-{
-  /*  QString fileName = QFileDialog::getSaveFileName(this, "Save as");
-    QFile file(fileName);
-
-    if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(this, "Warning", "Cannot save file: " + file.errorString());
-        return;
+        m_ui->statusBar->showMessage("Saved " + currentFile);
     }
-    currentFile = fileName;
-    setWindowTitle(fileName);
-    QTextStream out(&file);
-    QString text = m_ui->textEdit->toPlainText();
-    out << text;
-    file.close();*/
 }
 
 void MainWindow::exit()
@@ -355,7 +336,7 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int column)
         m_ui->codeEditor->selectLine(lineNumber);
 
         // Update the status bar
-        m_ui->statusBar->showMessage(fileToLoad);
+        m_ui->statusBar->showMessage("Loaded " + fileToLoad);
 
     }
 }

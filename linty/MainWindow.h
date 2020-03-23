@@ -80,8 +80,6 @@ private slots:
 
     void save();
 
-    void saveAs();
-
     void exit();
 
     void copy();
