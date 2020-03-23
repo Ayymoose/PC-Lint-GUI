@@ -86,6 +86,11 @@ void CodeEditor::setLineNumberBackgroundColour(const QColor& colour)
     m_lineNumberBackgroundColour = colour;
 }
 
+CodeEditor::~CodeEditor()
+{
+    delete m_lineNumberArea;
+}
+
 // Loads a file into the editor
 void CodeEditor::loadFile(const QString& filename)
 {
@@ -111,7 +116,7 @@ int CodeEditor::lineNumberAreaWidth()
         ++digits;
     }
 
-    int space = 8 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
+    int space = 16 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
 
     return space;
 }
@@ -150,7 +155,8 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 
 void CodeEditor::selectLine(uint32_t line)
 {
-    QTextCursor cursor(this->document()->findBlockByLineNumber(line-1)); // ln-1 because line number starts from 0
+    // line-1 because line number starts from 0
+    QTextCursor cursor(this->document()->findBlockByLineNumber(line-1));
     this->setTextCursor(cursor);
 }
 
@@ -179,6 +185,10 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     QPainter painter(m_lineNumberArea);
     painter.fillRect(event->rect(), m_lineNumberAreaColour);
 
+    QFont font("Consolas");
+    font.setPixelSize(16);
+    painter.setFont(font);
+
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();
     int top = qRound(blockBoundingGeometry(block).translated(contentOffset()).top());
@@ -190,7 +200,7 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
         {
             QString number = QString::number(blockNumber + 1);
             painter.setPen(Qt::black);
-            painter.drawText(0, top, m_lineNumberArea->width(), fontMetrics().height(),Qt::AlignLeft, number);
+            painter.drawText(0, top, m_lineNumberArea->width(), fontMetrics().height()+4,Qt::AlignLeft, number);
         }
 
         block = block.next();

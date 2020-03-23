@@ -102,7 +102,6 @@ private:
     Ui::MainWindow *m_ui;
     LintOptions m_lintOptions;
     Icon m_icons;
-    CodeEditor m_codeEditor;
     Linter m_linter;
     Highlighter* m_highlighter;
 

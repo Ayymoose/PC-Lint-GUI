@@ -117,6 +117,7 @@ void MainWindow::configureLintTable()
 MainWindow::~MainWindow()
 {
     delete m_ui;
+    delete m_highlighter;
 }
 
 void MainWindow::open()
