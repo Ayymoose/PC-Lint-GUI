@@ -95,7 +95,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     m_highlighter = new Highlighter(m_ui->codeEditor->document());
-
 }
 
 void MainWindow::configureLintTable()
@@ -342,14 +341,21 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int column)
     {
         // Get the file
         QTableWidgetItem* item = m_ui->lintTable->item(row,column+1);
-        qDebug() << "Loading file: " << m_linter.getLintingDirectory() + "/" + item->text();
+
+        QString fileToLoad = m_linter.getLintingDirectory() + "/" + item->text();
+
+        qDebug() << "Loading file: " << fileToLoad;
 
         // Load the file into the code editor
-        m_ui->codeEditor->loadFile(m_linter.getLintingDirectory() + "/" + item->text());
+        m_ui->codeEditor->loadFile(fileToLoad);
 
         // Select the line
         item = m_ui->lintTable->item(row,column+2);
         uint32_t lineNumber = item->text().toUInt();
         m_ui->codeEditor->selectLine(lineNumber);
+
+        // Update the status bar
+        m_ui->statusBar->showMessage(fileToLoad);
+
     }
 }
