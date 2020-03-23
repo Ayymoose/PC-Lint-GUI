@@ -6,6 +6,7 @@ requires(qtConfig(fontdialog))
 
 SOURCES += \
     CodeEditor.cpp \
+    Highlighter.cpp \
     Icon.cpp \
     LintOptions.cpp \
     Linter.cpp \
@@ -16,6 +17,7 @@ SOURCES += \
 
 HEADERS += \
     CodeEditor.h \
+    Highlighter.h \
     Icon.h \
     LintOptions.h \
     Linter.h \

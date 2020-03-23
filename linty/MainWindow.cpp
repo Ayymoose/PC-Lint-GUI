@@ -96,6 +96,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // Configure the code editor
     m_ui->codeEditor->setLineNumberAreaColour(LINE_NUMBER_AREA_COLOUR);
     m_ui->codeEditor->setLineNumberBackgroundColour(LINE_CURRENT_BACKGROUND_COLOUR);
+
+
+    m_highlighter = new Highlighter(m_ui->codeEditor->document());
+
 }
 
 void MainWindow::configureLintTable()

@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the documentation of the Qt Toolkit.
+** This file is part of the examples of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** Commercial License Usage
@@ -47,81 +47,47 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
 
-#include <QMainWindow>
+#ifndef HIGHLIGHTER_H
+#define HIGHLIGHTER_H
 
-#include "LintOptions.h"
-#include "Linter.h"
-#include "Icon.h"
-#include "Log.h"
-#include "CodeEditor.h"
-#include "Highlighter.h"
+#include <QSyntaxHighlighter>
+#include <QTextCharFormat>
+#include <QRegularExpression>
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
+class QTextDocument;
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
+//! [0]
+class Highlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    Highlighter(QTextDocument *parent = 0);
 
-    ~MainWindow();
-
-signals:
-
-    void updateCE();
-
-private slots:
-    void newDocument();
-
-    void open();
-
-    void save();
-
-    void saveAs();
-
-    void print();
-
-    void exit();
-
-    void copy();
-
-    void cut();
-
-    void paste();
-
-    void undo();
-
-    void redo();
-
-    void selectFont();
-
-    void about();
-
-    void on_actionLint_options_triggered();
-
-    void on_actionLint_triggered();
-
-    void on_lintTable_cellDoubleClicked(int row, int column);
+protected:
+    void highlightBlock(const QString &text) override;
 
 private:
-    Ui::MainWindow *m_ui;
-    LintOptions m_lintOptions;
-    Icon m_icons;
-    CodeEditor m_codeEditor;
-    Linter m_linter;
-    Highlighter* m_highlighter;
+    struct HighlightingRule
+    {
+        QRegularExpression pattern;
+        QTextCharFormat format;
+    };
+    QVector<HighlightingRule> highlightingRules;
 
-    void populateLintTable(const QList<lintMessage>& lintMessages);
-    void configureLintTable();
+    QRegularExpression commentStartExpression;
+    QRegularExpression commentEndExpression;
 
+    QTextCharFormat keywordFormat;
+    QTextCharFormat classFormat;
+    QTextCharFormat singleLineCommentFormat;
+    QTextCharFormat multiLineCommentFormat;
+    QTextCharFormat quotationFormat;
+    QTextCharFormat functionFormat;
 };
+//! [0]
 
-#endif // MAINWINDOW_H
+#endif // HIGHLIGHTER_H
