@@ -260,6 +260,16 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
 
 
     QTableWidget* lintTable = m_ui->lintTable;
+
+    for (int row=0; row<lintTable->rowCount(); row++)
+    {
+        for (int col=0; col<lintTable->columnCount(); col++)
+        {
+            QTableWidgetItem* item = lintTable->item(row,col);
+            delete item;
+        }
+    }
+
     lintTable->clearContents();
     lintTable->setRowCount(0);
 
@@ -277,15 +287,30 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
         // Set item data
         QTableWidgetItem* typeWidget = new QTableWidgetItem;
 
-        QImage* icon = m_icons[ICON_ERROR];
+        QImage* icon = nullptr;
+
+        if (type == TYPE_ERROR)
+        {
+            icon = m_icons[ICON_ERROR];
+        }
+        else if (type == TYPE_WARNING)
+        {
+            icon = m_icons[ICON_WARNING];
+        }
+        else if (type == TYPE_INFORMATION)
+        {
+            icon = m_icons[ICON_INFORMATION];
+        }
+        else
+        {
+            qDebug() << "Unknown type encountered";
+        }
+
         Q_ASSERT(icon != nullptr);
 
         typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(*icon));
         lintTable->setItem( lintTable->rowCount()-1, 0, typeWidget);
-
         lintTable->setItem( lintTable->rowCount()-1, 1, new QTableWidgetItem(code));
-
-
         lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem(description));
         lintTable->setItem( lintTable->rowCount()-1, 3, new QTableWidgetItem(QFileInfo(file).fileName()));
         lintTable->setItem( lintTable->rowCount()-1, 4, new QTableWidgetItem(line));
