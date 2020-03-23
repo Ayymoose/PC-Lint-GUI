@@ -58,6 +58,7 @@
 #include "LintOptions.h"
 #include "Linter.h"
 #include "Icon.h"
+#include "Log.h"
 //! [1]
 
 //! [2]

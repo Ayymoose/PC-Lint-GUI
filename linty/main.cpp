@@ -51,10 +51,14 @@
 #include "MainWindow.h"
 #include <QApplication>
 #include <QScreen>
+#include "Log.h"
 
 int main(int argc, char *argv[])
 {
     QApplication EditorApp(argc, argv);
+
+
+    Log::createLogFile(LOG_FILENAME);
 
     MainWindow Editor;
 

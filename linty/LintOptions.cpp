@@ -4,6 +4,7 @@
 #include <QSettings>
 #include <QDebug>
 #include "Settings.h"
+#include "Log.h"
 
 LintOptions::LintOptions(QWidget *parent) :
     QDialog(parent),
@@ -79,6 +80,8 @@ void LintOptions::on_buttonBox_accepted()
     Settings::writeINI("LINT_FILE", m_ui->lintFileInputText->text()); // The path to the lint file (including the file itself)
     Settings::writeINI("LINT_COMMANDS", m_ui->lintOptionsInputText->text()); // Lint commands
     Settings::writeINI("LINT_SOURCE", m_ui->sourceFileInputText->text()); // Lint source
+
+    Log::log("test write");
 
     this->close();
 }

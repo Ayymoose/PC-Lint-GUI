@@ -8,6 +8,7 @@ SOURCES += \
     Icon.cpp \
     LintOptions.cpp \
     Linter.cpp \
+    Log.cpp \
     MainWindow.cpp \
     Settings.cpp \
     main.cpp
@@ -16,6 +17,7 @@ HEADERS += \
     Icon.h \
     LintOptions.h \
     Linter.h \
+    Log.h \
     MainWindow.h \
     Settings.h
 
