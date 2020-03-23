@@ -58,6 +58,7 @@
 #include <QMessageBox>
 #include <QDir>
 #include <QFileInfo>
+#include <QVariant>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
@@ -213,6 +214,16 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
 
         // Set item data
         QTableWidgetItem* typeWidget = new QTableWidgetItem;
+        QTableWidgetItem* codeWidget = new QTableWidgetItem;
+        QTableWidgetItem* lineWidget = new QTableWidgetItem;
+        QTableWidgetItem* fileWidget = new QTableWidgetItem();
+
+        codeWidget->setData(Qt::DisplayRole,code.toUInt());
+        lineWidget->setData(Qt::DisplayRole,line.toUInt());
+
+        fileWidget->setData(Qt::DisplayRole, QFileInfo(file).fileName());
+        fileWidget->setData(Qt::UserRole, file);
+
 
         QImage* icon = nullptr;
 
@@ -236,11 +247,12 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
         Q_ASSERT(icon != nullptr);
 
         typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(*icon));
+
         lintTable->setItem( lintTable->rowCount()-1, 0, typeWidget);
-        lintTable->setItem( lintTable->rowCount()-1, 1, new QTableWidgetItem(code));
+        lintTable->setItem( lintTable->rowCount()-1, 1, codeWidget);
         lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem(description));
-        lintTable->setItem( lintTable->rowCount()-1, 3, new QTableWidgetItem(QFileInfo(file).fileName()));
-        lintTable->setItem( lintTable->rowCount()-1, 4, new QTableWidgetItem(line));
+        lintTable->setItem( lintTable->rowCount()-1, 3, fileWidget);
+        lintTable->setItem( lintTable->rowCount()-1, 4, lineWidget);
     }
 
     // Don't forget to free the memoryyyy
@@ -314,28 +326,36 @@ void MainWindow::on_actionLint_triggered()
     }
 }
 
-void MainWindow::on_lintTable_cellDoubleClicked(int row, int column)
+void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
 {
-    // If we click on the message column
-    if (column == 2)
-    {
-        // Get the file
-        QTableWidgetItem* item = m_ui->lintTable->item(row,column+1);
+    // Get the file
+    // Column 3 is just the file name
+    QTableWidgetItem* item = m_ui->lintTable->item(row,3);
 
-        QString fileToLoad = m_linter.getLintingDirectory() + "/" + item->text();
+    QString fileToLoad = item->data(Qt::UserRole).value<QString>();
 
-        qDebug() << "Loading file: " << fileToLoad;
+    qDebug() << "Loading file: " << fileToLoad;
 
-        // Load the file into the code editor
-        m_ui->codeEditor->loadFile(fileToLoad);
+    // Load the file into the code editor
+    m_ui->codeEditor->loadFile(fileToLoad);
 
-        // Select the line
-        item = m_ui->lintTable->item(row,column+2);
-        uint32_t lineNumber = item->text().toUInt();
-        m_ui->codeEditor->selectLine(lineNumber);
+    // Select the line number
+    item = m_ui->lintTable->item(row,4);
+    uint32_t lineNumber = item->text().toUInt();
+    m_ui->codeEditor->selectLine(lineNumber);
 
-        // Update the status bar
-        m_ui->statusBar->showMessage("Loaded " + fileToLoad);
+    // Update the status bar
+    m_ui->statusBar->showMessage("Loaded " + fileToLoad);
 
-    }
+}
+
+void MainWindow::on_actionLint_project_triggered()
+{
+    // Lint a project
+
+    // Currently only Atmel Studio 7 project supported
+
+    // Parse solution XML file
+    // Build source file lists
+    // Pass to linter
 }

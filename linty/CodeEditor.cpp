@@ -55,7 +55,7 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QApplication>
-
+#include "Log.h"
 
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
@@ -103,6 +103,7 @@ void CodeEditor::loadFile(const QString& filename)
     if (!file.open(QIODevice::ReadOnly | QFile::Text))
     {
       QMessageBox::critical(this, "Error", "Cannot open file: " + file.errorString());
+      Log::log("### Cannot open file '" + filename + "' because of " + file.errorString());
       return;
     }
     m_currentFile = filename;

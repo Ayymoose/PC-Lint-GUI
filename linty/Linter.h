@@ -2,6 +2,7 @@
 #define LINTER_H
 
 #include <QString>
+#include <QMetaType>
 
 enum LINTER_STATUS
 {

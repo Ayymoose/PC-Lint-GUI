@@ -132,6 +132,7 @@ selection-color: rgb(0, 0, 0);</string>
     </property>
     <addaction name="separator"/>
     <addaction name="actionLint"/>
+    <addaction name="actionLint_project"/>
     <addaction name="actionLint_options"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -256,6 +257,11 @@ selection-color: rgb(0, 0, 0);</string>
   <action name="actionLint_options">
    <property name="text">
     <string>Lint options</string>
+   </property>
+  </action>
+  <action name="actionLint_project">
+   <property name="text">
+    <string>Lint project</string>
    </property>
   </action>
  </widget>

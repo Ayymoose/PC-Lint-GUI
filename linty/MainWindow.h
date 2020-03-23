@@ -96,6 +96,8 @@ private slots:
 
     void on_lintTable_cellDoubleClicked(int row, int column);
 
+    void on_actionLint_project_triggered();
+
 private:
     Ui::MainWindow *m_ui;
     LintOptions m_lintOptions;
