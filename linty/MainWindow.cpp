@@ -77,7 +77,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->actionCopy, &QAction::triggered, this, &MainWindow::copy);
     connect(m_ui->actionCut, &QAction::triggered, this, &MainWindow::cut);
     connect(m_ui->actionPaste, &QAction::triggered, this, &MainWindow::paste);
-    connect(m_ui->actionAbout, &QAction::triggered, this, &MainWindow::about);
 
     // Load any settings we have
     m_lintOptions.loadSettings();
