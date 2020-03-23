@@ -52,6 +52,9 @@
 
 #include <QPainter>
 #include <QTextBlock>
+#include <QMessageBox>
+#include <QTextStream>
+#include <QApplication>
 
 
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
@@ -63,7 +66,25 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     connect(this, &CodeEditor::cursorPositionChanged, this, &CodeEditor::highlightCurrentLine);
 
     updateLineNumberAreaWidth(0);
+
     highlightCurrentLine();
+
+
+}
+
+// Loads a file into the editor
+void CodeEditor::loadFile(const QString& filename)
+{
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly | QFile::Text))
+    {
+      QMessageBox::critical(this, "Error", "Cannot open file: " + file.errorString());
+      return;
+    }
+    QTextStream in(&file);
+    QString text = in.readAll();
+    this->setPlainText(text);
+    file.close();
 }
 
 int CodeEditor::lineNumberAreaWidth()
@@ -111,6 +132,12 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 
     QRect cr = contentsRect();
     m_lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+}
+
+void CodeEditor::selectLine(uint32_t line)
+{
+    QTextCursor cursor(this->document()->findBlockByLineNumber(line-1)); // ln-1 because line number starts from 0
+    this->setTextCursor(cursor);
 }
 
 

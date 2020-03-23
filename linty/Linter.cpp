@@ -153,6 +153,13 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
     // linterDirectory      - The directory to lint (for now)
 
     lintOutputMessages = lintMessages;
+    m_lintingDirectory = linterDirectory;
 
     return LINTER_OK;
 }
+
+QString Linter::getLintingDirectory() const
+{
+    return m_lintingDirectory;
+}
+

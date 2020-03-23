@@ -2,7 +2,6 @@
 #define LINTER_H
 
 #include <QString>
-#include <QCoreApplication>
 
 enum LINTER_STATUS
 {
@@ -48,12 +47,15 @@ enum SUPPORTED_LINTERS
 
 class Linter
 {
-        Q_DECLARE_TR_FUNCTIONS(Linter)
 public:
     Linter() = default;
     LINTER_STATUS lint(const QString& linterExecutable, const QString& linterFilePath, const QString& linterLintOptions, const QString& linterDirectory, QList<lintMessage>& lintOutputMessages);
-private:
 
+    QString getLintingDirectory() const;
+
+
+private:
+    QString m_lintingDirectory;
 };
 
 #endif // LINTER_H

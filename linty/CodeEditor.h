@@ -69,9 +69,10 @@ class CodeEditor : public QPlainTextEdit
 
 public:
     CodeEditor(QWidget *parent = nullptr);
-
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
+    void loadFile(const QString& file);
+    void selectLine(uint32_t line);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -81,6 +82,8 @@ private slots:
     void highlightCurrentLine();
     void updateLineNumberArea(const QRect &rect, int dy);
 
+
+
 private:
     QWidget *m_lineNumberArea;
 };
@@ -89,7 +92,9 @@ class LineNumberArea : public QWidget
 {
 public:
     LineNumberArea(CodeEditor *editor) : QWidget(editor), m_codeEditor(editor)
-    {}
+    {
+
+    }
 
     QSize sizeHint() const override
     {

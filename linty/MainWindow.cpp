@@ -90,7 +90,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // Load any settings we have
     m_lintOptions.loadSettings();
 
-
     // Load icons
     m_icons.loadIcons();
 
@@ -126,18 +125,7 @@ void MainWindow::newDocument()
 
 void MainWindow::open()
 {
-  /*  QString fileName = QFileDialog::getOpenFileName(this, "Open the file");
-    QFile file(fileName);
-    currentFile = fileName;
-    if (!file.open(QIODevice::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(this, "Warning", "Cannot open file: " + file.errorString());
-        return;
-    }
-    setWindowTitle(fileName);
-    QTextStream in(&file);
-    QString text = in.readAll();
-    m_ui->textEdit->setText(text);
-    file.close();*/
+
 }
 
 void MainWindow::save()
@@ -369,10 +357,9 @@ void MainWindow::on_actionLint_triggered()
 
     // Mmmm?
     QString linterLintCommands = m_lintOptions.getLinterLintOptions().trimmed();
-
-    Linter linter;
     QList<lintMessage> lintMessages;
-    LINTER_STATUS linterStatus = linter.lint(linterExecutable,linterLintFile, linterLintCommands, linterLintDirectory, lintMessages);
+
+    LINTER_STATUS linterStatus = m_linter.lint(linterExecutable,linterLintFile, linterLintCommands, linterLintDirectory, lintMessages);
     switch (linterStatus)
     {
     case LINTER_UNSUPPORTED_VERSION:
@@ -387,5 +374,24 @@ void MainWindow::on_actionLint_triggered()
     case LINTER_OK:
         populateLintTable(lintMessages);
         break;
+    }
+}
+
+void MainWindow::on_lintTable_cellDoubleClicked(int row, int column)
+{
+    // If we click on the message column
+    if (column == 2)
+    {
+        // Get the file
+        QTableWidgetItem* item = m_ui->lintTable->item(row,column+1);
+        qDebug() << "Loading file: " << m_linter.getLintingDirectory() + "/" + item->text();
+
+        // Load the file into the code editor
+        m_ui->codeEditor->loadFile(m_linter.getLintingDirectory() + "/" + item->text());
+
+        // Select the line
+        item = m_ui->lintTable->item(row,column+2);
+        uint32_t lineNumber = item->text().toUInt();
+        m_ui->codeEditor->selectLine(lineNumber);
     }
 }

@@ -73,6 +73,10 @@ public:
 
     ~MainWindow();
 
+signals:
+
+    void updateCE();
+
 private slots:
     void newDocument();
 
@@ -111,11 +115,14 @@ private slots:
 
     void on_actionLint_triggered();
 
+    void on_lintTable_cellDoubleClicked(int row, int column);
+
 private:
     Ui::MainWindow *m_ui;
     LintOptions m_lintOptions;
     Icon m_icons;
     CodeEditor m_codeEditor;
+    Linter m_linter;
 
     void populateLintTable(const QList<lintMessage>& lintMessages);
     void configureLintTable();
