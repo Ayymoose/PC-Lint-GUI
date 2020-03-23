@@ -24,10 +24,10 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QPlainTextEdit" name="plainTextEdit"/>
+       <widget class="CodeEditor" name="codeEditor"/>
       </item>
       <item>
-       <widget class="QTableWidget" name="tableLint">
+       <widget class="QTableWidget" name="lintTable">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -404,6 +404,13 @@ selection-color: rgb(0, 0, 0);</string>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CodeEditor</class>
+   <extends>QPlainTextEdit</extends>
+   <header>codeeditor.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="linty.qrc"/>
  </resources>

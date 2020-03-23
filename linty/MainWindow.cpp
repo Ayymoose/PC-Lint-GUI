@@ -67,6 +67,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow)
 {
+
+    // Turn UI into actual objects
     m_ui->setupUi(this);
 
     connect(m_ui->actionNew, &QAction::triggered, this, &MainWindow::newDocument);
@@ -87,6 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Load any settings we have
     m_lintOptions.loadSettings();
+
 
     // Load icons
     m_icons.loadIcons();
@@ -118,7 +121,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::newDocument()
 {
-  //  currentFile.clear();
    // m_ui->textEdit->setText(QString());
 }
 

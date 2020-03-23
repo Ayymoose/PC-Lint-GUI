@@ -47,41 +47,31 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-//! [all]
-//! [1]
 #include <QMainWindow>
 
 #include "LintOptions.h"
 #include "Linter.h"
 #include "Icon.h"
 #include "Log.h"
-//! [1]
+#include "CodeEditor.h"
 
-//! [2]
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
 }
 QT_END_NAMESPACE
-//! [2]
 
-//! [3]
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-//! [3]
 
-//! [4]
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-//! [4]
-//! [5]
+
     ~MainWindow();
-//! [5]
 
 private slots:
     void newDocument();
@@ -116,21 +106,20 @@ private slots:
 
     void about();
 
-//! [6]
+
     void on_actionLint_options_triggered();
 
     void on_actionLint_triggered();
 
 private:
     Ui::MainWindow *m_ui;
-    QString currentFile;
     LintOptions m_lintOptions;
     Icon m_icons;
+    CodeEditor m_codeEditor;
 
     void populateLintTable(const QList<lintMessage>& lintMessages);
     void configureLintTable();
-//! [6]
+
 };
-//! [all]
 
 #endif // MAINWINDOW_H

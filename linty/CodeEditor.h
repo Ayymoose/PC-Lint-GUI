@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the documentation of the Qt Toolkit.
+** This file is part of the examples of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** Commercial License Usage
@@ -48,29 +48,62 @@
 **
 ****************************************************************************/
 
-#include "MainWindow.h"
-#include <QApplication>
-#include <QScreen>
-#include "Log.h"
-#include "CodeEditor.h"
+#ifndef CODEEDITOR_H
+#define CODEEDITOR_H
 
-int main(int argc, char *argv[])
+#include <QPlainTextEdit>
+
+QT_BEGIN_NAMESPACE
+class QPaintEvent;
+class QResizeEvent;
+class QSize;
+class QWidget;
+QT_END_NAMESPACE
+
+class LineNumberArea;
+
+
+class CodeEditor : public QPlainTextEdit
 {
-    QApplication EditorApp(argc, argv);
+    Q_OBJECT
 
+public:
+    CodeEditor(QWidget *parent = nullptr);
 
-    Log::createLogFile(LOG_FILENAME);
+    void lineNumberAreaPaintEvent(QPaintEvent *event);
+    int lineNumberAreaWidth();
 
-    MainWindow mainWindow;
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 
-    // Center the screen
-    QScreen* screen = QGuiApplication::primaryScreen();
-    QSize screenSize = screen->size();
+private slots:
+    void updateLineNumberAreaWidth(int newBlockCount);
+    void highlightCurrentLine();
+    void updateLineNumberArea(const QRect &rect, int dy);
 
-    int x = (screenSize.width()-mainWindow.width()) / 2;
-    int y = (screenSize.height()-mainWindow.height() - 40) / 2;
-    mainWindow.move(x, y);
-    mainWindow.show();
+private:
+    QWidget *m_lineNumberArea;
+};
 
-    return EditorApp.exec();
-}
+class LineNumberArea : public QWidget
+{
+public:
+    LineNumberArea(CodeEditor *editor) : QWidget(editor), m_codeEditor(editor)
+    {}
+
+    QSize sizeHint() const override
+    {
+        return QSize(m_codeEditor->lineNumberAreaWidth(), 0);
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event) override
+    {
+        m_codeEditor->lineNumberAreaPaintEvent(event);
+    }
+
+private:
+    CodeEditor *m_codeEditor;
+};
+
+#endif
