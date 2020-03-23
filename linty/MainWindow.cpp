@@ -99,13 +99,13 @@ void MainWindow::configureLintTable()
 {
 
     // Icon column width
-    m_ui->tableLint->setColumnWidth(0,24);
+    m_ui->lintTable->setColumnWidth(0,24);
 
     // Code width
-    m_ui->tableLint->setColumnWidth(1,40);
+    m_ui->lintTable->setColumnWidth(1,40);
 
     // Message width
-    m_ui->tableLint->setColumnWidth(2,800);
+    m_ui->lintTable->setColumnWidth(2,800);
 
 
 
@@ -257,7 +257,11 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
     // Populate the table view with all the lint messages
 
     // Clear all existing entries
-    m_ui->tableLint->clearContents();
+
+
+    QTableWidget* lintTable = m_ui->lintTable;
+    lintTable->clearContents();
+    lintTable->setRowCount(0);
 
     for (const lintMessage& message : lintMessages)
     {
@@ -268,7 +272,7 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
         QString description = message.description;
 
         // Insert row
-        m_ui->tableLint->insertRow(m_ui->tableLint->rowCount());
+        lintTable->insertRow(lintTable->rowCount());
 
         // Set item data
         QTableWidgetItem* typeWidget = new QTableWidgetItem;
@@ -277,14 +281,14 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
         Q_ASSERT(icon != nullptr);
 
         typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(*icon));
-        m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 0, typeWidget);
+        lintTable->setItem( lintTable->rowCount()-1, 0, typeWidget);
 
-        m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 1, new QTableWidgetItem(code));
+        lintTable->setItem( lintTable->rowCount()-1, 1, new QTableWidgetItem(code));
 
 
-        m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 2, new QTableWidgetItem(description));
-        m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 3, new QTableWidgetItem(QFileInfo(file).fileName()));
-        m_ui->tableLint->setItem( m_ui->tableLint->rowCount()-1, 4, new QTableWidgetItem(line));
+        lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem(description));
+        lintTable->setItem( lintTable->rowCount()-1, 3, new QTableWidgetItem(QFileInfo(file).fileName()));
+        lintTable->setItem( lintTable->rowCount()-1, 4, new QTableWidgetItem(line));
     }
 
     // Don't forget to free the memoryyyy
