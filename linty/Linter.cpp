@@ -80,6 +80,8 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
         Log::log("### Failed to start lint because version unsupported: " + QString(lintVersion));
         return LINTER_UNSUPPORTED_VERSION;
     }
+    // Show lint version used
+    Log::log("Lint version: " + QString(lintVersion));
 
     // Remove version information
     lintData.remove(0,lintVersion.length());

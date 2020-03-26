@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
 
 
     Log::createLogFile(LOG_FILENAME);
+    Log::log("---------- Starting linty application ----------");
 
     MainWindow mainWindow;
 
