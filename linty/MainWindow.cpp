@@ -334,7 +334,7 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
 
     QString fileToLoad = item->data(Qt::UserRole).value<QString>();
 
-    if (!fileToLoad.isEmpty())
+    if (!fileToLoad.isEmpty() && (fileToLoad != m_ui->codeEditor->loadedFile()))
     {
         qDebug() << "Loading file: " << fileToLoad;
 
