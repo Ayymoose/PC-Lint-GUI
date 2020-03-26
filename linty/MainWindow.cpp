@@ -92,8 +92,14 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui->codeEditor->setLineNumberAreaColour(LINE_NUMBER_AREA_COLOUR);
     m_ui->codeEditor->setLineNumberBackgroundColour(LINE_CURRENT_BACKGROUND_COLOUR);
 
-
+    // With syntax highlighting
     m_highlighter = new Highlighter(m_ui->codeEditor->document());
+
+    // Status bar labels
+    m_ui->statusBar->addPermanentWidget(m_ui->label);
+
+    m_ui->codeEditor->setLabel(m_ui->label);
+
 }
 
 void MainWindow::configureLintTable()
@@ -334,20 +340,23 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
 
     QString fileToLoad = item->data(Qt::UserRole).value<QString>();
 
-    if (!fileToLoad.isEmpty() && (fileToLoad != m_ui->codeEditor->loadedFile()))
+    if (!fileToLoad.isEmpty())
     {
-        qDebug() << "Loading file: " << fileToLoad;
+        if ((fileToLoad != m_ui->codeEditor->loadedFile()))
+        {
+            qDebug() << "Loading file: " << fileToLoad;
 
-        // Load the file into the code editor
-        m_ui->codeEditor->loadFile(fileToLoad);
+            // Load the file into the code editor
+            m_ui->codeEditor->loadFile(fileToLoad);
+
+            // Update the status bar
+            m_ui->statusBar->showMessage("Loaded " + fileToLoad);
+        }
 
         // Select the line number
         item = m_ui->lintTable->item(row,4);
         uint32_t lineNumber = item->text().toUInt();
         m_ui->codeEditor->selectLine(lineNumber);
-
-        // Update the status bar
-        m_ui->statusBar->showMessage("Loaded " + fileToLoad);
     }
 
 }
@@ -362,3 +371,4 @@ void MainWindow::on_actionLint_project_triggered()
     // Build source file lists
     // Pass to linter
 }
+

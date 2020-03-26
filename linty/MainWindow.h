@@ -74,6 +74,7 @@ public:
 
     ~MainWindow();
 
+
 private slots:
 
     void open();
@@ -104,7 +105,6 @@ private:
     Icon m_icons;
     Linter m_linter;
     Highlighter* m_highlighter;
-
     void populateLintTable(const QList<lintMessage>& lintMessages);
     void configureLintTable();
 };

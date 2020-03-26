@@ -53,7 +53,7 @@
 
 #include <QPlainTextEdit>
 #include <QColor>
-
+#include <QLabel>
 
 
 #define LINE_NUMBER_AREA_COLOUR QColor(240,240,240)
@@ -83,9 +83,11 @@ public:
     void setLineNumberAreaColour(const QColor& colour);
     void setLineNumberBackgroundColour(const QColor& colour);
     QString loadedFile() const;
+    void setLabel(QLabel* label);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
+    bool eventFilter(QObject *object, QEvent *event) override;
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
@@ -99,6 +101,8 @@ private:
     QColor m_lineNumberAreaColour;
     QColor m_lineNumberBackgroundColour;
     QString m_currentFile;
+    QLabel* m_zoomLabel;
+
 };
 
 class LineNumberArea : public QWidget

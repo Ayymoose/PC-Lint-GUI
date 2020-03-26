@@ -63,6 +63,7 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     m_lineNumberArea = new LineNumberArea(this);
     m_lineNumberAreaColour = LINE_NUMBER_AREA_COLOUR;
     m_lineNumberBackgroundColour = LINE_CURRENT_BACKGROUND_COLOUR;
+    m_zoomLabel = nullptr;
 
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
     connect(this, &CodeEditor::updateRequest, this, &CodeEditor::updateLineNumberArea);
@@ -234,3 +235,49 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
         ++blockNumber;
     }
 }
+
+bool CodeEditor::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::Wheel)
+    {
+        QWheelEvent *wheel = static_cast<QWheelEvent*>(event);
+        if(wheel->modifiers() == Qt::ControlModifier)
+        {
+            // TODO: Fix broken zoom code
+            static int zoom = 1;
+            static int currentZoom = 100; // 100%
+            const int zoomFactor = 2;
+            if(wheel->delta() > 0)
+            {
+                currentZoom += zoomFactor;
+                zoomIn(zoomFactor);
+                zoom++;
+            }
+            else
+            {
+                if (currentZoom >= 96)
+                {
+                    currentZoom -= zoomFactor;
+                    zoomOut(zoomFactor);
+                    zoom--;
+                }
+            }
+            m_zoomLabel->setText("Zoom: " + QString::number((int)(currentZoom)) + "%");
+            return true;
+        }
+        else
+        {
+            return QObject::eventFilter(object, event);
+        }
+    }
+    else
+    {
+        return QObject::eventFilter(object, event);
+    }
+}
+
+void CodeEditor::setLabel(QLabel* label)
+{
+    m_zoomLabel = label;
+}
+
