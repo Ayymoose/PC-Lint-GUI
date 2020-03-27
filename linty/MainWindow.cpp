@@ -194,12 +194,16 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
 
 
     QTableWidget* lintTable = m_ui->lintTable;
+    lintTable->setSortingEnabled(false);
+    int rowCount = lintTable->rowCount();
+    int colCount = lintTable->columnCount();
 
-    for (int row=0; row<lintTable->rowCount(); row++)
+    for (int row=0; row < rowCount; row++)
     {
-        for (int col=0; col<lintTable->columnCount(); col++)
+        for (int col=0; col < colCount; col++)
         {
             QTableWidgetItem* item = lintTable->item(row,col);
+            Q_ASSERT(item != nullptr);
             delete item;
         }
     }
@@ -222,7 +226,7 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
         QTableWidgetItem* typeWidget = new QTableWidgetItem;
         QTableWidgetItem* codeWidget = new QTableWidgetItem;
         QTableWidgetItem* lineWidget = new QTableWidgetItem;
-        QTableWidgetItem* fileWidget = new QTableWidgetItem();
+        QTableWidgetItem* fileWidget = new QTableWidgetItem;
 
         codeWidget->setData(Qt::DisplayRole,code.toUInt());
         lineWidget->setData(Qt::DisplayRole,line.toUInt());
@@ -260,9 +264,7 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
         lintTable->setItem( lintTable->rowCount()-1, 3, fileWidget);
         lintTable->setItem( lintTable->rowCount()-1, 4, lineWidget);
     }
-
-    // Don't forget to free the memoryyyy
-
+    lintTable->setSortingEnabled(true);
 }
 
 
