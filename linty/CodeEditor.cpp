@@ -60,10 +60,13 @@
 
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
+    // Line number area
     m_lineNumberArea = new LineNumberArea(this);
     m_lineNumberAreaColour = LINE_NUMBER_AREA_COLOUR;
     m_lineNumberBackgroundColour = LINE_CURRENT_BACKGROUND_COLOUR;
     m_zoomLabel = nullptr;
+
+    this->setFont(QFont("Consolas",14));
 
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
     connect(this, &CodeEditor::updateRequest, this, &CodeEditor::updateLineNumberArea);
@@ -72,10 +75,6 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
 
-    QFont font = this->document()->defaultFont();
-    font.setFamily("Consolas");
-    font.setPixelSize(16);
-    this->document()->setDefaultFont(font);
 }
 
 void CodeEditor::setLineNumberAreaColour(const QColor& colour)
@@ -211,10 +210,6 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     QPainter painter(m_lineNumberArea);
     painter.fillRect(event->rect(), m_lineNumberAreaColour);
 
-    QFont font("Consolas");
-    font.setPixelSize(16);
-    painter.setFont(font);
-
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();
     int top = qRound(blockBoundingGeometry(block).translated(contentOffset()).top());
@@ -255,7 +250,7 @@ bool CodeEditor::eventFilter(QObject *object, QEvent *event)
             }
             else
             {
-                if (currentZoom >= 96)
+                if (currentZoom >= 92)
                 {
                     currentZoom -= zoomFactor;
                     zoomOut(zoomFactor);

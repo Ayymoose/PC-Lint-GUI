@@ -97,7 +97,7 @@ private slots:
 
 
 private:
-    QWidget *m_lineNumberArea;
+    LineNumberArea *m_lineNumberArea;
     QColor m_lineNumberAreaColour;
     QColor m_lineNumberBackgroundColour;
     QString m_currentFile;
@@ -108,7 +108,8 @@ private:
 class LineNumberArea : public QWidget
 {
 public:
-    LineNumberArea(CodeEditor *editor) : QWidget(editor), m_codeEditor(editor)
+    LineNumberArea(CodeEditor *editor) : QWidget(editor),
+        m_codeEditor(editor)
     {
 
     }
