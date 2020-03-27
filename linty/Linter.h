@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QMetaType>
+#include <QSet>
 
 enum LINTER_STATUS
 {
@@ -20,16 +21,6 @@ typedef struct
     QString code;
     QString description;
 } lintMessage;
-
-//Will be in a list of supported versions later
-#define LINT_VERSION "PC-lint for C/C++ (NT) Vers. 9.00c, Copyright Gimpel Software 1985-2009\r\n"
-/*
-enum SUPPORTED_LINTERS
-{
-    //TODO: Finish
-    PC_LINT_V9 = 0 // PC-lint for C/C++ (NT) Vers. 9.00c, Copyright Gimpel Software 1985-2009\r\n",
-};*/
-
 
 // XML related definitions
 #define XML_DOC "doc"
@@ -49,7 +40,7 @@ enum SUPPORTED_LINTERS
 class Linter
 {
 public:
-    Linter() = default;
+    Linter();
     LINTER_STATUS lint(const QString& linterExecutable, const QString& linterFilePath, const QString& linterLintOptions, const QString& linterDirectory, QList<lintMessage>& lintOutputMessages);
 
     QString getLintingDirectory() const;
@@ -57,6 +48,7 @@ public:
 
 private:
     QString m_lintingDirectory;
+    QSet<QString> m_supportedVersions;
 };
 
 #endif // LINTER_H

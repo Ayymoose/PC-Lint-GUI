@@ -5,8 +5,21 @@
 #include "Log.h"
 #include <QFileInfo>
 
-// Currently only
-// PC-Lint v9 is supported
+Linter::Linter()
+{
+    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00a, Copyright Gimpel Software 1985-2009");
+    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00b, Copyright Gimpel Software 1985-2009");
+    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00c, Copyright Gimpel Software 1985-2009");
+    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00d, Copyright Gimpel Software 1985-2009");
+    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00e, Copyright Gimpel Software 1985-2010");
+    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00f, Copyright Gimpel Software 1985-2010");
+    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00g, Copyright Gimpel Software 1985-2011");
+    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00h, Copyright Gimpel Software 1985-2011");
+    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00i, Copyright Gimpel Software 1985-2012");
+    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00j, Copyright Gimpel Software 1985-2012");
+    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00k, Copyright Gimpel Software 1985-2013");
+    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00L, Copyright Gimpel Software 1985-2014");
+}
 
 LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linterFilePath, const QString& linterLintOptions, const QString& linterDirectory, QList<lintMessage>& lintOutputMessages)
 {
@@ -47,7 +60,7 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
     qDebug() << "lint file: " << linterFilePath;
     qDebug() << "lint directory: " << linterDirectory;
     qDebug() << "";
-    qDebug() << "Arguments: " << lintArguments;
+    qDebug() << "lint arguments: " << lintArguments;
 
     Log::log("Lint path: " + linterExecutable);
     Log::log("Lint file: " + linterFilePath);
@@ -72,16 +85,17 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
     }
 
     // Remove the version information
-    QByteArray lintVersion = lintData.left(QString(LINT_VERSION).length());
+    QByteArray lintVersion = lintData.left(lintData.indexOf("\r\n"));
 
     // Check linter version (if we can't determine the version then return error)
-    if (lintVersion != LINT_VERSION)
+    if (!m_supportedVersions.contains(lintVersion))
     {
         Log::log("### Failed to start lint because version unsupported: " + QString(lintVersion));
         return LINTER_UNSUPPORTED_VERSION;
     }
     // Show lint version used
     Log::log("Lint version: " + QString(lintVersion));
+    qDebug() << "Lint version: " + QString(lintVersion);
 
     // Remove version information
     lintData.remove(0,lintVersion.length());
