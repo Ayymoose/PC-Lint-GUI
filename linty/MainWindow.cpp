@@ -58,7 +58,7 @@
 #include <QMessageBox>
 #include <QDir>
 #include <QFileInfo>
-#include <QVariant>
+#include <QDirIterator>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
@@ -267,14 +267,12 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
     lintTable->setSortingEnabled(true);
 }
 
-
-void MainWindow::on_actionLint_triggered()
+void MainWindow::startLint(bool lintProject)
 {
     // This function tries to call the linter
     // The linter will attempt to lint the files specified in the directory we give it
     // It will show all output in a list view where we can view it
     // Should be in a separate thread really
-
     QDir path;
     QFileInfo fileInfo;
 
@@ -304,19 +302,41 @@ void MainWindow::on_actionLint_triggered()
     }
 
     // Check if the directory exists
-    QString linterLintDirectory = m_lintOptions.getLinterDirectory().trimmed();
-    path.setPath(linterLintDirectory);
+    QString lintDirectory = m_lintOptions.getLinterDirectory().trimmed();
+    path.setPath(lintDirectory);
     if (!path.exists())
     {
-        QMessageBox::critical(this,"Error", "Directory does not exist: '" + linterLintDirectory + "'");
+        QMessageBox::critical(this,"Error", "Directory does not exist: '" + lintDirectory + "'");
         return;
     }
 
-    // Mmmm?
-    QString linterLintCommands = m_lintOptions.getLinterLintOptions().trimmed();
     QList<lintMessage> lintMessages;
+    QList<QString> directoryFiles;
 
-    LINTER_STATUS linterStatus = m_linter.lint(linterExecutable,linterLintFile, linterLintCommands, linterLintDirectory, lintMessages);
+    //
+    if (lintProject)
+    {
+        QString fileName = QFileDialog::getOpenFileName(this, "Select project file", "D:\\", "Atmel 7 studio (*.cproj)");
+
+        // Currently only Atmel Studio 7 project supported
+        AtmelStudio7ProjectSolution as7ProjectSolution;
+        directoryFiles = as7ProjectSolution.buildSourceFiles(fileName);
+    }
+    else
+    {
+        QDirIterator dirIterator(lintDirectory, QStringList() << "*.c");
+        while (dirIterator.hasNext())
+        {
+            directoryFiles.append(dirIterator.next());
+        }
+    }
+    //
+
+    m_linter.setLinterFile(linterLintFile);
+    m_linter.setLinterExecutable(linterExecutable);
+    m_linter.setLintFiles(directoryFiles);
+
+    LINTER_STATUS linterStatus = m_linter.lint(lintMessages);
     switch (linterStatus)
     {
     case LINTER_UNSUPPORTED_VERSION:
@@ -334,6 +354,11 @@ void MainWindow::on_actionLint_triggered()
     }
 }
 
+void MainWindow::on_actionLint_triggered()
+{
+    startLint(false);
+}
+
 void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
 {
     // Get the file
@@ -346,7 +371,7 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
     {
         if ((fileToLoad != m_ui->codeEditor->loadedFile()))
         {
-            qDebug() << "Loading file: " << fileToLoad;
+            DEBUG_LOG("Loading file: " + fileToLoad);
 
             // Load the file into the code editor
             m_ui->codeEditor->loadFile(fileToLoad);
@@ -365,12 +390,6 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
 
 void MainWindow::on_actionLint_project_triggered()
 {
-    // Lint a project
-
-    // Currently only Atmel Studio 7 project supported
-
-    // Parse solution XML file
-    // Build source file lists
-    // Pass to linter
+    startLint(true);
 }
 

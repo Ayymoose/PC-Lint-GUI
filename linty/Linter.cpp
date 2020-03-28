@@ -5,6 +5,8 @@
 #include "Log.h"
 #include <QFileInfo>
 
+#include <QMessageBox>
+
 Linter::Linter()
 {
     m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00a, Copyright Gimpel Software 1985-2009");
@@ -21,59 +23,66 @@ Linter::Linter()
     m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00L, Copyright Gimpel Software 1985-2014");
 }
 
-LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linterFilePath, const QString& linterLintOptions, const QString& linterDirectory, QList<lintMessage>& lintOutputMessages)
+void Linter::addArgument(QString argument)
 {
-    // Possible reasons why lint would fail is
+    m_arguments << argument;
+}
 
-    // One of the inputs passed is empty or garbage
-    // A non-lint executable was passed
+void Linter::setLinterFile(const QString& lintFile)
+{
+    m_lintFile = lintFile;
+}
+
+void Linter::setLinterExecutable(const QString& linterExecutable)
+{
+    m_linterExecutable = linterExecutable;
+}
+
+void Linter::setLintFiles(const QList<QString>& files)
+{
+    m_filesToLint = files;
+}
+
+LINTER_STATUS Linter::lint(QList<lintMessage>& lintOutputMessages)
+{
+    DEBUG_LOG("Setting working directory to: " + QFileInfo(m_lintFile).canonicalPath());
 
     QProcess lintProcess;
-    qDebug() << "Setting working directory to: " << QFileInfo(linterFilePath).canonicalPath();
-    Log::log("Setting working directory to: " + QFileInfo(linterFilePath).canonicalPath());
-    lintProcess.setWorkingDirectory(QFileInfo(linterFilePath).canonicalPath());
-    QStringList lintArguments;
-
-    // This is the extra file we must pass into the linter to produce XML output
-    QStringList xmlArguments;
-    xmlArguments << "-v"
-                 << "-width(0)"
-                 //<< "+xml(?xml version=1.0?)"
-                 << "+xml(doc)"
-                 << "-""format=<message><file>%f</file><line>%l</line><type>%t</type><code>%n</code><description>%m</description></message>"
-                 << "-""format_specific= "
-                 << "-hFs1"
-                 << "-pragma(message)";
-
+    lintProcess.setWorkingDirectory(QFileInfo(m_lintFile).canonicalPath());
     lintProcess.setProcessChannelMode(QProcess::MergedChannels);
 
-    // Add any options we have
-    if (linterLintOptions != "")
+    // Extra arguments to produce XML output
+    addArgument("-v");
+    addArgument("-width(0)");
+    addArgument("+xml(doc)");
+    addArgument("-""format=<message><file>%f</file><line>%l</line><type>%t</type><code>%n</code><description>%m</description></message>");
+    addArgument("-""format_specific= ");
+    addArgument("-hFs1");
+    addArgument("-pragma(message)");
+
+    // TODO: Lint C or CPP files
+    // Lint a directory containing C files
+    addArgument(m_lintFile);
+
+    // Add all files to lint
+    for (const QString& file : m_filesToLint)
     {
-        lintArguments << linterLintOptions;
+       DEBUG_LOG(file);
+       addArgument(file);
     }
 
-    // Lint only C files for now
-    lintArguments << xmlArguments << linterFilePath << (linterDirectory + "\\*.c");
+    DEBUG_LOG("Lint path: " + m_linterExecutable);
+    DEBUG_LOG("Lint file: " + m_lintFile);
+    DEBUG_LOG("Lint directory: " + m_linterDirectory);
+    DEBUG_LOG("Lint arguments: " + m_arguments.join(""));
 
-    qDebug() << "lint path: " << linterExecutable;
-    qDebug() << "lint file: " << linterFilePath;
-    qDebug() << "lint directory: " << linterDirectory;
-    qDebug() << "";
-    qDebug() << "lint arguments: " << lintArguments;
-
-    Log::log("Lint path: " + linterExecutable);
-    Log::log("Lint file: " + linterFilePath);
-    Log::log("Lint directory: " + linterDirectory);
-    Log::log("Lint arguments: " + lintArguments.join(""));
-
-    lintProcess.setProgram(linterExecutable);
-    lintProcess.setArguments(lintArguments);
+    lintProcess.setProgram(m_linterExecutable);
+    lintProcess.setArguments(m_arguments);
     lintProcess.start();
 
     if (!lintProcess.waitForStarted())
     {
-        Log::log("### Failed to start lint executable because " + lintProcess.errorString());
+        DEBUG_LOG("### Failed to start lint executable because " + lintProcess.errorString());
         return LINTER_FAIL;
     }
 
@@ -90,12 +99,13 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
     // Check linter version (if we can't determine the version then return error)
     if (!m_supportedVersions.contains(lintVersion))
     {
-        Log::log("### Failed to start lint because version unsupported: " + QString(lintVersion));
+        DEBUG_LOG("### Failed to start lint because version unsupported: " + QString(lintVersion));
         return LINTER_UNSUPPORTED_VERSION;
     }
+
+
     // Show lint version used
-    Log::log("Lint version: " + QString(lintVersion));
-    qDebug() << "Lint version: " + QString(lintVersion);
+    DEBUG_LOG("Lint version: " + QString(lintVersion));
 
     // Remove version information
     lintData.remove(0,lintVersion.length());
@@ -107,7 +117,7 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
     lintMessage message;
 
     // Start XML parsing
-    //Parse the XML until we reach end of it
+    // Parse the XML until we reach end of it
     while(!lintXML.atEnd() && !lintXML.hasError())
     {
 
@@ -155,18 +165,12 @@ LINTER_STATUS Linter::lint(const QString& linterExecutable, const QString& linte
         }
     }
 
-    if(lintXML.hasError())
+    if (lintXML.hasError())
     {
-        qDebug() << lintXML.errorString();
-        Log::log("### Failed to parse XML because " + lintXML.errorString());
+        DEBUG_LOG("### Failed to parse XML because " + lintXML.errorString());
         return LINTER_ERROR;
     }
 
-
-    // linterExecutablePath - Path to the linter executable (including)
-    // linterFilePath       - Path to the actual lint file (including)
-    // linterLintOptions    - Command line options to pass to the linter
-    // linterDirectory      - The directory to lint (for now)
 
     lintOutputMessages = lintMessages;
 
@@ -178,3 +182,65 @@ QString Linter::getLintingDirectory() const
     return m_lintingDirectory;
 }
 
+QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& projectFileName)
+{
+    QList<QString> sourceFiles;
+
+    // Get the file path for the project
+    QString projectPath = QFileInfo(projectFileName).absolutePath();
+
+    // Project
+    // - ItemGroup
+    // -- Compile Include
+    QXmlStreamReader xmlReader;
+    QFile projectFile(projectFileName);
+    if (projectFile.open(QIODevice::ReadOnly))
+    {
+        xmlReader.setDevice(&projectFile);
+        while (!xmlReader.atEnd() && !xmlReader.hasError())
+        {
+            // Read next element
+            QXmlStreamReader::TokenType token = xmlReader.readNext();
+
+            // If token is just StartDocument - go to next
+            if (token == QXmlStreamReader::StartDocument)
+            {
+                continue;
+            }
+
+            // If token is StartElement - read it
+            if (token == QXmlStreamReader::StartElement)
+            {
+                QStringRef name = xmlReader.name();
+                if (name == "Compile")
+                {
+                    QXmlStreamAttributes attrs = xmlReader.attributes();
+                    QString include = attrs.value("Include").toString();
+
+                    // Append the project path so we can get the canonical file path
+                    sourceFiles.append(QFileInfo(projectPath + "\\" + include).canonicalFilePath());
+                }
+                else
+                {
+                    continue;
+                }
+
+            }
+
+        }
+        if(xmlReader.hasError())
+        {
+            qDebug() << "Error Type:       " << xmlReader.error();
+            qDebug() << "Error String:     " << xmlReader.errorString();
+            qDebug() << "Line Number:      " << xmlReader.lineNumber();
+            qDebug() << "Column Number:    " << xmlReader.columnNumber();
+            qDebug() << "Character Offset: " << xmlReader.characterOffset();
+        }
+    }
+    else
+    {
+        qDebug() << "Unable to open file for reading";
+    }
+
+    return sourceFiles;
+}

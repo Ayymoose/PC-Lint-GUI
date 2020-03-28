@@ -107,6 +107,7 @@ private:
     Highlighter* m_highlighter;
     void populateLintTable(const QList<lintMessage>& lintMessages);
     void configureLintTable();
+    void startLint(bool lintProject);
 };
 
 #endif // MAINWINDOW_H

@@ -54,13 +54,15 @@
 #include "Log.h"
 #include "CodeEditor.h"
 
+#include <QDebug>
+#include <QFileInfo>
+
 int main(int argc, char *argv[])
 {
     QApplication EditorApp(argc, argv);
 
-
     Log::createLogFile(LOG_FILENAME);
-    Log::log("---------- Starting linty application ----------");
+    DEBUG_LOG("---------- Starting linty application ----------");
 
     MainWindow mainWindow;
 

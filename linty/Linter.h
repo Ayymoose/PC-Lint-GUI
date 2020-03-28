@@ -37,11 +37,32 @@ typedef struct
 #define TYPE_WARNING "Warning"
 
 
+class ProjectSolution
+{
+public:
+     virtual QList<QString> buildSourceFiles(const QString& projectFileName) = 0;
+};
+
+class AtmelStudio7ProjectSolution : public ProjectSolution
+{
+public:
+
+     AtmelStudio7ProjectSolution() = default;
+     ~AtmelStudio7ProjectSolution() = default;
+     QList<QString> buildSourceFiles(const QString& projectFileName) override;
+};
+
 class Linter
 {
 public:
     Linter();
-    LINTER_STATUS lint(const QString& linterExecutable, const QString& linterFilePath, const QString& linterLintOptions, const QString& linterDirectory, QList<lintMessage>& lintOutputMessages);
+    void setLinterExecutable(const QString& linterExecutable);
+    void setLinterFile(const QString& lintFile);
+    void setLinterDirectory(const QString& linterDirectory);
+    void setLintFiles(const QList<QString>& files);
+
+    // Lint a directory or some files
+    LINTER_STATUS lint(QList<lintMessage>& lintOutputMessages);
 
     QString getLintingDirectory() const;
 
@@ -49,6 +70,12 @@ public:
 private:
     QString m_lintingDirectory;
     QSet<QString> m_supportedVersions;
+    QStringList m_arguments;
+    QString m_linterExecutable;
+    QString m_lintFile;
+    QString m_linterDirectory;
+    QList<QString> m_filesToLint;
+    void addArgument(QString argument);
 };
 
 #endif // LINTER_H
