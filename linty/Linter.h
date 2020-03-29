@@ -73,7 +73,6 @@ private:
     QStringList m_arguments;
     QString m_linterExecutable;
     QString m_lintFile;
-    QString m_linterDirectory;
     QList<QString> m_filesToLint;
     void addArgument(QString argument);
 };

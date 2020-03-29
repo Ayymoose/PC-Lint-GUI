@@ -4,7 +4,7 @@
 #include <QXmlStreamReader>
 #include "Log.h"
 #include <QFileInfo>
-
+#include <windows.h>
 #include <QMessageBox>
 
 Linter::Linter()
@@ -51,6 +51,9 @@ LINTER_STATUS Linter::lint(QList<lintMessage>& lintOutputMessages)
     lintProcess.setWorkingDirectory(QFileInfo(m_lintFile).canonicalPath());
     lintProcess.setProcessChannelMode(QProcess::MergedChannels);
 
+    // Clear existing arguments
+    m_arguments.clear();
+
     // Extra arguments to produce XML output
     addArgument("-v");
     addArgument("-width(0)");
@@ -73,7 +76,6 @@ LINTER_STATUS Linter::lint(QList<lintMessage>& lintOutputMessages)
 
     DEBUG_LOG("Lint path: " + m_linterExecutable);
     DEBUG_LOG("Lint file: " + m_lintFile);
-    DEBUG_LOG("Lint directory: " + m_linterDirectory);
     DEBUG_LOG("Lint arguments: " + m_arguments.join(""));
 
     lintProcess.setProgram(m_linterExecutable);
@@ -109,8 +111,15 @@ LINTER_STATUS Linter::lint(QList<lintMessage>& lintOutputMessages)
 
     // Remove version information
     lintData.remove(0,lintVersion.length());
-    qDebug() << lintData.data();
 
+    qDebug() << "XML data size: " << lintData.size();
+
+    //
+    QFile file("D:\\Users\\Ayman\\Desktop\\Linty\\test\\xmldata.xml");
+    file.open(QIODevice::WriteOnly);
+    file.write(lintData);
+    file.close();
+    //
 
     QList<lintMessage> lintMessages;
     QXmlStreamReader lintXML(lintData);
@@ -217,8 +226,17 @@ QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proj
                     QXmlStreamAttributes attrs = xmlReader.attributes();
                     QString include = attrs.value("Include").toString();
 
-                    // Append the project path so we can get the canonical file path
-                    sourceFiles.append(QFileInfo(projectPath + "\\" + include).canonicalFilePath());
+                    if (QFileInfo(include).suffix() == "c")
+                    {
+                        // Append the project path so we can get the canonical file path
+                        QString sourceFile = QFileInfo(projectPath + "\\" + include).canonicalFilePath();
+                        sourceFiles.append(sourceFile);
+                        if (sourceFile.length() >= MAX_PATH)
+                        {
+                            DEBUG_LOG("### Source file name longer than " + QString(MAX_PATH) + " characters");
+                        }
+                    }
+
                 }
                 else
                 {
