@@ -43,8 +43,9 @@ void Linter::setLintFiles(const QList<QString>& files)
     m_filesToLint = files;
 }
 
-LINTER_STATUS Linter::lint(QList<lintMessage>& lintOutputMessages)
+LINTER_STATUS Linter::lint(QSet<lintMessage>& lintOutputMessages)
 {
+
     DEBUG_LOG("Setting working directory to: " + QFileInfo(m_lintFile).canonicalPath());
 
     QProcess lintProcess;
@@ -70,7 +71,6 @@ LINTER_STATUS Linter::lint(QList<lintMessage>& lintOutputMessages)
     // Add all files to lint
     for (const QString& file : m_filesToLint)
     {
-       DEBUG_LOG(file);
        addArgument(file);
     }
 
@@ -89,6 +89,7 @@ LINTER_STATUS Linter::lint(QList<lintMessage>& lintOutputMessages)
     }
 
     QByteArray lintData;
+
 
     while(lintProcess.waitForReadyRead())
     {
@@ -112,9 +113,15 @@ LINTER_STATUS Linter::lint(QList<lintMessage>& lintOutputMessages)
     // Remove version information
     lintData.remove(0,lintVersion.length());
 
-    qDebug() << "XML data size: " << lintData.size();
+   /* qDebug() << "XML data size: " << lintData.size();
+    QFile file("D:\\Users\\Ayman\\Desktop\\Linty\\test\\xmldata.xml");
+    file.open(QIODevice::WriteOnly);
+    file.write(lintData.data());
+    file.close();
+*/
 
-    QList<lintMessage> lintMessages;
+
+    QSet<lintMessage> lintMessages;
     QXmlStreamReader lintXML(lintData);
     lintMessage message;
 
@@ -162,9 +169,10 @@ LINTER_STATUS Linter::lint(QList<lintMessage>& lintOutputMessages)
 
         if((token == QXmlStreamReader::EndElement) && (lintXML.name() == XML_MESSAGE))
         {
-            lintMessages.append(message);
+            lintMessages.insert(message);
             message = {};
         }
+
     }
 
     if (lintXML.hasError())

@@ -62,7 +62,7 @@ public:
     void setLintFiles(const QList<QString>& files);
 
     // Lint a directory or some files
-    LINTER_STATUS lint(QList<lintMessage>& lintOutputMessages);
+    LINTER_STATUS lint(QSet<lintMessage>& lintOutputMessages);
 
     QString getLintingDirectory() const;
 
@@ -76,5 +76,16 @@ private:
     QList<QString> m_filesToLint;
     void addArgument(QString argument);
 };
+
+inline bool operator==(const lintMessage &e1, const lintMessage &e2)
+{
+    return (e1.code == e2.code) && (e1.file == e2.file) && (e1.line == e2.line) && (e1.type == e2.type) && (e1.description == e2.description);
+}
+
+inline uint qHash(const lintMessage &key, uint seed)
+{
+    return qHash(key.code + key.line, seed) ^ qHash(key.file + key.type + key.description, seed);
+}
+
 
 #endif // LINTER_H

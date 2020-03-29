@@ -105,7 +105,7 @@ private:
     Icon m_icons;
     Linter m_linter;
     Highlighter* m_highlighter;
-    void populateLintTable(const QList<lintMessage>& lintMessages);
+    void populateLintTable(const QSet<lintMessage>& lintMessages);
     void configureLintTable();
     void startLint(bool lintProject);
 };

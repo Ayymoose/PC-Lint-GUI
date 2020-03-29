@@ -76,17 +76,17 @@ private:
         QRegularExpression pattern;
         QTextCharFormat format;
     };
-    QVector<HighlightingRule> highlightingRules;
+    QVector<HighlightingRule> m_highlightingRules;
 
-    QRegularExpression commentStartExpression;
-    QRegularExpression commentEndExpression;
+    QRegularExpression m_commentStartExpression;
+    QRegularExpression m_commentEndExpression;
 
-    QTextCharFormat keywordFormat;
-    QTextCharFormat classFormat;
-    QTextCharFormat singleLineCommentFormat;
-    QTextCharFormat multiLineCommentFormat;
-    QTextCharFormat quotationFormat;
-    QTextCharFormat functionFormat;
+    QTextCharFormat m_keywordFormat;
+    QTextCharFormat m_classFormat;
+    QTextCharFormat m_singleLineCommentFormat;
+    QTextCharFormat m_multiLineCommentFormat;
+    QTextCharFormat m_quotationFormat;
+    QTextCharFormat m_functionFormat;
 };
 //! [0]
 

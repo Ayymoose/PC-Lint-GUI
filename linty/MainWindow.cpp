@@ -59,6 +59,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QDirIterator>
+#include <QElapsedTimer>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
@@ -186,11 +187,12 @@ void MainWindow::on_actionLint_options_triggered()
 
 }
 
-void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
+void MainWindow::populateLintTable(const QSet<lintMessage>& lintMessages)
 {
     // Populate the table view with all the lint messages
 
     // Clear all existing entries
+    QElapsedTimer progressTimer;
 
 
     QTableWidget* lintTable = m_ui->lintTable;
@@ -263,6 +265,9 @@ void MainWindow::populateLintTable(const QList<lintMessage>& lintMessages)
         lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem(description));
         lintTable->setItem( lintTable->rowCount()-1, 3, fileWidget);
         lintTable->setItem( lintTable->rowCount()-1, 4, lineWidget);
+
+     //   qDebug() << count;
+      //  count++;
     }
     lintTable->setSortingEnabled(true);
 }
@@ -310,7 +315,7 @@ void MainWindow::startLint(bool lintProject)
         return;
     }
 
-    QList<lintMessage> lintMessages;
+    QSet<lintMessage> lintMessages;
     QList<QString> directoryFiles;
 
     //
@@ -336,7 +341,13 @@ void MainWindow::startLint(bool lintProject)
     m_linter.setLinterExecutable(linterExecutable);
     m_linter.setLintFiles(directoryFiles);
 
+    QElapsedTimer lintTimer, processTimer;
+    lintTimer.start();
     LINTER_STATUS linterStatus = m_linter.lint(lintMessages);
+    auto lintTimerTotal = lintTimer.elapsed();
+    qDebug() << "Lint took: " << lintTimerTotal << "ms";
+
+
     switch (linterStatus)
     {
     case LINTER_UNSUPPORTED_VERSION:
@@ -349,7 +360,11 @@ void MainWindow::startLint(bool lintProject)
         QMessageBox::critical(this,"Error", "Linter encountered an error!");
         break;
     case LINTER_OK:
+        processTimer.start();
         populateLintTable(lintMessages);
+        auto processTimerTotal = processTimer.elapsed();
+        qDebug() << "Processing took: " << processTimerTotal << "ms";
+        qDebug() << "Total: " << processTimerTotal + lintTimerTotal << "ms";
         break;
     }
 }
