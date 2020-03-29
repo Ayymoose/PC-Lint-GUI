@@ -53,9 +53,7 @@
 #include <QScreen>
 #include "Log.h"
 #include "CodeEditor.h"
-
 #include <QDebug>
-#include <QFileInfo>
 
 int main(int argc, char *argv[])
 {

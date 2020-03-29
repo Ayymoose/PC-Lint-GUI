@@ -114,13 +114,6 @@ LINTER_STATUS Linter::lint(QList<lintMessage>& lintOutputMessages)
 
     qDebug() << "XML data size: " << lintData.size();
 
-    //
-    QFile file("D:\\Users\\Ayman\\Desktop\\Linty\\test\\xmldata.xml");
-    file.open(QIODevice::WriteOnly);
-    file.write(lintData);
-    file.close();
-    //
-
     QList<lintMessage> lintMessages;
     QXmlStreamReader lintXML(lintData);
     lintMessage message;

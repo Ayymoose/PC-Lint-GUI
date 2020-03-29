@@ -316,8 +316,8 @@ void MainWindow::startLint(bool lintProject)
     //
     if (lintProject)
     {
-        QString fileName = QFileDialog::getOpenFileName(this, "Select project file", "D:\\", "Atmel 7 studio (*.cproj)");
-
+        QString fileName = QFileDialog::getOpenFileName(this, "Select project file", LintOptions::m_lastDirectory, "Atmel 7 studio (*.cproj)");
+        LintOptions::m_lastDirectory = QFileInfo(fileName).absolutePath();
         // Currently only Atmel Studio 7 project supported
         AtmelStudio7ProjectSolution as7ProjectSolution;
         directoryFiles = as7ProjectSolution.buildSourceFiles(fileName);

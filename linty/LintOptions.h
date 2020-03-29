@@ -23,6 +23,7 @@ public:
     QString getLinterLintFilePath() const;
     QString getLinterLintOptions() const;
     QString getLinterDirectory() const;
+    static QString m_lastDirectory;
 
 private slots:
 
