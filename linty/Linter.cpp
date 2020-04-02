@@ -21,6 +21,7 @@ Linter::Linter()
     m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00j, Copyright Gimpel Software 1985-2012");
     m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00k, Copyright Gimpel Software 1985-2013");
     m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00L, Copyright Gimpel Software 1985-2014");
+    m_supportedVersions.insert("PC-lint Plus 1.3 for Windows, Copyright Gimpel Software LLC 1985-2019");
 }
 
 void Linter::addArgument(QString argument)
@@ -64,19 +65,24 @@ LINTER_STATUS Linter::lint(QSet<lintMessage>& lintOutputMessages)
     addArgument("-hFs1");
     addArgument("-pragma(message)");
 
-    // TODO: Lint C or CPP files
-    // Lint a directory containing C files
+    // Add the lint file
     addArgument(m_lintFile);
 
     // Add all files to lint
     for (const QString& file : m_filesToLint)
     {
        addArgument(file);
+       DEBUG_LOG("Adding file to lint: " + file);
     }
 
     DEBUG_LOG("Lint path: " + m_linterExecutable);
     DEBUG_LOG("Lint file: " + m_lintFile);
-    DEBUG_LOG("Lint arguments: " + m_arguments.join(""));
+
+    // Display arguments
+    for (const QString& argument : m_arguments)
+    {
+        DEBUG_LOG("Lint argument: " + argument);
+    }
 
     lintProcess.setProgram(m_linterExecutable);
     lintProcess.setArguments(m_arguments);
@@ -113,12 +119,18 @@ LINTER_STATUS Linter::lint(QSet<lintMessage>& lintOutputMessages)
     // Remove version information
     lintData.remove(0,lintVersion.length());
 
-   /* qDebug() << "XML data size: " << lintData.size();
+    // Remove any unexpected data we may encounter after the version information
+    QString lintDataAsString = QString(lintData);
+    uint64_t docIndex = lintDataAsString.indexOf("<doc>");
+    lintData.remove(0,docIndex);
+
+    qDebug() << "XML data size: " << lintData.size();
+    // TODO: Tidy up
     QFile file("D:\\Users\\Ayman\\Desktop\\Linty\\test\\xmldata.xml");
     file.open(QIODevice::WriteOnly);
     file.write(lintData.data());
     file.close();
-*/
+
 
 
     QSet<lintMessage> lintMessages;

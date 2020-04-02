@@ -239,21 +239,23 @@ void MainWindow::populateLintTable(const QSet<lintMessage>& lintMessages)
 
         QImage* icon = nullptr;
 
-        if (type == TYPE_ERROR)
+        if (!QString::compare(type, TYPE_ERROR, Qt::CaseInsensitive))
         {
             icon = m_icons[ICON_ERROR];
         }
-        else if (type == TYPE_WARNING)
+        else if (!QString::compare(type, TYPE_WARNING, Qt::CaseInsensitive))
         {
             icon = m_icons[ICON_WARNING];
         }
-        else if (type == TYPE_INFORMATION)
+        else if (!QString::compare(type, TYPE_INFORMATION, Qt::CaseInsensitive))
         {
             icon = m_icons[ICON_INFORMATION];
         }
         else
         {
-            qDebug() << "Unknown type encountered";
+            // TODO: Add unknown icon
+            icon = m_icons[ICON_INFORMATION];
+//            qDebug() << "Unknown type encountered";
         }
 
         Q_ASSERT(icon != nullptr);
