@@ -69,7 +69,10 @@ void LintOptions::on_sourceButton_clicked()
     dialogue.setFileMode(QFileDialog::Directory);
     QString directory = QFileDialog::getExistingDirectory(this, tr("Open Directory"), m_lastDirectory, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     m_lastDirectory = directory;
-    m_ui->sourceFileInputText->setText(directory);
+    if (directory.trimmed() != "")
+    {
+        m_ui->sourceFileInputText->setText(directory);
+    }
 }
 
 void LintOptions::on_buttonBox_rejected()
@@ -93,7 +96,10 @@ void LintOptions::on_lintButton_clicked()
     QFileDialog dialogue(this);
     QString fileName = QFileDialog::getOpenFileName(this, tr("Select lint executable"), m_lastDirectory);
     m_lastDirectory = QFileInfo(fileName).absolutePath();
-    m_ui->lintInputText->setText(fileName);
+    if (fileName.trimmed() != "")
+    {
+        m_ui->lintInputText->setText(fileName);
+    }
 }
 
 void LintOptions::on_lintFileButton_clicked()
@@ -102,5 +108,8 @@ void LintOptions::on_lintFileButton_clicked()
     dialogue.setFileMode(QFileDialog::Directory);
     QString fileName = QFileDialog::getOpenFileName(this, tr("Select lint (.lnt) file "), m_lastDirectory);
     m_lastDirectory = QFileInfo(fileName).absolutePath();
-    m_ui->lintFileInputText->setText(fileName);
+    if (fileName.trimmed() != "")
+    {
+        m_ui->lintFileInputText->setText(fileName);
+    }
 }

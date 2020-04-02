@@ -37,4 +37,5 @@ void Icon::loadIcons()
     m_icons[ICON_ERROR] = loadIcon(":/images/error.png");
     m_icons[ICON_INFORMATION] = loadIcon(":/images/info.png");
     m_icons[ICON_UNKNOWN] = loadIcon(":/images/info.png");
+    m_icons[ICON_APPLICATION] = loadIcon(":/images/lint.png");
 }

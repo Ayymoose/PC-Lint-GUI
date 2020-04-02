@@ -12,5 +12,6 @@
         <file>images/warning.png</file>
         <file>images/info.png</file>
         <file>images/unknown.png</file>
+        <file>images/lint.png</file>
     </qresource>
 </RCC>
