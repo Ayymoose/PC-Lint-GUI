@@ -2,6 +2,7 @@
 #include <QString>
 #include <QImage>
 #include <QDebug>
+#include "Log.h"
 
 Icon::~Icon()
 {
@@ -14,7 +15,7 @@ QImage* Icon::loadIcon(const QString& path)
     QImage *img = new QImage();
     if (!img->load(path))
     {
-        qDebug() << "Failed to load image: " << path;
+        DEBUG_LOG("### Failed to load image: " + path);
         delete img;
         return nullptr;
     }
@@ -35,4 +36,5 @@ void Icon::loadIcons()
     m_icons[ICON_WARNING] = loadIcon(":/images/warning.png");
     m_icons[ICON_ERROR] = loadIcon(":/images/error.png");
     m_icons[ICON_INFORMATION] = loadIcon(":/images/info.png");
+    m_icons[ICON_UNKNOWN] = loadIcon(":/images/info.png");
 }

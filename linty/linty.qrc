@@ -11,5 +11,6 @@
         <file>images/error.png</file>
         <file>images/warning.png</file>
         <file>images/info.png</file>
+        <file>images/unknown.png</file>
     </qresource>
 </RCC>

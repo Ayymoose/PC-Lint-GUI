@@ -205,7 +205,6 @@ void MainWindow::populateLintTable(const QSet<lintMessage>& lintMessages)
         for (int col=0; col < colCount; col++)
         {
             QTableWidgetItem* item = lintTable->item(row,col);
-            Q_ASSERT(item != nullptr);
             delete item;
         }
     }
@@ -253,14 +252,13 @@ void MainWindow::populateLintTable(const QSet<lintMessage>& lintMessages)
         }
         else
         {
-            // TODO: Add unknown icon
-            icon = m_icons[ICON_INFORMATION];
-//            qDebug() << "Unknown type encountered";
+            icon = m_icons[ICON_UNKNOWN];
         }
 
-        Q_ASSERT(icon != nullptr);
-
-        typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(*icon));
+        if (icon)
+        {
+            typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(*icon));
+        }
 
         lintTable->setItem( lintTable->rowCount()-1, 0, typeWidget);
         lintTable->setItem( lintTable->rowCount()-1, 1, codeWidget);
