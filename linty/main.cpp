@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     int x = (screenSize.width()-mainWindow.width()) / 2;
     int y = (screenSize.height()-mainWindow.height() - 40) / 2;
     mainWindow.move(x, y);
-    mainWindow.show();
+    mainWindow.showMaximized();
 
     return EditorApp.exec();
 }
