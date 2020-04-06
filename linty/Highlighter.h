@@ -55,6 +55,10 @@
 #include <QTextCharFormat>
 #include <QRegularExpression>
 
+#define BRUSH_HALF_GREEN QBrush(QColor(0,128,0))
+#define BRUSH_BLUE QBrush(QColor(0,0,255))
+#define BRUSH_GREY QBrush(QColor(128,128,128))
+
 QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
@@ -80,7 +84,7 @@ private:
 
     QRegularExpression m_commentStartExpression;
     QRegularExpression m_commentEndExpression;
-
+    QTextCharFormat m_preprocessorFormat;
     QTextCharFormat m_keywordFormat;
     QTextCharFormat m_classFormat;
     QTextCharFormat m_singleLineCommentFormat;
