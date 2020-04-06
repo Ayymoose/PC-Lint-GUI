@@ -318,11 +318,12 @@ void MainWindow::startLint(bool lintProject)
 
     QSet<lintMessage> lintMessages;
     QList<QString> directoryFiles;
+    QString fileName;
 
     //
     if (lintProject)
     {
-        QString fileName = QFileDialog::getOpenFileName(this, "Select project file", LintOptions::m_lastDirectory, "Atmel 7 studio (*.cproj)");
+        fileName = QFileDialog::getOpenFileName(this, "Select project file", LintOptions::m_lastDirectory, "Atmel 7 studio (*.cproj)");
         if (fileName != "")
         {
             LintOptions::m_lastDirectory = QFileInfo(fileName).absolutePath();
@@ -348,7 +349,15 @@ void MainWindow::startLint(bool lintProject)
         m_linter->setLinterExecutable(linterExecutable);
         m_linter->setLintFiles(directoryFiles);
 
-        startLintThread();
+        // Display directory name or filename
+        if (fileName != "")
+        {
+            startLintThread(QFileInfo(fileName).fileName());
+        }
+        else
+        {
+            startLintThread(lintDirectory);
+        }
     }
 }
 
@@ -410,12 +419,12 @@ void MainWindow::slotLintFinished(LINTER_STATUS status, QSet<lintMessage> lintMe
     }
 }
 
-void MainWindow::startLintThread()
+void MainWindow::startLintThread(QString title)
 {
-
     m_progressWindow = new ProgressWindow(this);
     m_progressWindow->setModal(true);
     m_progressWindow->lintProcess();
+    emit signalUpdateProgressTitle(title);
     m_progressWindow->exec();
     delete m_progressWindow;
 }

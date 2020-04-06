@@ -87,7 +87,7 @@ signals:
     void signalUpdateProgressMax(int value);
     void signalUpdateStatus(QString status);
     void signalLintComplete();
-
+    void signalUpdateProgressTitle(QString title);
 public slots:
     void slotLintFinished(LINTER_STATUS status, QSet<lintMessage> lintMessages);
 
@@ -129,7 +129,7 @@ public:
     void configureLintTable();
     void startLint(bool lintProject);
 
-    void startLintThread();
+    void startLintThread(QString title);
 };
 
 #endif // MAINWINDOW_H

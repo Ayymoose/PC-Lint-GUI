@@ -57,6 +57,7 @@ void ProgressWindow::lintProcess()
     connect(m_worker, &Worker::signalLintFinished, this, &ProgressWindow::slotLintFinished);
     connect(this, &ProgressWindow::signalParseData, m_worker, &Worker::slotParseData);
 
+    connect(m_mainWindow, &MainWindow::signalUpdateProgressTitle, this, &ProgressWindow::slotUpdateProgressTitle);
 
     connect(m_worker, &Worker::signalUpdateLintTable, m_mainWindow, &MainWindow::slotUpdateLintTable);
 
@@ -103,6 +104,11 @@ void ProgressWindow::slotLintFinished(LINTER_STATUS status)
         // Some error occured so let MainWindow handle it
         close();
     }
+}
+
+void ProgressWindow::slotUpdateProgressTitle(QString title)
+{
+    ui->lintGroupBox->setTitle(title);
 }
 
 ProgressWindow::~ProgressWindow()

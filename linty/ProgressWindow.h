@@ -33,6 +33,7 @@ public slots:
     void slotUpdateStatus(QString status);
     void slotLintComplete();
     void slotUpdateTime();
+    void slotUpdateProgressTitle(QString title);
 
 private slots:
     void on_lintCancel_clicked();
