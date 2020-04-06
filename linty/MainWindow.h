@@ -117,6 +117,7 @@ private slots:
 
     void on_aboutLinty_triggered();
 
+
 public:
     Ui::MainWindow *m_ui;
     ProgressWindow* m_progressWindow;

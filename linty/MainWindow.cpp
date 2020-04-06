@@ -122,8 +122,6 @@ void MainWindow::configureLintTable()
     // Message width
     m_ui->lintTable->setColumnWidth(2,800);
 
-
-
 }
 
 MainWindow::~MainWindow()
@@ -190,10 +188,7 @@ void MainWindow::on_actionLint_options_triggered()
 void MainWindow::populateLintTable(const QSet<lintMessage>& lintMessages)
 {
     // Populate the table view with all the lint messages
-
     // Clear all existing entries
-
-
 
     QTableWidget* lintTable = m_ui->lintTable;
     lintTable->setSortingEnabled(false);
@@ -328,10 +323,13 @@ void MainWindow::startLint(bool lintProject)
     if (lintProject)
     {
         QString fileName = QFileDialog::getOpenFileName(this, "Select project file", LintOptions::m_lastDirectory, "Atmel 7 studio (*.cproj)");
-        LintOptions::m_lastDirectory = QFileInfo(fileName).absolutePath();
-        // Currently only Atmel Studio 7 project supported
-        AtmelStudio7ProjectSolution as7ProjectSolution;
-        directoryFiles = as7ProjectSolution.buildSourceFiles(fileName);
+        if (fileName != "")
+        {
+            LintOptions::m_lastDirectory = QFileInfo(fileName).absolutePath();
+            // Currently only Atmel Studio 7 project supported
+            AtmelStudio7ProjectSolution as7ProjectSolution;
+            directoryFiles = as7ProjectSolution.buildSourceFiles(fileName);
+        }
     }
     else
     {
@@ -343,42 +341,15 @@ void MainWindow::startLint(bool lintProject)
     }
     //
 
-    m_linter->setLinterFile(linterLintFile);
-    m_linter->setLinterExecutable(linterExecutable);
-    m_linter->setLintFiles(directoryFiles);
-
-   // QElapsedTimer lintTimer, processTimer;
-  //  lintTimer.start();
-
-
-    //
-    startLintThread();
-    //
-
-  /*  LINTER_STATUS linterStatus = m_linter->lint(lintMessages);
-    auto lintTimerTotal = lintTimer.elapsed();
-    qDebug() << "Lint took: " << lintTimerTotal << "ms";
-
-
-    switch (linterStatus)
+    // Only start linting if a file was selected
+    if (directoryFiles.size())
     {
-    case LINTER_UNSUPPORTED_VERSION:
-        QMessageBox::critical(this,"Error", "Unsupported lint version: '" + linterExecutable + "'");
-        break;
-    case LINTER_FAIL:
-        QMessageBox::critical(this,"Error", "Failed to run lint executable: '" + linterExecutable + "'");
-        break;
-    case LINTER_ERROR:
-        QMessageBox::critical(this,"Error", "Linter encountered an error!");
-        break;
-    case LINTER_OK:
-        processTimer.start();
-        populateLintTable(lintMessages);
-        auto processTimerTotal = processTimer.elapsed();
-        qDebug() << "Processing took: " << processTimerTotal << "ms";
-        qDebug() << "Total: " << processTimerTotal + lintTimerTotal << "ms";
-        break;
-    }*/
+        m_linter->setLinterFile(linterLintFile);
+        m_linter->setLinterExecutable(linterExecutable);
+        m_linter->setLintFiles(directoryFiles);
+
+        startLintThread();
+    }
 }
 
 void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
@@ -434,11 +405,7 @@ void MainWindow::slotLintFinished(LINTER_STATUS status, QSet<lintMessage> lintMe
         QMessageBox::critical(this,"Error", "Linter encountered an error!");
         break;
     case LINTER_OK:
-       // processTimer.start();
         populateLintTable(lintMessages);
-       // auto processTimerTotal = processTimer.elapsed();
-       // qDebug() << "Processing took: " << processTimerTotal << "ms";
-       // qDebug() << "Total: " << processTimerTotal + lintTimerTotal << "ms";
         break;
     }
 }
