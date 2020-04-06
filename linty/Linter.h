@@ -4,6 +4,7 @@
 #include <QString>
 #include <QMetaType>
 #include <QSet>
+#include <QObject>
 
 enum LINTER_STATUS
 {
@@ -52,8 +53,9 @@ public:
      QList<QString> buildSourceFiles(const QString& projectFileName) override;
 };
 
-class Linter
+class Linter : public QObject
 {
+    Q_OBJECT
 public:
     Linter();
     void setLinterExecutable(const QString& linterExecutable);
@@ -65,7 +67,12 @@ public:
     LINTER_STATUS lint(QSet<lintMessage>& lintOutputMessages);
 
     QString getLintingDirectory() const;
+    QString getLinterExecutable() const;
 
+signals:
+    void signalUpdateProgress(int value);
+    void signalUpdateProgressMax(int value);
+    void signalUpdateStatus(QString status);
 
 private:
     QString m_lintingDirectory;
@@ -75,6 +82,7 @@ private:
     QString m_lintFile;
     QList<QString> m_filesToLint;
     void addArgument(QString argument);
+
 };
 
 inline bool operator==(const lintMessage &e1, const lintMessage &e2)

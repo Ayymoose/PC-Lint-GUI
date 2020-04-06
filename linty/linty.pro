@@ -12,7 +12,9 @@ SOURCES += \
     Linter.cpp \
     Log.cpp \
     MainWindow.cpp \
+    ProgressWindow.cpp \
     Settings.cpp \
+    Worker.cpp \
     main.cpp
 
 HEADERS += \
@@ -23,15 +25,17 @@ HEADERS += \
     Linter.h \
     Log.h \
     MainWindow.h \
-    Settings.h
+    ProgressWindow.h \
+    Settings.h \
+    Worker.h
 
 FORMS += \
     LintOptions.ui \
-    MainWindow.ui
+    MainWindow.ui \
+    ProgressWindow.ui
 
 RESOURCES += \
     linty.qrc \
-    linty.qrc
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/widgets/tutorials/notepad

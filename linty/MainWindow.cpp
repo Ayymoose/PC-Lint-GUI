@@ -59,21 +59,27 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QDirIterator>
-#include <QElapsedTimer>
+#include <QTimer>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include "Worker.h"
 #include "Linter.h"
+#include "ProgressWindow.h"
+#include <QThread>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow)
 {
 
+    qRegisterMetaType<LINTER_STATUS>("LINTER_STATUS");
+    qRegisterMetaType<QSet<lintMessage>>("QSet<lintMessage>");
+
     // Turn UI into actual objects
     m_ui->setupUi(this);
 
-    connect(m_ui->actionOpen, &QAction::triggered, this, &MainWindow::open);
+    //connect(m_ui->actionOpen, &QAction::triggered, this, &MainWindow::open);
     connect(m_ui->actionSave, &QAction::triggered, this, &MainWindow::save);
     connect(m_ui->actionExit, &QAction::triggered, this, &MainWindow::exit);
     connect(m_ui->actionCopy, &QAction::triggered, this, &MainWindow::copy);
@@ -96,9 +102,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // With syntax highlighting
     m_highlighter = new Highlighter(m_ui->codeEditor->document());
 
+    m_linter = new Linter;
+
     // Status bar labels
     m_ui->statusBar->addPermanentWidget(m_ui->label);
-
     m_ui->codeEditor->setLabel(m_ui->label);
 
 }
@@ -123,11 +130,12 @@ MainWindow::~MainWindow()
 {
     delete m_ui;
     delete m_highlighter;
+    delete m_linter;
 }
 
-void MainWindow::open()
+void MainWindow::slotUpdateLintTable(QSet<lintMessage> lintMessages)
 {
-
+    populateLintTable(lintMessages);
 }
 
 void MainWindow::save()
@@ -171,14 +179,6 @@ void MainWindow::paste()
 
 }
 
-void MainWindow::about()
-{
-   /*QMessageBox::about(this, tr("About MDI"),
-                tr("The <b>Notepad</b> example demonstrates how to code a basic "
-                   "text editor using QtWidgets"));*/
-
-}
-
 void MainWindow::on_actionLint_options_triggered()
 {
     m_lintOptions.setModal(true);
@@ -192,7 +192,7 @@ void MainWindow::populateLintTable(const QSet<lintMessage>& lintMessages)
     // Populate the table view with all the lint messages
 
     // Clear all existing entries
-    QElapsedTimer progressTimer;
+
 
 
     QTableWidget* lintTable = m_ui->lintTable;
@@ -200,12 +200,19 @@ void MainWindow::populateLintTable(const QSet<lintMessage>& lintMessages)
     int rowCount = lintTable->rowCount();
     int colCount = lintTable->columnCount();
 
+    int progress = 0;
+    int maxProgress = (rowCount * colCount) + lintMessages.size();
+    emit signalUpdateProgress(progress);
+    emit signalUpdateProgressMax(maxProgress);
+    emit signalUpdateStatus("Updating table...");
+
     for (int row=0; row < rowCount; row++)
     {
         for (int col=0; col < colCount; col++)
         {
             QTableWidgetItem* item = lintTable->item(row,col);
             delete item;
+            emit signalUpdateProgress(progress++);
         }
     }
 
@@ -265,11 +272,10 @@ void MainWindow::populateLintTable(const QSet<lintMessage>& lintMessages)
         lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem(description));
         lintTable->setItem( lintTable->rowCount()-1, 3, fileWidget);
         lintTable->setItem( lintTable->rowCount()-1, 4, lineWidget);
-
-     //   qDebug() << count;
-      //  count++;
+        emit signalUpdateProgress(progress++);
     }
     lintTable->setSortingEnabled(true);
+    emit signalLintComplete();
 }
 
 void MainWindow::startLint(bool lintProject)
@@ -337,13 +343,19 @@ void MainWindow::startLint(bool lintProject)
     }
     //
 
-    m_linter.setLinterFile(linterLintFile);
-    m_linter.setLinterExecutable(linterExecutable);
-    m_linter.setLintFiles(directoryFiles);
+    m_linter->setLinterFile(linterLintFile);
+    m_linter->setLinterExecutable(linterExecutable);
+    m_linter->setLintFiles(directoryFiles);
 
-    QElapsedTimer lintTimer, processTimer;
-    lintTimer.start();
-    LINTER_STATUS linterStatus = m_linter.lint(lintMessages);
+   // QElapsedTimer lintTimer, processTimer;
+  //  lintTimer.start();
+
+
+    //
+    startLintThread();
+    //
+
+  /*  LINTER_STATUS linterStatus = m_linter->lint(lintMessages);
     auto lintTimerTotal = lintTimer.elapsed();
     qDebug() << "Lint took: " << lintTimerTotal << "ms";
 
@@ -366,12 +378,7 @@ void MainWindow::startLint(bool lintProject)
         qDebug() << "Processing took: " << processTimerTotal << "ms";
         qDebug() << "Total: " << processTimerTotal + lintTimerTotal << "ms";
         break;
-    }
-}
-
-void MainWindow::on_actionLint_triggered()
-{
-    startLint(false);
+    }*/
 }
 
 void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
@@ -408,3 +415,45 @@ void MainWindow::on_actionLint_project_triggered()
     startLint(true);
 }
 
+void MainWindow::on_actionLint_triggered()
+{
+    startLint(false);
+}
+
+void MainWindow::slotLintFinished(LINTER_STATUS status, QSet<lintMessage> lintMessages)
+{
+    switch (status)
+    {
+    case LINTER_UNSUPPORTED_VERSION:
+        QMessageBox::critical(this,"Error", "Unsupported lint version: '" + m_linter->getLinterExecutable() + "'");
+        break;
+    case LINTER_FAIL:
+        QMessageBox::critical(this,"Error", "Failed to run lint executable: '" + m_linter->getLinterExecutable() + "'");
+        break;
+    case LINTER_ERROR:
+        QMessageBox::critical(this,"Error", "Linter encountered an error!");
+        break;
+    case LINTER_OK:
+       // processTimer.start();
+        populateLintTable(lintMessages);
+       // auto processTimerTotal = processTimer.elapsed();
+       // qDebug() << "Processing took: " << processTimerTotal << "ms";
+       // qDebug() << "Total: " << processTimerTotal + lintTimerTotal << "ms";
+        break;
+    }
+}
+
+void MainWindow::startLintThread()
+{
+
+    m_progressWindow = new ProgressWindow(this);
+    m_progressWindow->setModal(true);
+    m_progressWindow->lintProcess();
+    m_progressWindow->exec();
+    delete m_progressWindow;
+}
+
+void MainWindow::on_aboutLinty_triggered()
+{
+
+}

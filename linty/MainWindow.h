@@ -51,7 +51,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include "ProgressWindow.h"
 #include "LintOptions.h"
 #include "Linter.h"
 #include "Icon.h"
@@ -59,8 +59,11 @@
 #include "CodeEditor.h"
 #include "Highlighter.h"
 
+class ProgressWindow;
+
 QT_BEGIN_NAMESPACE
-namespace Ui {
+namespace Ui
+{
 class MainWindow;
 }
 QT_END_NAMESPACE
@@ -74,10 +77,25 @@ public:
 
     ~MainWindow();
 
+    Linter* getLinter() const
+    {
+        return m_linter;
+    }
+
+signals:
+    void signalUpdateProgress(int value);
+    void signalUpdateProgressMax(int value);
+    void signalUpdateStatus(QString status);
+    void signalLintComplete();
+
+public slots:
+    void slotLintFinished(LINTER_STATUS status, QSet<lintMessage> lintMessages);
+
+    void slotUpdateLintTable(QSet<lintMessage> lintMessages);
 
 private slots:
 
-    void open();
+   // void open();
 
     void save();
 
@@ -89,8 +107,6 @@ private slots:
 
     void paste();
 
-    void about();
-
     void on_actionLint_options_triggered();
 
     void on_actionLint_triggered();
@@ -99,15 +115,20 @@ private slots:
 
     void on_actionLint_project_triggered();
 
-private:
+    void on_aboutLinty_triggered();
+
+public:
     Ui::MainWindow *m_ui;
+    ProgressWindow* m_progressWindow;
     LintOptions m_lintOptions;
     Icon m_icons;
-    Linter m_linter;
+    Linter* m_linter;
     Highlighter* m_highlighter;
     void populateLintTable(const QSet<lintMessage>& lintMessages);
     void configureLintTable();
     void startLint(bool lintProject);
+
+    void startLintThread();
 };
 
 #endif // MAINWINDOW_H

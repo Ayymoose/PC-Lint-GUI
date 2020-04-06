@@ -95,11 +95,15 @@ LINTER_STATUS Linter::lint(QSet<lintMessage>& lintOutputMessages)
     }
 
     QByteArray lintData;
-
+    int progress = 0;
+    int maxProgress = 2 * m_arguments.size();
+    emit signalUpdateProgressMax(maxProgress);
 
     while(lintProcess.waitForReadyRead())
     {
         lintData.append(lintProcess.readAll());
+        emit signalUpdateProgress(progress++);
+        //qDebug() << "Progress: " << 100 * (progress/(float)maxProgress) << "%";
     }
 
     // Remove the version information
@@ -136,6 +140,12 @@ LINTER_STATUS Linter::lint(QSet<lintMessage>& lintOutputMessages)
     QSet<lintMessage> lintMessages;
     QXmlStreamReader lintXML(lintData);
     lintMessage message;
+
+    progress = 0;
+    maxProgress = lintData.size();
+    emit signalUpdateProgress(progress);
+    emit signalUpdateProgressMax(maxProgress);
+    emit signalUpdateStatus("Parsing data...");
 
     // Start XML parsing
     // Parse the XML until we reach end of it
@@ -182,9 +192,11 @@ LINTER_STATUS Linter::lint(QSet<lintMessage>& lintOutputMessages)
         if((token == QXmlStreamReader::EndElement) && (lintXML.name() == XML_MESSAGE))
         {
             lintMessages.insert(message);
+            progress += (message.code + message.description + message.type + message.line + message.file).size();
+            emit signalUpdateProgress(progress);
             message = {};
         }
-
+        //qDebug() << "Progress: " << 100 * (progress/(float)maxProgress) << "%";
     }
 
     if (lintXML.hasError())
@@ -202,6 +214,11 @@ LINTER_STATUS Linter::lint(QSet<lintMessage>& lintOutputMessages)
 QString Linter::getLintingDirectory() const
 {
     return m_lintingDirectory;
+}
+
+QString Linter::getLinterExecutable() const
+{
+    return m_linterExecutable;
 }
 
 QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& projectFileName)
