@@ -21,6 +21,7 @@ HEADERS += \
     CodeEditor.h \
     Highlighter.h \
     Icon.h \
+    Jenkins.h \
     LintOptions.h \
     Linter.h \
     Log.h \

@@ -60,7 +60,7 @@
 #include <QFileInfo>
 #include <QDirIterator>
 #include <QTimer>
-
+#include "Jenkins.h"
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "Worker.h"
@@ -422,5 +422,9 @@ void MainWindow::startLintThread()
 
 void MainWindow::on_aboutLinty_triggered()
 {
-
+    QMessageBox versionMessageBox;
+    std::string buildCompiler = "GCC ";
+    buildCompiler += BUILD_CC;
+    versionMessageBox.setText("Build version: " BUILD_VERSION "\n" "Build date: " BUILD_DATE "\n" "Built using: " + QString::fromStdString(buildCompiler));
+    versionMessageBox.exec();
 }
