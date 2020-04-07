@@ -7,7 +7,7 @@ void Worker::slotStartLint(MainWindow* pMainWindow)
 {
     m_pMainWindow = pMainWindow;
     Linter* linter = m_pMainWindow->getLinter();
-    LINTER_STATUS status = linter->lint(m_lintMessages);
+    LINTER_STATUS status = linter->lint();
     emit signalLintFinished(status);
 }
 
@@ -15,7 +15,7 @@ void Worker::slotParseData()
 {
     // There were no errors when starting lint
     // So now fill the table
-    emit signalUpdateLintTable(m_lintMessages);
+    emit signalUpdateLintTable();
     emit signalFinished();
 }
 

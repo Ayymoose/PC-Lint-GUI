@@ -24,9 +24,9 @@ Linter::Linter()
     m_supportedVersions.insert("PC-lint Plus 1.3 for Windows, Copyright Gimpel Software LLC 1985-2019");
 }
 
-void Linter::addArgument(QString argument)
+QSet<lintMessage> Linter::getLinterMessages() const
 {
-    m_arguments << argument;
+    return m_linterMessages;
 }
 
 void Linter::setLinterFile(const QString& lintFile)
@@ -44,9 +44,8 @@ void Linter::setLintFiles(const QList<QString>& files)
     m_filesToLint = files;
 }
 
-LINTER_STATUS Linter::lint(QSet<lintMessage>& lintOutputMessages)
+LINTER_STATUS Linter::lint()
 {
-
     DEBUG_LOG("Setting working directory to: " + QFileInfo(m_lintFile).canonicalPath());
 
     QProcess lintProcess;
@@ -57,21 +56,21 @@ LINTER_STATUS Linter::lint(QSet<lintMessage>& lintOutputMessages)
     m_arguments.clear();
 
     // Extra arguments to produce XML output
-    addArgument("-v");
-    addArgument("-width(0)");
-    addArgument("+xml(doc)");
-    addArgument("-""format=<message><file>%f</file><line>%l</line><type>%t</type><code>%n</code><description>%m</description></message>");
-    addArgument("-""format_specific= ");
-    addArgument("-hFs1");
-    addArgument("-pragma(message)");
+    m_arguments << ("-v");
+    m_arguments << ("-width(0)");
+    m_arguments << ("+xml(doc)");
+    m_arguments << ("-""format=<message><file>%f</file><line>%l</line><type>%t</type><code>%n</code><description>%m</description></message>");
+    m_arguments << ("-""format_specific= ");
+    m_arguments << ("-hFs1");
+    m_arguments << ("-pragma(message)");
 
     // Add the lint file
-    addArgument(m_lintFile);
+    m_arguments << (m_lintFile);
 
     // Add all files to lint
     for (const QString& file : m_filesToLint)
     {
-       addArgument(file);
+       m_arguments << (file);
        DEBUG_LOG("Adding file to lint: " + file);
     }
 
@@ -196,7 +195,6 @@ LINTER_STATUS Linter::lint(QSet<lintMessage>& lintOutputMessages)
             emit signalUpdateProgress(progress);
             message = {};
         }
-        //qDebug() << "Progress: " << 100 * (progress/(float)maxProgress) << "%";
     }
 
     if (lintXML.hasError())
@@ -206,7 +204,7 @@ LINTER_STATUS Linter::lint(QSet<lintMessage>& lintOutputMessages)
     }
 
 
-    lintOutputMessages = lintMessages;
+    m_linterMessages = lintMessages;
 
     return LINTER_OK;
 }

@@ -51,6 +51,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QToolBar>
+#include <QToolButton>
+#include <QAction>
 #include "ProgressWindow.h"
 #include "LintOptions.h"
 #include "Linter.h"
@@ -89,13 +92,11 @@ signals:
     void signalLintComplete();
     void signalUpdateProgressTitle(QString title);
 public slots:
-    void slotLintFinished(LINTER_STATUS status, QSet<lintMessage> lintMessages);
+    void slotLintFinished(LINTER_STATUS status);
 
-    void slotUpdateLintTable(QSet<lintMessage> lintMessages);
+    void slotUpdateLintTable();
 
 private slots:
-
-   // void open();
 
     void save();
 
@@ -125,11 +126,23 @@ public:
     Icon m_icons;
     Linter* m_linter;
     Highlighter* m_highlighter;
-    void populateLintTable(const QSet<lintMessage>& lintMessages);
+    void populateLintTable();
     void configureLintTable();
     void startLint(bool lintProject);
-
     void startLintThread(QString title);
+
+
+    QToolBar* m_lowerToolbar;
+    QToolButton* m_buttonErrors;
+    QToolButton* m_buttonWarnings;
+    QToolButton* m_buttonInfo;
+    QAction* m_actionError;
+    QAction* m_actionWarning;
+    QAction* m_actionInfo;
+    bool m_toggleError;
+    bool m_toggleWarning;
+    bool m_toggleInfo;
+
 };
 
 #endif // MAINWINDOW_H

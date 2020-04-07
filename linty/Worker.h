@@ -20,7 +20,7 @@ public slots:
     void slotParseData();
 signals:
     void signalLintFinished(LINTER_STATUS status);
-    void signalUpdateLintTable(QSet<lintMessage> lintMessages);
+    void signalUpdateLintTable();
     void signalFinished();
 private:
     QSet<lintMessage> m_lintMessages;

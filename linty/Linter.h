@@ -14,6 +14,14 @@ enum LINTER_STATUS
     LINTER_ERROR,
 };
 
+enum MESSAGE_TYPE
+{
+    MESSAGE_TYPE_ERROR = 0,
+    MESSAGE_TYPE_WARNING,
+    MESSAGE_TYPE_INFORMATION,
+    MESSAGE_TYPE_UNKNOWN,
+};
+
 typedef struct
 {
     QString file;
@@ -63,8 +71,11 @@ public:
     void setLinterDirectory(const QString& linterDirectory);
     void setLintFiles(const QList<QString>& files);
 
+    // Gets the set of lintMessage returned after a lint
+    QSet<lintMessage> getLinterMessages() const;
+
     // Lint a directory or some files
-    LINTER_STATUS lint(QSet<lintMessage>& lintOutputMessages);
+    LINTER_STATUS lint();
 
     QString getLintingDirectory() const;
     QString getLinterExecutable() const;
@@ -81,8 +92,7 @@ private:
     QString m_linterExecutable;
     QString m_lintFile;
     QList<QString> m_filesToLint;
-    void addArgument(QString argument);
-
+    QSet<lintMessage> m_linterMessages;
 };
 
 inline bool operator==(const lintMessage &e1, const lintMessage &e2)

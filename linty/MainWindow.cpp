@@ -67,6 +67,8 @@
 #include "Linter.h"
 #include "ProgressWindow.h"
 #include <QThread>
+#include <QPushButton>
+#include <QToolButton>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -108,7 +110,72 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui->statusBar->addPermanentWidget(m_ui->label);
     m_ui->codeEditor->setLabel(m_ui->label);
 
+    // | Errors: 0 Warnings: 0 Info: 0 |
+
+    // Toggled on (show messages only of this type)
+    // Toggle off (hide messages only of this type)
+    m_toggleError = true;
+    m_toggleInfo = true;
+    m_toggleWarning = true;
+
+    m_lowerToolbar = new QToolBar;
+    m_buttonErrors = new QToolButton;
+    m_buttonWarnings = new QToolButton;
+    m_buttonInfo = new QToolButton;
+
+    m_buttonErrors->setCheckable(true);
+    m_buttonErrors->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    QAction* m_actionError = new QAction;
+    m_actionError->setIcon(QIcon(":/images/error.png"));
+    m_actionError->setText("Errors: 0");
+    m_buttonErrors->setDefaultAction(m_actionError);
+    m_actionError->setCheckable(true);
+    m_actionError->setChecked(m_toggleError);
+
+    m_buttonWarnings->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    QAction* m_actionWarning = new QAction;
+    m_actionWarning->setIcon(QIcon(":/images/warning.png"));
+    m_actionWarning->setText("Warnings: 0");
+    m_buttonWarnings->setDefaultAction(m_actionWarning);
+    m_actionWarning->setCheckable(true);
+    m_actionWarning->setChecked(m_toggleWarning);
+
+    m_buttonInfo->setCheckable(true);
+    m_buttonInfo->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    QAction* m_actionInfo = new QAction;
+    m_actionInfo->setIcon(QIcon(":/images/info.png"));
+    m_actionInfo->setText("Information: 0");
+    m_buttonInfo->setDefaultAction(m_actionInfo);
+    m_actionInfo->setCheckable(true);
+    m_actionInfo->setChecked(m_buttonInfo);
+
+    m_ui->verticalLayout_3->addWidget(m_lowerToolbar);
+    m_lowerToolbar->addWidget(m_buttonErrors);
+    m_lowerToolbar->addSeparator();
+    m_lowerToolbar->addWidget(m_buttonWarnings);
+    m_lowerToolbar->addSeparator();
+    m_lowerToolbar->addWidget(m_buttonInfo);
+    m_lowerToolbar->addSeparator();
+
+    connect(m_actionError, &QAction::triggered, this, [this](bool checked)
+    {
+        m_toggleError = checked;
+        populateLintTable();
+    });
+
+    connect(m_actionInfo, &QAction::triggered, this, [this](bool checked)
+    {
+        m_toggleInfo = checked;
+        populateLintTable();
+    });
+
+    connect(m_actionWarning, &QAction::triggered, this, [this](bool checked)
+    {
+        m_toggleWarning = checked;
+        populateLintTable();
+    });
 }
+
 
 void MainWindow::configureLintTable()
 {
@@ -131,9 +198,9 @@ MainWindow::~MainWindow()
     delete m_linter;
 }
 
-void MainWindow::slotUpdateLintTable(QSet<lintMessage> lintMessages)
+void MainWindow::slotUpdateLintTable()
 {
-    populateLintTable(lintMessages);
+    populateLintTable();
 }
 
 void MainWindow::save()
@@ -185,7 +252,7 @@ void MainWindow::on_actionLint_options_triggered()
 
 }
 
-void MainWindow::populateLintTable(const QSet<lintMessage>& lintMessages)
+void MainWindow::populateLintTable()
 {
     // Populate the table view with all the lint messages
     // Clear all existing entries
@@ -194,6 +261,8 @@ void MainWindow::populateLintTable(const QSet<lintMessage>& lintMessages)
     lintTable->setSortingEnabled(false);
     int rowCount = lintTable->rowCount();
     int colCount = lintTable->columnCount();
+
+    auto lintMessages = m_linter->getLinterMessages();
 
     int progress = 0;
     int maxProgress = (rowCount * colCount) + lintMessages.size();
@@ -222,6 +291,53 @@ void MainWindow::populateLintTable(const QSet<lintMessage>& lintMessages)
         QString type = message.type;
         QString description = message.description;
 
+
+        MESSAGE_TYPE messageType;
+
+        // Determine type
+        if (!QString::compare(type, TYPE_ERROR, Qt::CaseInsensitive))
+        {
+            messageType = MESSAGE_TYPE_ERROR;
+        }
+        else if (!QString::compare(type, TYPE_WARNING, Qt::CaseInsensitive))
+        {
+            messageType = MESSAGE_TYPE_WARNING;
+        }
+        else if (!QString::compare(type, TYPE_INFORMATION, Qt::CaseInsensitive))
+        {
+            messageType = MESSAGE_TYPE_INFORMATION;
+        }
+        else
+        {
+            messageType = MESSAGE_TYPE_UNKNOWN;
+        }
+
+
+        // Filter
+        if (!m_toggleError)
+        {
+            if (messageType == MESSAGE_TYPE_ERROR)
+            {
+                continue;
+            }
+        }
+
+        if (!m_toggleWarning)
+        {
+            if (messageType == MESSAGE_TYPE_WARNING)
+            {
+                continue;
+            }
+        }
+
+        if (!m_toggleInfo)
+        {
+            if (messageType == MESSAGE_TYPE_INFORMATION)
+            {
+                continue;
+            }
+        }
+
         // Insert row
         lintTable->insertRow(lintTable->rowCount());
 
@@ -239,22 +355,12 @@ void MainWindow::populateLintTable(const QSet<lintMessage>& lintMessages)
 
 
         QImage* icon = nullptr;
-
-        if (!QString::compare(type, TYPE_ERROR, Qt::CaseInsensitive))
+        switch (messageType)
         {
-            icon = m_icons[ICON_ERROR];
-        }
-        else if (!QString::compare(type, TYPE_WARNING, Qt::CaseInsensitive))
-        {
-            icon = m_icons[ICON_WARNING];
-        }
-        else if (!QString::compare(type, TYPE_INFORMATION, Qt::CaseInsensitive))
-        {
-            icon = m_icons[ICON_INFORMATION];
-        }
-        else
-        {
-            icon = m_icons[ICON_UNKNOWN];
+            case MESSAGE_TYPE_ERROR: icon = m_icons[ICON_ERROR];  break;
+            case MESSAGE_TYPE_WARNING: icon = m_icons[ICON_WARNING]; break;
+            case MESSAGE_TYPE_INFORMATION: icon = m_icons[ICON_INFORMATION]; break;
+            case MESSAGE_TYPE_UNKNOWN: icon = m_icons[ICON_UNKNOWN]; break;
         }
 
         if (icon)
@@ -400,7 +506,7 @@ void MainWindow::on_actionLint_triggered()
     startLint(false);
 }
 
-void MainWindow::slotLintFinished(LINTER_STATUS status, QSet<lintMessage> lintMessages)
+void MainWindow::slotLintFinished(LINTER_STATUS status)
 {
     switch (status)
     {
@@ -414,7 +520,7 @@ void MainWindow::slotLintFinished(LINTER_STATUS status, QSet<lintMessage> lintMe
         QMessageBox::critical(this,"Error", "Linter encountered an error!");
         break;
     case LINTER_OK:
-        populateLintTable(lintMessages);
+        populateLintTable();
         break;
     }
 }

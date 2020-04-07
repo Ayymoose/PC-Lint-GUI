@@ -112,6 +112,9 @@ selection-color: rgb(0, 0, 0);</string>
         </property>
        </column>
       </widget>
+      <widget class="QWidget" name="verticalLayoutWidget">
+       <layout class="QVBoxLayout" name="verticalLayout_3"/>
+      </widget>
      </widget>
     </item>
     <item>
