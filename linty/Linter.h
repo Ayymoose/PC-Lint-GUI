@@ -45,23 +45,7 @@ typedef struct
 #define TYPE_INFORMATION "Info"
 #define TYPE_WARNING "Warning"
 
-
 #define COMPARE_TYPE(string, type) (!QString::compare(string, type, Qt::CaseInsensitive))
-
-class ProjectSolution
-{
-public:
-     virtual QList<QString> buildSourceFiles(const QString& projectFileName) = 0;
-};
-
-class AtmelStudio7ProjectSolution : public ProjectSolution
-{
-public:
-
-     AtmelStudio7ProjectSolution() = default;
-     ~AtmelStudio7ProjectSolution() = default;
-     QList<QString> buildSourceFiles(const QString& projectFileName) override;
-};
 
 class Linter : public QObject
 {

@@ -13,6 +13,7 @@ SOURCES += \
     Log.cpp \
     MainWindow.cpp \
     ProgressWindow.cpp \
+    ProjectSolution.cpp \
     Settings.cpp \
     Worker.cpp \
     main.cpp
@@ -27,6 +28,7 @@ HEADERS += \
     Log.h \
     MainWindow.h \
     ProgressWindow.h \
+    ProjectSolution.h \
     Settings.h \
     Worker.h
 

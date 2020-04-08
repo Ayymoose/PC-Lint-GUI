@@ -52,8 +52,6 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QMessageBox>
-#include <QFont>
-#include <QFontDialog>
 #include <QDebug>
 #include <QMessageBox>
 #include <QDir>
@@ -67,7 +65,7 @@
 #include "Linter.h"
 #include "ProgressWindow.h"
 #include <QThread>
-#include <QPushButton>
+#include "ProjectSolution.h"
 #include <QToolButton>
 
 MainWindow::MainWindow(QWidget *parent) :
