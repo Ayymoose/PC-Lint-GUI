@@ -91,9 +91,10 @@ signals:
     void signalUpdateStatus(QString status);
     void signalLintComplete();
     void signalUpdateProgressTitle(QString title);
+
+    void signalUpdateTypes(int errors, int warnings, int info);
 public slots:
     void slotLintFinished(LINTER_STATUS status);
-
     void slotUpdateLintTable();
 
 private slots:

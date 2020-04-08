@@ -22,6 +22,10 @@ Linter::Linter()
     m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00k, Copyright Gimpel Software 1985-2013");
     m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00L, Copyright Gimpel Software 1985-2014");
     m_supportedVersions.insert("PC-lint Plus 1.3 for Windows, Copyright Gimpel Software LLC 1985-2019");
+
+    m_numberOfErrors = 0;
+    m_numberOfInfo = 0;
+    m_numberOfWarnings = 0;
 }
 
 QSet<lintMessage> Linter::getLinterMessages() const
@@ -42,6 +46,21 @@ void Linter::setLinterExecutable(const QString& linterExecutable)
 void Linter::setLintFiles(const QList<QString>& files)
 {
     m_filesToLint = files;
+}
+
+int Linter::numberOfInfo() const
+{
+    return m_numberOfInfo;
+}
+
+int Linter::numberOfWarnings() const
+{
+    return m_numberOfWarnings;
+}
+
+int Linter::numberOfErrors() const
+{
+    return m_numberOfErrors;
 }
 
 LINTER_STATUS Linter::lint()
@@ -87,6 +106,10 @@ LINTER_STATUS Linter::lint()
     lintProcess.setArguments(m_arguments);
     lintProcess.start();
 
+    m_numberOfErrors = 0;
+    m_numberOfInfo = 0;
+    m_numberOfWarnings = 0;
+
     if (!lintProcess.waitForStarted())
     {
         DEBUG_LOG("### Failed to start lint executable because " + lintProcess.errorString());
@@ -102,7 +125,6 @@ LINTER_STATUS Linter::lint()
     {
         lintData.append(lintProcess.readAll());
         emit signalUpdateProgress(progress++);
-        //qDebug() << "Progress: " << 100 * (progress/(float)maxProgress) << "%";
     }
 
     // Remove the version information
@@ -133,8 +155,6 @@ LINTER_STATUS Linter::lint()
     file.open(QIODevice::WriteOnly);
     file.write(lintData.data());
     file.close();
-
-
 
     QSet<lintMessage> lintMessages;
     QXmlStreamReader lintXML(lintData);
@@ -177,6 +197,26 @@ LINTER_STATUS Linter::lint()
             if(lintXML.name() == XML_TYPE)
             {
                 message.type = lintXML.readElementText();
+
+                // Ascertain type
+                if (COMPARE_TYPE(message.type, TYPE_ERROR))
+                {
+                    m_numberOfErrors++;
+                }
+                else if (COMPARE_TYPE(message.type, TYPE_WARNING))
+                {
+                    m_numberOfWarnings++;
+                }
+                else if (COMPARE_TYPE(message.type, TYPE_INFORMATION))
+                {
+                    m_numberOfInfo++;
+                }
+                else
+                {
+                    // Unknown types are treated as informational messages with '?' icon
+                    m_numberOfInfo++;
+                }
+
             }
             if(lintXML.name() == XML_CODE)
             {

@@ -125,7 +125,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_buttonErrors->setCheckable(true);
     m_buttonErrors->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    QAction* m_actionError = new QAction;
+    m_actionError = new QAction;
     m_actionError->setIcon(QIcon(":/images/error.png"));
     m_actionError->setText("Errors: 0");
     m_buttonErrors->setDefaultAction(m_actionError);
@@ -133,7 +133,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_actionError->setChecked(m_toggleError);
 
     m_buttonWarnings->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    QAction* m_actionWarning = new QAction;
+    m_actionWarning = new QAction;
     m_actionWarning->setIcon(QIcon(":/images/warning.png"));
     m_actionWarning->setText("Warnings: 0");
     m_buttonWarnings->setDefaultAction(m_actionWarning);
@@ -142,14 +142,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_buttonInfo->setCheckable(true);
     m_buttonInfo->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    QAction* m_actionInfo = new QAction;
+    m_actionInfo = new QAction;
     m_actionInfo->setIcon(QIcon(":/images/info.png"));
     m_actionInfo->setText("Information: 0");
     m_buttonInfo->setDefaultAction(m_actionInfo);
     m_actionInfo->setCheckable(true);
     m_actionInfo->setChecked(m_buttonInfo);
 
-    m_ui->verticalLayout_3->addWidget(m_lowerToolbar);
+    m_ui->verticalLayout_2->addWidget(m_lowerToolbar);
     m_lowerToolbar->addWidget(m_buttonErrors);
     m_lowerToolbar->addSeparator();
     m_lowerToolbar->addWidget(m_buttonWarnings);
@@ -174,6 +174,13 @@ MainWindow::MainWindow(QWidget *parent) :
         m_toggleWarning = checked;
         populateLintTable();
     });
+
+    connect(this, &MainWindow::signalUpdateTypes, this, [this](int errors, int warnings, int info)
+    {
+        m_actionError->setText("Errors: " + QString::number(errors));
+        m_actionWarning->setText("Warnings: " + QString::number(warnings));
+        m_actionInfo->setText("Information: " + QString::number(info));
+    });
 }
 
 
@@ -196,6 +203,13 @@ MainWindow::~MainWindow()
     delete m_ui;
     delete m_highlighter;
     delete m_linter;
+    delete m_actionError;
+    delete m_buttonErrors;
+    delete m_actionWarning;
+    delete m_buttonWarnings;
+    delete m_actionInfo;
+    delete m_buttonInfo;
+    delete m_lowerToolbar;
 }
 
 void MainWindow::slotUpdateLintTable()
@@ -376,6 +390,9 @@ void MainWindow::populateLintTable()
         emit signalUpdateProgress(progress++);
     }
     lintTable->setSortingEnabled(true);
+
+
+    emit signalUpdateTypes(m_linter->numberOfErrors(), m_linter->numberOfWarnings(), m_linter->numberOfInfo());
     emit signalLintComplete();
 }
 

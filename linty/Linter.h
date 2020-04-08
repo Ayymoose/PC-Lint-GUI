@@ -46,6 +46,8 @@ typedef struct
 #define TYPE_WARNING "Warning"
 
 
+#define COMPARE_TYPE(string, type) (!QString::compare(string, type, Qt::CaseInsensitive))
+
 class ProjectSolution
 {
 public:
@@ -74,6 +76,10 @@ public:
     // Gets the set of lintMessage returned after a lint
     QSet<lintMessage> getLinterMessages() const;
 
+    int numberOfErrors() const;
+    int numberOfWarnings() const;
+    int numberOfInfo() const;
+
     // Lint a directory or some files
     LINTER_STATUS lint();
 
@@ -93,6 +99,9 @@ private:
     QString m_lintFile;
     QList<QString> m_filesToLint;
     QSet<lintMessage> m_linterMessages;
+    int m_numberOfErrors;
+    int m_numberOfWarnings;
+    int m_numberOfInfo;
 };
 
 inline bool operator==(const lintMessage &e1, const lintMessage &e2)
