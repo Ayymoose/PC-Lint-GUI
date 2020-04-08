@@ -13,5 +13,6 @@
         <file>images/info.png</file>
         <file>images/unknown.png</file>
         <file>images/lint.png</file>
+        <file>images/refresh.png</file>
     </qresource>
 </RCC>

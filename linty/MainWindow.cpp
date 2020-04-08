@@ -81,12 +81,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // Turn UI into actual objects
     m_ui->setupUi(this);
 
-    //connect(m_ui->actionOpen, &QAction::triggered, this, &MainWindow::open);
     connect(m_ui->actionSave, &QAction::triggered, this, &MainWindow::save);
     connect(m_ui->actionExit, &QAction::triggered, this, &MainWindow::exit);
     connect(m_ui->actionCopy, &QAction::triggered, this, &MainWindow::copy);
     connect(m_ui->actionCut, &QAction::triggered, this, &MainWindow::cut);
-    connect(m_ui->actionPaste, &QAction::triggered, this, &MainWindow::paste);
 
     // Load any settings we have
     m_lintOptions.loadSettings();
@@ -253,11 +251,6 @@ void MainWindow::cut()
 
 }
 
-void MainWindow::paste()
-{
-
-}
-
 void MainWindow::on_actionLint_options_triggered()
 {
     m_lintOptions.setModal(true);
@@ -396,12 +389,8 @@ void MainWindow::populateLintTable()
     emit signalLintComplete();
 }
 
-void MainWindow::startLint(bool lintProject)
+bool MainWindow::verifyLint()
 {
-    // This function tries to call the linter
-    // The linter will attempt to lint the files specified in the directory we give it
-    // It will show all output in a list view where we can view it
-    // Should be in a separate thread really
     QDir path;
     QFileInfo fileInfo;
 
@@ -412,13 +401,13 @@ void MainWindow::startLint(bool lintProject)
     if (!fileInfo.exists())
     {
         QMessageBox::critical(this,"Error", "Lint executable does not exist: '" + linterExecutable + "'");
-        return;
+        return false;
     }
 
     if (!fileInfo.isExecutable())
     {
         QMessageBox::critical(this,"Error", "Non-executable file specified: '" + linterExecutable + "'");
-        return;
+        return false;
     }
 
     // Check if lint file exists
@@ -427,7 +416,7 @@ void MainWindow::startLint(bool lintProject)
     if (!fileInfo.exists())
     {
         QMessageBox::critical(this,"Error", "Lint file does not exist: '" + linterLintFile + "'");
-        return;
+        return false;
     }
 
     // Check if the directory exists
@@ -436,52 +425,73 @@ void MainWindow::startLint(bool lintProject)
     if (!path.exists())
     {
         QMessageBox::critical(this,"Error", "Directory does not exist: '" + lintDirectory + "'");
-        return;
+        return false;
     }
 
-    QSet<lintMessage> lintMessages;
-    QList<QString> directoryFiles;
-    QString fileName;
+    return true;
+}
 
-    //
-    if (lintProject)
-    {
-        fileName = QFileDialog::getOpenFileName(this, "Select project file", LintOptions::m_lastDirectory, "Atmel 7 studio (*.cproj)");
-        if (fileName != "")
-        {
-            LintOptions::m_lastDirectory = QFileInfo(fileName).absolutePath();
-            // Currently only Atmel Studio 7 project supported
-            AtmelStudio7ProjectSolution as7ProjectSolution;
-            directoryFiles = as7ProjectSolution.buildSourceFiles(fileName);
-        }
-    }
-    else
-    {
-        QDirIterator dirIterator(lintDirectory, QStringList() << "*.c");
-        while (dirIterator.hasNext())
-        {
-            directoryFiles.append(dirIterator.next());
-        }
-    }
-    //
+void MainWindow::startLint(bool lintProject)
+{
+    // This function tries to call the linter
+    // The linter will attempt to lint the files specified in the directory we give it
+    // It will show all output in a list view where we can view it
+    // Should be in a separate thread really
 
-    // Only start linting if a file was selected
-    if (directoryFiles.size())
-    {
-        m_linter->setLinterFile(linterLintFile);
-        m_linter->setLinterExecutable(linterExecutable);
-        m_linter->setLintFiles(directoryFiles);
 
-        // Display directory name or filename
-        if (fileName != "")
+    if (verifyLint())
+    {
+        QList<QString> directoryFiles;
+        QString fileName;
+
+        // Lint a project solution file
+        if (lintProject)
         {
-            startLintThread(QFileInfo(fileName).fileName());
+            fileName = QFileDialog::getOpenFileName(this, "Select project file", LintOptions::m_lastDirectory, "Atmel 7 studio (*.cproj)");
+            if (fileName != "")
+            {
+                LintOptions::m_lastDirectory = QFileInfo(fileName).absolutePath();
+                // Currently only Atmel Studio 7 project supported
+                AtmelStudio7ProjectSolution as7ProjectSolution;
+                // TODO: VS project linting solution
+                // TODO: Handle any errors
+                directoryFiles = as7ProjectSolution.buildSourceFiles(fileName);
+                m_lastProjectLoaded = fileName;
+                m_directoryFiles = directoryFiles;
+            }
         }
         else
         {
-            startLintThread(lintDirectory);
+            // Lint a directory containing some source file(s)
+            QDirIterator dirIterator(m_lintOptions.getLinterDirectory().trimmed(), QStringList() << "*.c");
+            while (dirIterator.hasNext())
+            {
+                directoryFiles.append(dirIterator.next());
+            }
+        }
+        //
+
+        // Only start linting if a file was selected
+        if (directoryFiles.size())
+        {
+            m_linter->setLinterFile(m_lintOptions.getLinterLintFilePath().trimmed());
+            m_linter->setLinterExecutable(m_lintOptions.getLinterExecutablePath().trimmed());
+            m_linter->setLintFiles(directoryFiles);
+
+            // Display directory name or filename
+            if (fileName != "")
+            {
+                // Lint a project solution
+                startLintThread(QFileInfo(fileName).fileName());
+            }
+            else
+            {
+                // Start linting a directory
+                startLintThread(m_lintOptions.getLinterDirectory().trimmed());
+            }
         }
     }
+
 }
 
 void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
@@ -559,4 +569,17 @@ void MainWindow::on_aboutLinty_triggered()
     buildCompiler += BUILD_CC;
     versionMessageBox.setText("Build version: " BUILD_VERSION "\n" "Build date: " BUILD_DATE "\n" "Built using: " + QString::fromStdString(buildCompiler));
     versionMessageBox.exec();
+}
+
+void MainWindow::on_actionRefresh_triggered()
+{
+    // If we have a project name that was already loaded
+    // Then try to lint that again
+    if (m_lastProjectLoaded != "")
+    {
+        m_linter->setLinterFile(m_lintOptions.getLinterLintFilePath().trimmed());
+        m_linter->setLinterExecutable(m_lintOptions.getLinterExecutablePath().trimmed());
+        m_linter->setLintFiles(m_directoryFiles);
+        startLintThread(QFileInfo(m_lastProjectLoaded).fileName());
+    }
 }

@@ -160,7 +160,7 @@ selection-color: rgb(0, 0, 0);</string>
    <addaction name="separator"/>
    <addaction name="actionCopy"/>
    <addaction name="actionCut"/>
-   <addaction name="actionPaste"/>
+   <addaction name="actionRefresh"/>
    <addaction name="separator"/>
    <addaction name="separator"/>
    <addaction name="aboutLinty"/>
@@ -234,16 +234,16 @@ selection-color: rgb(0, 0, 0);</string>
     <string>Ctrl+X</string>
    </property>
   </action>
-  <action name="actionPaste">
+  <action name="actionRefresh">
    <property name="icon">
     <iconset resource="linty.qrc">
-     <normaloff>:/images/paste.png</normaloff>:/images/paste.png</iconset>
+     <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
    </property>
    <property name="text">
-    <string>Paste</string>
+    <string>Refresh</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+V</string>
+   <property name="toolTip">
+    <string>Refresh</string>
    </property>
   </action>
   <action name="aboutLinty">

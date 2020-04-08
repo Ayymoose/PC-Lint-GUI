@@ -107,8 +107,6 @@ private slots:
 
     void cut();
 
-    void paste();
-
     void on_actionLint_options_triggered();
 
     void on_actionLint_triggered();
@@ -119,6 +117,8 @@ private slots:
 
     void on_aboutLinty_triggered();
 
+
+    void on_actionRefresh_triggered();
 
 public:
     Ui::MainWindow *m_ui;
@@ -132,7 +132,7 @@ public:
     void startLint(bool lintProject);
     void startLintThread(QString title);
 
-
+private:
     QToolBar* m_lowerToolbar;
     QToolButton* m_buttonErrors;
     QToolButton* m_buttonWarnings;
@@ -143,6 +143,9 @@ public:
     bool m_toggleError;
     bool m_toggleWarning;
     bool m_toggleInfo;
+    QString m_lastProjectLoaded;
+    QList<QString> m_directoryFiles;
+    bool verifyLint();
 
 };
 
