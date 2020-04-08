@@ -354,7 +354,6 @@ void MainWindow::populateLintTable()
 
         codeWidget->setData(Qt::DisplayRole,code.toUInt());
         lineWidget->setData(Qt::DisplayRole,line.toUInt());
-
         fileWidget->setData(Qt::DisplayRole, QFileInfo(file).fileName());
         fileWidget->setData(Qt::UserRole, file);
 
@@ -382,6 +381,15 @@ void MainWindow::populateLintTable()
     }
     lintTable->setSortingEnabled(true);
 
+    // Show message if there are no lint problems
+    if (m_linter->numberOfErrors() == 0 && m_linter->numberOfWarnings() == 0 && m_linter->numberOfInfo() == 0)
+    {
+        // Set item data
+        auto type = new QTableWidgetItem;
+        type->setData(Qt::DecorationRole, QPixmap::fromImage(*m_icons[ICON_CORRECT]));
+        lintTable->setItem( lintTable->rowCount()-1, 0, type);
+        lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem("No errors were detected :)"));
+    }
 
     emit signalUpdateTypes(m_linter->numberOfErrors(), m_linter->numberOfWarnings(), m_linter->numberOfInfo());
     emit signalLintComplete();
