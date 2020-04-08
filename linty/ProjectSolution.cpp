@@ -5,6 +5,7 @@
 #include "ProjectSolution.h"
 #include <windows.h>
 #include "Log.h"
+#include <stdexcept>
 
 QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& projectFileName)
 {
@@ -41,14 +42,18 @@ QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proj
                     QXmlStreamAttributes attrs = xmlReader.attributes();
                     QString include = attrs.value("Include").toString();
 
+                    // Add only C files
                     if (QFileInfo(include).suffix() == "c")
                     {
                         // Append the project path so we can get the canonical file path
                         QString sourceFile = QFileInfo(projectPath + "\\" + include).canonicalFilePath();
-                        sourceFiles.append(sourceFile);
                         if (sourceFile.length() >= MAX_PATH)
                         {
                             DEBUG_LOG("### Source file name longer than " + QString(MAX_PATH) + " characters");
+                        }
+                        else
+                        {
+                            sourceFiles.append(sourceFile);
                         }
                     }
 
@@ -63,16 +68,19 @@ QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proj
         }
         if(xmlReader.hasError())
         {
-            qDebug() << "Error Type:       " << xmlReader.error();
-            qDebug() << "Error String:     " << xmlReader.errorString();
-            qDebug() << "Line Number:      " << xmlReader.lineNumber();
-            qDebug() << "Column Number:    " << xmlReader.columnNumber();
-            qDebug() << "Character Offset: " << xmlReader.characterOffset();
+            DEBUG_LOG("### XML parser error in " + projectFileName);
+            DEBUG_LOG("Error Type:       " + QString(xmlReader.error()));
+            DEBUG_LOG("Error String:     " + xmlReader.errorString());
+            DEBUG_LOG("Line Number:      " + QString::number(xmlReader.lineNumber()));
+            DEBUG_LOG("Column Number:    " + QString::number(xmlReader.columnNumber()));
+            DEBUG_LOG("Character Offset: " + QString::number(xmlReader.characterOffset()));
+            throw std::logic_error("XML parser error!");
         }
     }
     else
     {
-        qDebug() << "Unable to open file for reading";
+        DEBUG_LOG("### Unable to open file: " + projectFileName);
+        throw std::logic_error("Unable to open file: " + projectFileName.toStdString());
     }
 
     return sourceFiles;

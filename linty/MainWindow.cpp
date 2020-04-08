@@ -452,10 +452,16 @@ void MainWindow::startLint(bool lintProject)
                 // Currently only Atmel Studio 7 project supported
                 AtmelStudio7ProjectSolution as7ProjectSolution;
                 // TODO: VS project linting solution
-                // TODO: Handle any errors
-                directoryFiles = as7ProjectSolution.buildSourceFiles(fileName);
-                m_lastProjectLoaded = fileName;
-                m_directoryFiles = directoryFiles;
+                try
+                {
+                    directoryFiles = as7ProjectSolution.buildSourceFiles(fileName);
+                    m_lastProjectLoaded = fileName;
+                    m_directoryFiles = directoryFiles;
+                } catch (const std::logic_error& e)
+                {
+                    QMessageBox::critical(this,"Error", QString(e.what()));
+                }
+
             }
         }
         else
