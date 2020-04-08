@@ -43,6 +43,7 @@ QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proj
                     QString include = attrs.value("Include").toString();
 
                     // Add only C files
+                    // Can you build CPP projects with Atmel studio?
                     if (QFileInfo(include).suffix() == "c")
                     {
                         // Append the project path so we can get the canonical file path
@@ -66,6 +67,7 @@ QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proj
             }
 
         }
+        projectFile.close();
         if(xmlReader.hasError())
         {
             DEBUG_LOG("### XML parser error in " + projectFileName);
