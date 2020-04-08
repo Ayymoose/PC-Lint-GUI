@@ -3,6 +3,7 @@
 #include <QDebug>
 #include "Worker.h"
 #include "Linter.h"
+#include "Jenkins.h"
 #include <QThread>
 
 ProgressWindow::ProgressWindow(QWidget *parent) :
@@ -89,6 +90,7 @@ void ProgressWindow::slotUpdateTime()
 
 void ProgressWindow::slotLintComplete()
 {
+    m_mainWindow->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION " - " + m_windowTitle);
     close();
 }
 
@@ -109,6 +111,7 @@ void ProgressWindow::slotLintFinished(LINTER_STATUS status)
 void ProgressWindow::slotUpdateProgressTitle(QString title)
 {
     ui->lintGroupBox->setTitle(title);
+    m_windowTitle = title;
 }
 
 ProgressWindow::~ProgressWindow()

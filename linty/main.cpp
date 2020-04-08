@@ -53,6 +53,7 @@
 #include <QScreen>
 #include "Log.h"
 #include "CodeEditor.h"
+#include "Jenkins.h"
 
 int main(int argc, char *argv[])
 {
@@ -71,6 +72,7 @@ int main(int argc, char *argv[])
     int y = (screenSize.height()-mainWindow.height() - 40) / 2;
     mainWindow.move(x, y);
     mainWindow.showMaximized();
+    mainWindow.setWindowTitle(APPLICATION_NAME " " BUILD_VERSION);
 
     return EditorApp.exec();
 }

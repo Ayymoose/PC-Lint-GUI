@@ -50,7 +50,7 @@ private:
     int m_elapsedTime;
     int m_eta;
     QTimer* m_timer;
-
+    QString m_windowTitle;
     QThread* m_workerThread;
     Worker* m_worker;
 

@@ -1,6 +1,7 @@
 #ifndef JENKINS_H
 #define JENKINS_H
 
+#define APPLICATION_NAME "Linty"
 #define BUILD_VERSION "Jenkins build replace"
 #define BUILD_DATE "Jenkins build replace"
 #define BUILD_CC VER_STRING(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
