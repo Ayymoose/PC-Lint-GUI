@@ -1,12 +1,7 @@
-#ifndef JENKINS_H
-#define JENKINS_H
-
-#define APPLICATION_NAME "Linty"
-#define BUILD_VERSION "Jenkins build replace"
-#define BUILD_DATE "Jenkins build replace"
-#define BUILD_CC VER_STRING(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-
-#define STRINGIFY(x) #x
-#define VER_STRING(major, minor, patch) (STRINGIFY(major) "." STRINGIFY(minor) "." STRINGIFY(patch))
-
-#endif // JENKINS_H
+#ifndef JENKINS_H 
+#define JENKINS_H 
+#define APPLICATION_NAME "Linty" 
+#define BUILD_VERSION "1.10" 
+#define BUILD_DATE "2020-04-10_15-09-44" 
+#define BUILD_COMMIT "9091130d8fe97b498a54d29771cf397b7e587a09" 
+#endif // JENKINS_H 

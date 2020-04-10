@@ -84,8 +84,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->actionCopy, &QAction::triggered, this, &MainWindow::copy);
     connect(m_ui->actionCut, &QAction::triggered, this, &MainWindow::cut);
 
+    m_lintOptions = new LintOptions(this);
     // Load any settings we have
-    m_lintOptions.loadSettings();
+    m_lintOptions->loadSettings();
 
     // Load icons
     m_icons.loadIcons();
@@ -206,6 +207,7 @@ MainWindow::~MainWindow()
     delete m_actionInfo;
     delete m_buttonInfo;
     delete m_lowerToolbar;
+    delete m_lintOptions;
 }
 
 void MainWindow::slotUpdateLintTable()
@@ -251,9 +253,9 @@ void MainWindow::cut()
 
 void MainWindow::on_actionLint_options_triggered()
 {
-    m_lintOptions.setModal(true);
-    m_lintOptions.loadSettings();
-    m_lintOptions.exec();
+    m_lintOptions->setModal(true);
+    m_lintOptions->loadSettings();
+    m_lintOptions->exec();
 
 }
 
@@ -401,7 +403,7 @@ bool MainWindow::verifyLint()
     QFileInfo fileInfo;
 
     // Check if executable exists
-    QString linterExecutable = m_lintOptions.getLinterExecutablePath().trimmed();
+    QString linterExecutable = m_lintOptions->getLinterExecutablePath().trimmed();
     fileInfo.setFile(linterExecutable);
 
     if (!fileInfo.exists())
@@ -417,7 +419,7 @@ bool MainWindow::verifyLint()
     }
 
     // Check if lint file exists
-    QString linterLintFile = m_lintOptions.getLinterLintFilePath().trimmed();
+    QString linterLintFile = m_lintOptions->getLinterLintFilePath().trimmed();
     fileInfo.setFile(linterLintFile);
     if (!fileInfo.exists())
     {
@@ -426,7 +428,7 @@ bool MainWindow::verifyLint()
     }
 
     // Check if the directory exists
-    QString lintDirectory = m_lintOptions.getLinterDirectory().trimmed();
+    QString lintDirectory = m_lintOptions->getLinterDirectory().trimmed();
     path.setPath(lintDirectory);
     if (!path.exists())
     {
@@ -475,7 +477,7 @@ void MainWindow::startLint(bool lintProject)
         else
         {
             // Lint a directory containing some source file(s)
-            QDirIterator dirIterator(m_lintOptions.getLinterDirectory().trimmed(), QStringList() << "*.c");
+            QDirIterator dirIterator(m_lintOptions->getLinterDirectory().trimmed(), QStringList() << "*.c");
             while (dirIterator.hasNext())
             {
                 directoryFiles.append(dirIterator.next());
@@ -486,8 +488,8 @@ void MainWindow::startLint(bool lintProject)
         // Only start linting if a file was selected
         if (directoryFiles.size())
         {
-            m_linter->setLinterFile(m_lintOptions.getLinterLintFilePath().trimmed());
-            m_linter->setLinterExecutable(m_lintOptions.getLinterExecutablePath().trimmed());
+            m_linter->setLinterFile(m_lintOptions->getLinterLintFilePath().trimmed());
+            m_linter->setLinterExecutable(m_lintOptions->getLinterExecutablePath().trimmed());
             m_linter->setLintFiles(directoryFiles);
 
             // Display directory name or filename
@@ -499,7 +501,7 @@ void MainWindow::startLint(bool lintProject)
             else
             {
                 // Start linting a directory
-                startLintThread(m_lintOptions.getLinterDirectory().trimmed());
+                startLintThread(m_lintOptions->getLinterDirectory().trimmed());
             }
         }
     }
@@ -576,10 +578,14 @@ void MainWindow::startLintThread(QString title)
 
 void MainWindow::on_aboutLinty_triggered()
 {
-    QMessageBox versionMessageBox;
-    std::string buildCompiler = "GCC ";
-    buildCompiler += BUILD_CC;
-    versionMessageBox.setText("Build version: " BUILD_VERSION "\n" "Build date: " BUILD_DATE "\n" "Built using: " + QString::fromStdString(buildCompiler));
+    QMessageBox versionMessageBox(this);
+    versionMessageBox.setWindowTitle("Information");
+    versionMessageBox.setText
+            (
+                "Version: " BUILD_VERSION "\n"
+                "Date: " BUILD_DATE "\n"
+                "Commit: " BUILD_COMMIT "\n"
+                );
     versionMessageBox.exec();
 }
 
@@ -589,8 +595,8 @@ void MainWindow::on_actionRefresh_triggered()
     // Then try to lint that again
     if (m_lastProjectLoaded != "")
     {
-        m_linter->setLinterFile(m_lintOptions.getLinterLintFilePath().trimmed());
-        m_linter->setLinterExecutable(m_lintOptions.getLinterExecutablePath().trimmed());
+        m_linter->setLinterFile(m_lintOptions->getLinterLintFilePath().trimmed());
+        m_linter->setLinterExecutable(m_lintOptions->getLinterExecutablePath().trimmed());
         m_linter->setLintFiles(m_directoryFiles);
         startLintThread(QFileInfo(m_lastProjectLoaded).fileName());
     }
