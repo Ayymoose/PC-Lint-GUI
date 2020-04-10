@@ -477,10 +477,16 @@ void MainWindow::startLint(bool lintProject)
         else
         {
             // Lint a directory containing some source file(s)
-            QDirIterator dirIterator(m_lintOptions->getLinterDirectory().trimmed(), QStringList() << "*.c");
-            while (dirIterator.hasNext())
+            // Lint only C or CPP files
+            QDirIterator dirIteratorC(m_lintOptions->getLinterDirectory().trimmed(), QStringList() << "*.c");
+            while (dirIteratorC.hasNext())
             {
-                directoryFiles.append(dirIterator.next());
+                directoryFiles.append(dirIteratorC.next());
+            }
+            QDirIterator dirIteratorCPP(m_lintOptions->getLinterDirectory().trimmed(), QStringList() << "*.cpp");
+            while (dirIteratorCPP.hasNext())
+            {
+                directoryFiles.append(dirIteratorCPP.next());
             }
         }
         //
