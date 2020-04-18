@@ -455,22 +455,41 @@ void MainWindow::startLint(bool lintProject)
         // Lint a project solution file
         if (lintProject)
         {
-            fileName = QFileDialog::getOpenFileName(this, "Select project file", LintOptions::m_lastDirectory, "Atmel 7 studio (*.cproj)");
+            fileName = QFileDialog::getOpenFileName(this, "Select project file", LintOptions::m_lastDirectory, "Atmel 7 studio (*.cproj);; Visual Studio project (*.vcxproj)");
             if (fileName != "")
             {
+                // Check file extension
+                QString fileExtension = QFileInfo(fileName).completeSuffix();
                 LintOptions::m_lastDirectory = QFileInfo(fileName).absolutePath();
-                // Currently only Atmel Studio 7 project supported
+
+                ProjectSolution *project= nullptr;
                 AtmelStudio7ProjectSolution as7ProjectSolution;
-                // TODO: VS project linting solution
+                VisualStudioProject vsProject;
+
+                if (fileExtension == "cproj")
+                {
+                    // Atmel Studio 7 project supported
+                    project = &as7ProjectSolution;
+
+                }
+                else if (fileExtension == "vcxproj")
+                {
+                    // Visual studio project
+                    project = &vsProject;
+                }
+
+                Q_ASSERT(project);
+
                 try
                 {
-                    directoryFiles = as7ProjectSolution.buildSourceFiles(fileName);
+                    directoryFiles = project->buildSourceFiles(fileName);
                     m_lastProjectLoaded = fileName;
                     m_directoryFiles = directoryFiles;
                 } catch (const std::logic_error& e)
                 {
                     QMessageBox::critical(this,"Error", QString(e.what()));
                 }
+
 
             }
         }

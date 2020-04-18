@@ -7,6 +7,8 @@
 class ProjectSolution
 {
 public:
+    ProjectSolution() = default;
+    ~ProjectSolution() = default;
      virtual QList<QString> buildSourceFiles(const QString& projectFileName) = 0;
 };
 
@@ -16,6 +18,16 @@ public:
 
      AtmelStudio7ProjectSolution() = default;
      ~AtmelStudio7ProjectSolution() = default;
+     QList<QString> buildSourceFiles(const QString& projectFileName) override;
+};
+
+// .vcxproj
+class VisualStudioProject : public ProjectSolution
+{
+public:
+
+     VisualStudioProject() = default;
+     ~VisualStudioProject() = default;
      QList<QString> buildSourceFiles(const QString& projectFileName) override;
 };
 
