@@ -196,7 +196,25 @@ LINTER_STATUS Linter::lint()
             if(lintXML.name() == XML_TYPE)
             {
                 message.type = lintXML.readElementText();
+            }
+            if(lintXML.name() == XML_CODE)
+            {
+                message.code = lintXML.readElementText();
+            }
+            if(lintXML.name() == XML_DESCRIPTION)
+            {
+                message.description = lintXML.readElementText();
+            }
+        }
 
+        if((token == QXmlStreamReader::EndElement) && (lintXML.name() == XML_MESSAGE))
+        {
+            // Lint can spit out duplicates for some reason
+            // This is a quick way to check if it was inserted or not
+            int size = lintMessages.size();
+            lintMessages.insert(message);
+            if (lintMessages.size() > size)
+            {
                 // Ascertain type
                 if (COMPARE_TYPE(message.type, TYPE_ERROR))
                 {
@@ -215,21 +233,7 @@ LINTER_STATUS Linter::lint()
                     // Unknown types are treated as informational messages with '?' icon
                     m_numberOfInfo++;
                 }
-
             }
-            if(lintXML.name() == XML_CODE)
-            {
-                message.code = lintXML.readElementText();
-            }
-            if(lintXML.name() == XML_DESCRIPTION)
-            {
-                message.description = lintXML.readElementText();
-            }
-        }
-
-        if((token == QXmlStreamReader::EndElement) && (lintXML.name() == XML_MESSAGE))
-        {
-            lintMessages.insert(message);
             progress += (message.code + message.description + message.type + message.line + message.file).size();
             emit signalUpdateProgress(progress);
             message = {};
