@@ -339,7 +339,7 @@ void MainWindow::populateLintTable()
 
         if (!m_toggleInfo)
         {
-            if (messageType == MESSAGE_TYPE_INFORMATION)
+            if (messageType == MESSAGE_TYPE_INFORMATION || messageType == MESSAGE_TYPE_UNKNOWN)
             {
                 continue;
             }
