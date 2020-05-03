@@ -94,7 +94,7 @@ void LintOptions::on_buttonBox_accepted()
 void LintOptions::on_lintButton_clicked()
 {
     QFileDialog dialogue(this);
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Select lint executable"), m_lastDirectory);
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Select lint executable"), m_lastDirectory, "(*.exe)");
     m_lastDirectory = QFileInfo(fileName).absolutePath();
     if (fileName.trimmed() != "")
     {
@@ -106,7 +106,7 @@ void LintOptions::on_lintFileButton_clicked()
 {
     QFileDialog dialogue(this);
     dialogue.setFileMode(QFileDialog::Directory);
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Select lint (.lnt) file "), m_lastDirectory);
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Select lint file "), m_lastDirectory, "Lint files (*.lnt)");
     m_lastDirectory = QFileInfo(fileName).absolutePath();
     if (fileName.trimmed() != "")
     {
