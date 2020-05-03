@@ -543,16 +543,14 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
 
     if (!fileToLoad.isEmpty())
     {
-        if ((fileToLoad != m_ui->codeEditor->loadedFile()))
-        {
-            DEBUG_LOG("Loading file: " + fileToLoad);
 
-            // Load the file into the code editor
-            m_ui->codeEditor->loadFile(fileToLoad);
+        DEBUG_LOG("Loading file: " + fileToLoad);
 
-            // Update the status bar
-            m_ui->statusBar->showMessage("Loaded " + fileToLoad);
-        }
+        // Load the file into the code editor
+        m_ui->codeEditor->loadFile(fileToLoad);
+
+        // Update the status bar
+        m_ui->statusBar->showMessage("Loaded " + fileToLoad);
 
         // Select the line number
         item = m_ui->lintTable->item(row,4);
