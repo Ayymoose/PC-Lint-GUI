@@ -58,8 +58,11 @@ void ProgressWindow::lintProcess()
     connect(m_worker, &Worker::signalLintFinished, this, &ProgressWindow::slotLintFinished);
     connect(this, &ProgressWindow::signalParseData, m_worker, &Worker::slotParseData);
 
+    connect(this, &ProgressWindow::signalLintError, m_mainWindow, &MainWindow::slotLintError);
+
     connect(m_mainWindow, &MainWindow::signalUpdateProgressTitle, this, &ProgressWindow::slotUpdateProgressTitle);
 
+    // Update the lint table
     connect(m_worker, &Worker::signalUpdateLintTable, m_mainWindow, &MainWindow::slotUpdateLintTable);
 
     Linter* linter = m_mainWindow->getLinter();
@@ -104,6 +107,7 @@ void ProgressWindow::slotLintFinished(LINTER_STATUS status)
     else
     {
         // Some error occured so let MainWindow handle it
+        emit signalLintError(status);
         close();
     }
 }
@@ -118,6 +122,8 @@ ProgressWindow::~ProgressWindow()
 {
     delete ui;
     delete m_timer;
+    m_workerThread->quit();
+    m_workerThread->wait();
 }
 
 void ProgressWindow::on_lintCancel_clicked()

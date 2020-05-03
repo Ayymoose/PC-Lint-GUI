@@ -41,7 +41,7 @@ private slots:
 signals:
     void signalStartLint(MainWindow* pMainWindow);
     void signalParseData();
-
+    void signalLintError(LINTER_STATUS status);
 
 private:
     Ui::ProgressWindow *ui;

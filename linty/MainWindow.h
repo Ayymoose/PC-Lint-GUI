@@ -94,7 +94,7 @@ signals:
 
     void signalUpdateTypes(int errors, int warnings, int info);
 public slots:
-    void slotLintFinished(LINTER_STATUS status);
+    void slotLintError(LINTER_STATUS status);
     void slotUpdateLintTable();
 
 private slots:

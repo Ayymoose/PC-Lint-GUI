@@ -572,7 +572,7 @@ void MainWindow::on_actionLint_triggered()
     startLint(false);
 }
 
-void MainWindow::slotLintFinished(LINTER_STATUS status)
+void MainWindow::slotLintError(LINTER_STATUS status)
 {
     switch (status)
     {
@@ -586,7 +586,8 @@ void MainWindow::slotLintFinished(LINTER_STATUS status)
         QMessageBox::critical(this,"Error", "Linter encountered an error!");
         break;
     case LINTER_OK:
-        populateLintTable();
+        // We should never get here are slotLintFinished() is called on an error
+        Q_ASSERT(false);
         break;
     }
 }
