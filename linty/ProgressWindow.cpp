@@ -122,8 +122,12 @@ ProgressWindow::~ProgressWindow()
 {
     delete ui;
     delete m_timer;
-    m_workerThread->quit();
-    m_workerThread->wait();
+    if (m_workerThread)
+    {
+        m_workerThread->quit();
+        m_workerThread->wait();
+    }
+
 }
 
 void ProgressWindow::on_lintCancel_clicked()
