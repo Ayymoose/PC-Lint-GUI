@@ -99,6 +99,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui->codeEditor->setLineNumberAreaColour(LINE_NUMBER_AREA_COLOUR);
     m_ui->codeEditor->setLineNumberBackgroundColour(LINE_CURRENT_BACKGROUND_COLOUR);
 
+    // Set the splitter size
+    m_ui->splitter->setSizes(QList<int>() << 400 << 200);
+
     // With syntax highlighting
     m_highlighter = new Highlighter(m_ui->codeEditor->document());
 
