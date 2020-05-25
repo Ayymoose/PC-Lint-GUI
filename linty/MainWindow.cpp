@@ -327,6 +327,13 @@ void MainWindow::populateLintTable()
         QString description = message.description;
 
 
+        // Check if the file is actually a file and not some random junk
+        if (!QFile(file).exists())
+        {
+            DEBUG_LOG("### Omitting unknown entry in linter messages: " + file);
+            continue;
+        }
+
         MESSAGE_TYPE messageType;
 
         // Determine type
