@@ -78,7 +78,7 @@ public:
     ~CodeEditor();
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
-    void loadFile(const QString& file);
+    bool loadFile(const QString& file);
     void selectLine(uint32_t line);
     void setLineNumberAreaColour(const QColor& colour);
     void setLineNumberBackgroundColour(const QColor& colour);

@@ -29,7 +29,7 @@ typedef struct
     QString type;
     QString code;
     QString description;
-} lintMessage;
+} LintMessage;
 
 // XML related definitions
 #define XML_DOC "doc"
@@ -58,7 +58,10 @@ public:
     void setLintFiles(const QList<QString>& files);
 
     // Gets the set of lintMessage returned after a lint
-    QSet<lintMessage> getLinterMessages() const;
+    QSet<LintMessage> getLinterMessages() const;
+
+    // Remove all associated messages with the file
+    void removeAssociatedMessages(const QString& file);
 
     int numberOfErrors() const;
     int numberOfWarnings() const;
@@ -82,18 +85,18 @@ private:
     QString m_linterExecutable;
     QString m_lintFile;
     QList<QString> m_filesToLint;
-    QSet<lintMessage> m_linterMessages;
+    QSet<LintMessage> m_linterMessages;
     int m_numberOfErrors;
     int m_numberOfWarnings;
     int m_numberOfInfo;
 };
 
-inline bool operator==(const lintMessage &e1, const lintMessage &e2)
+inline bool operator==(const LintMessage &e1, const LintMessage &e2)
 {
     return (e1.code == e2.code) && (e1.file == e2.file) && (e1.line == e2.line) && (e1.type == e2.type) && (e1.description == e2.description);
 }
 
-inline uint qHash(const lintMessage &key, uint seed)
+inline uint qHash(const LintMessage &key, uint seed)
 {
     return qHash(key.code + key.line, seed) ^ qHash(key.file + key.type + key.description, seed);
 }

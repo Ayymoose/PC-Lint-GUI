@@ -27,7 +27,7 @@ Linter::Linter()
     m_numberOfWarnings = 0;
 }
 
-QSet<lintMessage> Linter::getLinterMessages() const
+QSet<LintMessage> Linter::getLinterMessages() const
 {
     return m_linterMessages;
 }
@@ -155,9 +155,9 @@ LINTER_STATUS Linter::lint()
     file.write(lintData.data());
     file.close();
 
-    QSet<lintMessage> lintMessages;
+    QSet<LintMessage> lintMessages;
     QXmlStreamReader lintXML(lintData);
-    lintMessage message;
+    LintMessage message;
 
     progress = 0;
     maxProgress = lintData.size();
@@ -260,4 +260,22 @@ QString Linter::getLintingDirectory() const
 QString Linter::getLinterExecutable() const
 {
     return m_linterExecutable;
+}
+
+void Linter::removeAssociatedMessages(const QString& file)
+{
+    // Find the LintMessage who has the same file
+    QSet<LintMessage>::iterator it = m_linterMessages.begin();
+    while (it != m_linterMessages.end())
+    {
+        if ((*it).file == file)
+        {
+            // Remove this message
+            it = m_linterMessages.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }

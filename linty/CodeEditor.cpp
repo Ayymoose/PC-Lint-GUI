@@ -98,20 +98,23 @@ QString CodeEditor::loadedFile() const
 }
 
 // Loads a file into the editor
-void CodeEditor::loadFile(const QString& filename)
+bool CodeEditor::loadFile(const QString& filename)
 {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QFile::Text))
     {
-      QMessageBox::critical(this, "Error", "Cannot open file: " + file.errorString());
-      Log::log("### Cannot open file '" + filename + "' because of " + file.errorString());
-      return;
+        Log::log("### Cannot open file '" + filename + "' because of " + file.errorString());
+        return false;
     }
-    m_currentFile = filename;
-    QTextStream in(&file);
-    QString text = in.readAll();
-    this->setPlainText(text);
-    file.close();
+    else
+    {
+        m_currentFile = filename;
+        QTextStream in(&file);
+        QString text = in.readAll();
+        this->setPlainText(text);
+        file.close();
+        return true;
+    }
 }
 
 int CodeEditor::lineNumberAreaWidth()

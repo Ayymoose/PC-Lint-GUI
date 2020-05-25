@@ -61,6 +61,7 @@
 #include "Log.h"
 #include "CodeEditor.h"
 #include "Highlighter.h"
+#include "ModifiedFileThread.h"
 
 class ProgressWindow;
 
@@ -91,8 +92,14 @@ signals:
     void signalUpdateStatus(QString status);
     void signalLintComplete();
     void signalUpdateProgressTitle(QString title);
-
     void signalUpdateTypes(int errors, int warnings, int info);
+
+    // Modified file signals
+    void signalSetModifiedFiles(QMap<QString, ModifiedFile> modifiedFiles);
+    void signalSetModifiedFile(const QString& modifiedFile, const QDateTime& dateTime);
+    void signalStartMonitor();
+    void signalRemoveFile(const QString& deletedFile);
+    void signalKeepFile(const QString& keepFile);
 public slots:
     void slotLintError(LINTER_STATUS status);
     void slotUpdateLintTable();
@@ -100,33 +107,21 @@ public slots:
 private slots:
 
     void save();
-
     void exit();
-
     void copy();
-
     void cut();
-
     void on_actionLint_options_triggered();
-
     void on_actionLint_triggered();
-
     void on_lintTable_cellDoubleClicked(int row, int column);
-
     void on_actionLint_project_triggered();
-
     void on_aboutLinty_triggered();
-
-
     void on_actionRefresh_triggered();
+
+    void slotFileModified(QString modifiedFile);
+    void slotFileDoesntExist(const QString& deletedFile);
 
 public:
     Ui::MainWindow *m_ui;
-    ProgressWindow* m_progressWindow;
-    LintOptions* m_lintOptions;
-    Icon m_icons;
-    Linter* m_linter;
-    Highlighter* m_highlighter;
     void populateLintTable();
     void configureLintTable();
     void startLint(bool lintProject);
@@ -145,8 +140,15 @@ private:
     bool m_toggleInfo;
     QString m_lastProjectLoaded;
     QList<QString> m_directoryFiles;
+    ProgressWindow* m_progressWindow;
+    LintOptions* m_lintOptions;
+    Icon m_icons;
+    Linter* m_linter;
+    Highlighter* m_highlighter;
     bool verifyLint();
 
+    // ModifiedFileWorker thread
+    ModifiedFileThread* m_modifiedFileWorker;
 };
 
 #endif // MAINWINDOW_H

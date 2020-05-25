@@ -12,6 +12,7 @@ SOURCES += \
     Linter.cpp \
     Log.cpp \
     MainWindow.cpp \
+    ModifiedFileThread.cpp \
     ProgressWindow.cpp \
     ProjectSolution.cpp \
     Settings.cpp \
@@ -27,6 +28,7 @@ HEADERS += \
     Linter.h \
     Log.h \
     MainWindow.h \
+    ModifiedFileThread.h \
     ProgressWindow.h \
     ProjectSolution.h \
     Settings.h \

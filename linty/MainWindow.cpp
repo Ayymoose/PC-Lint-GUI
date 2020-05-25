@@ -74,7 +74,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 
     qRegisterMetaType<LINTER_STATUS>("LINTER_STATUS");
-    qRegisterMetaType<QSet<lintMessage>>("QSet<lintMessage>");
+    qRegisterMetaType<QSet<LintMessage>>("QSet<lintMessage>");
+    qRegisterMetaType<QMap<QString,QDateTime>>("QMap<QString,QDateTime>");
 
     // Turn UI into actual objects
     m_ui->setupUi(this);
@@ -178,6 +179,17 @@ MainWindow::MainWindow(QWidget *parent) :
         m_actionWarning->setText("Warnings: " + QString::number(warnings));
         m_actionInfo->setText("Information: " + QString::number(info));
     });
+
+
+
+    // Start the modified file thread
+    m_modifiedFileWorker = new ModifiedFileThread(this);
+    connect(this, &MainWindow::signalSetModifiedFile, m_modifiedFileWorker, &ModifiedFileThread::slotSetModifiedFile);
+    connect(this, &MainWindow::signalSetModifiedFiles, m_modifiedFileWorker, &ModifiedFileThread::slotSetModifiedFiles);
+    connect(this, &MainWindow::signalKeepFile, m_modifiedFileWorker, &ModifiedFileThread::slotKeepFile);
+    connect(m_modifiedFileWorker, &ModifiedFileThread::signalFileDoesntExist, this, &MainWindow::slotFileDoesntExist);
+    connect(m_modifiedFileWorker, &ModifiedFileThread::signalFileModified, this, &MainWindow::slotFileModified);
+    m_modifiedFileWorker->start();
 }
 
 
@@ -208,6 +220,13 @@ MainWindow::~MainWindow()
     delete m_buttonInfo;
     delete m_lowerToolbar;
     delete m_lintOptions;
+
+    // Stop all threads
+    m_modifiedFileWorker->requestInterruption();
+    m_modifiedFileWorker->quit();
+    m_modifiedFileWorker->wait();
+
+    delete m_modifiedFileWorker;
 }
 
 void MainWindow::slotUpdateLintTable()
@@ -218,6 +237,7 @@ void MainWindow::slotUpdateLintTable()
 void MainWindow::save()
 {
     QString currentFile = m_ui->codeEditor->loadedFile();
+
     // If we have a loaded file then save it
     if (!currentFile.isEmpty())
     {
@@ -227,12 +247,15 @@ void MainWindow::save()
             QMessageBox::critical(this, "Error", "Cannot save file: " + file.errorString());
             return;
         }
+
         QTextStream out(&file);
         QString text = m_ui->codeEditor->toPlainText();
         out << text;
         file.close();
 
-        m_ui->statusBar->showMessage("Saved " + currentFile);
+        emit signalSetModifiedFile(currentFile, QFileInfo(file).lastModified());
+
+        m_ui->statusBar->showMessage("Saved " + currentFile + " at " + QDateTime::currentDateTime().toString());
     }
 }
 
@@ -264,6 +287,8 @@ void MainWindow::populateLintTable()
     // Populate the table view with all the lint messages
     // Clear all existing entries
 
+    QMap<QString, ModifiedFile> modifiedFiles;
+
     QTableWidget* lintTable = m_ui->lintTable;
     lintTable->setSortingEnabled(false);
     int rowCount = lintTable->rowCount();
@@ -290,7 +315,7 @@ void MainWindow::populateLintTable()
     lintTable->clearContents();
     lintTable->setRowCount(0);
 
-    for (const lintMessage& message : lintMessages)
+    for (const LintMessage& message : lintMessages)
     {
         QString code = message.code;
         QString file = message.file;
@@ -359,6 +384,11 @@ void MainWindow::populateLintTable()
         fileWidget->setData(Qt::DisplayRole, QFileInfo(file).fileName());
         fileWidget->setData(Qt::UserRole, file);
 
+        // Add to set of modified files
+        ModifiedFile modifiedFile;
+        modifiedFile.lastModified = QFileInfo(file).lastModified();
+        modifiedFile.keepFile = true;
+        modifiedFiles[fileWidget->data(Qt::UserRole).value<QString>()] = modifiedFile;
 
         QImage* icon = nullptr;
         switch (messageType)
@@ -395,6 +425,11 @@ void MainWindow::populateLintTable()
 
     emit signalUpdateTypes(m_linter->numberOfErrors(), m_linter->numberOfWarnings(), m_linter->numberOfInfo());
     emit signalLintComplete();
+
+
+    // Start the file monitor thread
+    emit signalSetModifiedFiles(modifiedFiles);
+    emit signalStartMonitor();
 }
 
 bool MainWindow::verifyLint()
@@ -543,19 +578,34 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
 
     if (!fileToLoad.isEmpty())
     {
-
-        DEBUG_LOG("Loading file: " + fileToLoad);
+        // TODO:
+        // If the file doesn't exist and we wanted to keep it in the editor, create it by saving the current loaded file
+        // But check that the current loaded file is the one we are saving otherwise
+        // How do save files that don't exist anymore?
+        /*if (!QFile(fileToLoad).exists())
+        {
+            save();
+        }*/
 
         // Load the file into the code editor
-        m_ui->codeEditor->loadFile(fileToLoad);
+        if (m_ui->codeEditor->loadFile(fileToLoad))
+        {
+            DEBUG_LOG("Loading file: " + fileToLoad);
 
-        // Update the status bar
-        m_ui->statusBar->showMessage("Loaded " + fileToLoad);
+            // Update the status bar
+            m_ui->statusBar->showMessage("Loaded " + fileToLoad + " at " + QDateTime::currentDateTime().toString());
 
-        // Select the line number
-        item = m_ui->lintTable->item(row,4);
-        uint32_t lineNumber = item->text().toUInt();
-        m_ui->codeEditor->selectLine(lineNumber);
+            // Select the line number
+            item = m_ui->lintTable->item(row,4);
+            uint32_t lineNumber = item->text().toUInt();
+            m_ui->codeEditor->selectLine(lineNumber);
+        }
+        else
+        {
+            // TODO: Reason for failure
+            QMessageBox::critical(this, "Error", "Unable to open file: " + fileToLoad);
+        }
+
     }
 
 }
@@ -623,5 +673,87 @@ void MainWindow::on_actionRefresh_triggered()
         m_linter->setLinterExecutable(m_lintOptions->getLinterExecutablePath().trimmed());
         m_linter->setLintFiles(m_directoryFiles);
         startLintThread(QFileInfo(m_lastProjectLoaded).fileName());
+    }
+}
+
+void MainWindow::slotFileModified(QString modifiedFile)
+{
+    const QSignalBlocker blocker(m_modifiedFileWorker);
+    QMessageBox msgBox(this);
+    msgBox.setText(modifiedFile);
+    msgBox.setInformativeText("This file has been modified by another program. \n Do you want to reload it?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setIcon(QMessageBox::Question);
+    if (msgBox.exec() == QMessageBox::Yes)
+    {
+
+        // Check if the file was deleted before we try to load it again
+        if (QFile(modifiedFile).exists())
+        {
+            if (m_ui->codeEditor->loadedFile() == modifiedFile)
+            {
+                // Reload the file into the code editor if it's one open
+                if (m_ui->codeEditor->loadFile(modifiedFile))
+                {
+                    // Reload
+                    DEBUG_LOG("Reloading file: " + modifiedFile);
+
+                    // Update the status bar
+                    m_ui->statusBar->showMessage("Reloaded " + modifiedFile + " at " + QDateTime::currentDateTime().toString());
+                }
+                else
+                {
+                    // TODO: Reason for failure
+                    QMessageBox::critical(this, "Error", "Unable to open file: " + modifiedFile);
+                }
+            }
+        }
+        else
+        {
+            // Ask if they want to keep this file
+            slotFileDoesntExist(modifiedFile);
+        }
+
+
+    }
+}
+
+void MainWindow::slotFileDoesntExist(const QString& deletedFile)
+{
+    const QSignalBlocker blocker(m_modifiedFileWorker);
+    QMessageBox msgBox(this);
+    msgBox.setText("The file " + deletedFile + " doesn't exist anymore.");
+    msgBox.setInformativeText("Keep this file in editor?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setIcon(QMessageBox::Question);
+
+    if (msgBox.exec() == QMessageBox::No)
+    {
+        // Remove
+        DEBUG_LOG("Removing file: " + deletedFile);
+
+        // Remove this file from the code editor if it's the loaded one
+        if (m_ui->codeEditor->loadedFile() == deletedFile)
+        {
+            m_ui->codeEditor->clear();
+        }
+
+        // Update the linter messages
+        m_linter->removeAssociatedMessages(deletedFile);
+
+        // Update the lint table again
+        populateLintTable();
+
+        // Update the status bar
+        m_ui->statusBar->showMessage("Removed " + deletedFile + " at " + QDateTime::currentDateTime().toString());
+
+        // Notify the ModifiedWorker thread
+        emit signalRemoveFile(deletedFile);
+    }
+    else
+    {
+        // Notify monitor thread that we want to keep this file
+        // Save this file locall
+        emit signalKeepFile(deletedFile);
     }
 }

@@ -23,7 +23,7 @@ signals:
     void signalUpdateLintTable();
     void signalFinished();
 private:
-    QSet<lintMessage> m_lintMessages;
+    QSet<LintMessage> m_lintMessages;
     MainWindow* m_pMainWindow;
 
 };
