@@ -60,8 +60,10 @@ public:
     // Gets the set of lintMessage returned after a lint
     QSet<LintMessage> getLinterMessages() const;
 
-    // Remove all associated messages with the file
+    // Remove all associated messages with the given file
     void removeAssociatedMessages(const QString& file);
+    // Removes all messages with the given code
+    void removeMessagesWithCode(const QString& code);
 
     int numberOfErrors() const;
     int numberOfWarnings() const;

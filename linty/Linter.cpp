@@ -264,11 +264,29 @@ QString Linter::getLinterExecutable() const
 
 void Linter::removeAssociatedMessages(const QString& file)
 {
-    // Find the LintMessage who has the same file
+    // Find the LintMessage who has the same file part
     QSet<LintMessage>::iterator it = m_linterMessages.begin();
     while (it != m_linterMessages.end())
     {
         if ((*it).file == file)
+        {
+            // Remove this message
+            it = m_linterMessages.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+void Linter::removeMessagesWithCode(const QString& code)
+{
+    // Find the LintMessage who has the same code part
+    QSet<LintMessage>::iterator it = m_linterMessages.begin();
+    while (it != m_linterMessages.end())
+    {
+        if ((*it).code == code)
         {
             // Remove this message
             it = m_linterMessages.erase(it);

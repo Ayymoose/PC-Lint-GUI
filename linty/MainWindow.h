@@ -55,6 +55,8 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QAction>
+#include <QMenu>
+
 #include "ProgressWindow.h"
 #include "LintOptions.h"
 #include "Linter.h"
@@ -105,7 +107,6 @@ public slots:
     void slotLintError(LINTER_STATUS status);
     void slotUpdateLintTable();
     void handleContextMenu(const QPoint& pos);
-    void menuAction(QAction* action);
 private slots:
 
     void save();
@@ -150,6 +151,8 @@ private:
     Linter* m_linter;
     Highlighter* m_highlighter;
     bool verifyLint();
+
+    QMenu* m_lintTableMenu;
 
     // ModifiedFileWorker thread
     ModifiedFileThread* m_modifiedFileWorker;

@@ -189,6 +189,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->lintTable, &QTableWidget::customContextMenuRequested, this, &MainWindow::handleContextMenu);
 
 
+    m_lintTableMenu = new QMenu(this);
+
     // Start the modified file thread
     m_modifiedFileWorker = new ModifiedFileThread(this);
     connect(this, &MainWindow::signalSetModifiedFile, m_modifiedFileWorker, &ModifiedFileThread::slotSetModifiedFile);
@@ -227,6 +229,7 @@ MainWindow::~MainWindow()
     delete m_buttonInfo;
     delete m_lowerToolbar;
     delete m_lintOptions;
+    delete m_lintTableMenu;
 
     // Stop all threads
     m_modifiedFileWorker->requestInterruption();
@@ -772,23 +775,43 @@ void MainWindow::slotFileDoesntExist(const QString& deletedFile)
     }
 }
 
-void MainWindow::menuAction(QAction* action)
-{
-    qDebug() << action->text();
-}
-
 void MainWindow::handleContextMenu(const QPoint& pos)
 {
     QTableWidgetItem *item = m_ui->lintTable->itemAt(pos);
+
     if (item)
     {
-        QMenu *menu = new QMenu(this);
-        menu->addAction("Remove file from messages");
-        menu->addAction("Hide messages of this type");
-        menu->addAction("Surpress this message in lint file");
-        menu->popup(m_ui->lintTable->horizontalHeader()->viewport()->mapToGlobal(pos));
-        connect(menu, &QMenu::triggered, this, &MainWindow::menuAction);
-        // TODO: Memory leak
+        // Get the associated widgets
+        QTableWidgetItem* codeWidget = m_ui->lintTable->item(item->row(), 1);
+        QTableWidgetItem* fileWidget = m_ui->lintTable->item(item->row(), 3);
+
+        m_lintTableMenu->clear();
+        m_lintTableMenu->popup(m_ui->lintTable->horizontalHeader()->viewport()->mapToGlobal(pos));
+
+        QAction* actionRemoveFile = m_lintTableMenu->addAction("Remove file from messages");
+        QAction* actionHideMessages = m_lintTableMenu->addAction("Hide messages of this type");
+        // QAction* actionSurpressMessages = m_lintTableMenu->addAction("Surpress this message in lint file");
+
+        connect(actionRemoveFile, &QAction::triggered, this, [=]()
+        {
+            QString file = fileWidget->data(Qt::UserRole).value<QString>();
+            m_linter->removeAssociatedMessages(file);
+            populateLintTable();
+        });
+
+        connect(actionHideMessages, &QAction::triggered, this, [=]()
+        {
+            QString code = codeWidget->data(Qt::DisplayRole).value<QString>();
+            m_linter->removeMessagesWithCode(code);
+            populateLintTable();
+        });
+
+        /*connect(actionSurpressMessages, &QAction::triggered, this, [=]()
+        {
+            // TODO: Write to lint file the surpression
+            //auto s = fileWidget->data(Qt::DisplayRole).value<QString>();
+            //DEBUG_LOG("Surpressing messages: " + QString(s));
+        });*/
     }
 }
 
