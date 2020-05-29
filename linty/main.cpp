@@ -60,7 +60,8 @@ int main(int argc, char *argv[])
     QApplication EditorApp(argc, argv);
 
     Log::createLogFile(LOG_FILENAME);
-    DEBUG_LOG("---------- Starting linty application ----------");
+    DEBUG_LOG("---------- Starting Linty ----------");
+    DEBUG_LOG("Linty version: " BUILD_VERSION);
 
     MainWindow mainWindow;
 

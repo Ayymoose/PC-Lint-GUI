@@ -1,6 +1,5 @@
 #include "Log.h"
-
-//Log::Log(QObject *parent, QString fileName) : QObject(parent) What is the effect of calling the parent
+#include <QMessageBox>
 
 std::unique_ptr<QFile> Log::m_file;
 
@@ -8,7 +7,10 @@ void Log::createLogFile(const QString &file)
 {
     m_file = std::make_unique<QFile>(new QFile);
     m_file->setFileName(file);
-    m_file->open(QIODevice::Append | QIODevice::Text);
+    if (!m_file->open(QIODevice::Append | QIODevice::Text))
+    {
+        QMessageBox::critical(nullptr, "Error", "Unable to create file for logging");
+    }
 }
 
 void Log::log(const QString &value)

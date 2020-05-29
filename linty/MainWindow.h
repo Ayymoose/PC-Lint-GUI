@@ -50,6 +50,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QPoint>
 #include <QMainWindow>
 #include <QToolBar>
 #include <QToolButton>
@@ -103,7 +104,8 @@ signals:
 public slots:
     void slotLintError(LINTER_STATUS status);
     void slotUpdateLintTable();
-
+    void handleContextMenu(const QPoint& pos);
+    void menuAction(QAction* action);
 private slots:
 
     void save();
@@ -119,6 +121,8 @@ private slots:
 
     void slotFileModified(QString modifiedFile);
     void slotFileDoesntExist(const QString& deletedFile);
+
+    void on_actionLog_triggered();
 
 public:
     Ui::MainWindow *m_ui;

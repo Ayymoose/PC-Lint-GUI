@@ -1,7 +1,7 @@
 #ifndef JENKINS_H 
 #define JENKINS_H 
 #define APPLICATION_NAME "Linty" 
-#define BUILD_VERSION "1.16" 
-#define BUILD_DATE "2020-05-23_16-45-19" 
-#define BUILD_COMMIT "b431ec68f83f825f75d04fe758c250a9b465a9cf" 
+#define BUILD_VERSION "1.18" 
+#define BUILD_DATE "2020-05-27_21-16-24" 
+#define BUILD_COMMIT "969840bc8c124fc874fe7c4fd008506db92762cd" 
 #endif // JENKINS_H 

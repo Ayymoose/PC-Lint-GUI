@@ -58,15 +58,17 @@
 #include <QFileInfo>
 #include <QDirIterator>
 #include <QTimer>
+#include <QThread>
+#include <QToolButton>
+#include <QProcess>
+
 #include "Jenkins.h"
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "Worker.h"
 #include "Linter.h"
 #include "ProgressWindow.h"
-#include <QThread>
 #include "ProjectSolution.h"
-#include <QToolButton>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -183,6 +185,8 @@ MainWindow::MainWindow(QWidget *parent) :
         m_actionInfo->setText("Information: " + QString::number(info));
     });
 
+    m_ui->lintTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_ui->lintTable, &QTableWidget::customContextMenuRequested, this, &MainWindow::handleContextMenu);
 
 
     // Start the modified file thread
@@ -766,4 +770,31 @@ void MainWindow::slotFileDoesntExist(const QString& deletedFile)
         // Save this file locall
         emit signalKeepFile(deletedFile);
     }
+}
+
+void MainWindow::menuAction(QAction* action)
+{
+    qDebug() << action->text();
+}
+
+void MainWindow::handleContextMenu(const QPoint& pos)
+{
+    QTableWidgetItem *item = m_ui->lintTable->itemAt(pos);
+    if (item)
+    {
+        QMenu *menu = new QMenu(this);
+        menu->addAction("Remove file from messages");
+        menu->addAction("Hide messages of this type");
+        menu->addAction("Surpress this message in lint file");
+        menu->popup(m_ui->lintTable->horizontalHeader()->viewport()->mapToGlobal(pos));
+        connect(menu, &QMenu::triggered, this, &MainWindow::menuAction);
+        // TODO: Memory leak
+    }
+}
+
+void MainWindow::on_actionLog_triggered()
+{
+    // Display the event log
+    QProcess log;
+    log.startDetached("notepad.exe", QStringList() << LOG_FILENAME);
 }
