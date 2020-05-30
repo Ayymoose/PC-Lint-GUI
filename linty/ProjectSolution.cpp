@@ -167,3 +167,71 @@ QList<QString> VisualStudioProject::buildSourceFiles(const QString& projectFileN
 
     return sourceFiles;
 }
+
+void VisualStudioProjectSolution::setDirectory(const QString &directory)
+{
+    m_directory = directory;
+}
+
+QList<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &projectFileName)
+{
+    QList<QString> sourceFiles;
+    VisualStudioProject vsProject;
+
+    int maxProjects = 0;
+
+    QFile inputFile(projectFileName);
+    if (inputFile.open(QIODevice::ReadOnly))
+    {
+       QTextStream in(&inputFile);
+       while (!in.atEnd())
+       {
+          QString line = in.readLine();
+
+          // Basic VS studio parsing
+          // If line begins with "Project"
+          // Split by comma
+          // Extra 1st parameter
+          // Trim to give VC project file
+
+          // E.g of data
+          // Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Address Manager", "Address manager\Project\Windows XP, win32 (1)\addressmanager.vcxproj", "{4FA38C84-2DC0-4A02-B31F-A02A4B36480C}"
+
+          if (line.startsWith("Project"))
+          {
+              QStringList split = line.split("\"");
+              QString  projectUnclean = split[5];
+              qDebug() << projectUnclean;
+
+              if (maxProjects < 10)
+              {
+                  try
+                  {
+                      QList<QString> solutionFiles =  vsProject.buildSourceFiles(m_directory + "/" + projectUnclean);
+                      maxProjects++;
+
+                      // TODO: Redo this inneficient way to appending QList together
+                      for (auto const& file : solutionFiles)
+                      {
+                          sourceFiles.append(file);
+                      }
+                  } catch (const std::logic_error& e)
+                  {
+                      DEBUG_LOG("### " + QString(e.what()));
+                  }
+
+
+              }
+          }
+
+
+       }
+       inputFile.close();
+    }
+    else
+    {
+        throw std::logic_error("Unable to open " + projectFileName.toStdString() + " for reading!");
+    }
+
+    return sourceFiles;
+}

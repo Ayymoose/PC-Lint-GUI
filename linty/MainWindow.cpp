@@ -337,8 +337,8 @@ void MainWindow::populateLintTable()
         // Check if the file is actually a file and not some random junk
         if (!QFile(file).exists())
         {
-            DEBUG_LOG("### Omitting unknown entry in linter messages: " + file);
-            continue;
+            DEBUG_LOG("### Unknown file in linter messages: " + file);
+            file = "";
         }
 
         MESSAGE_TYPE messageType;
@@ -507,7 +507,11 @@ void MainWindow::startLint(bool lintProject)
         // Lint a project solution file
         if (lintProject)
         {
-            fileName = QFileDialog::getOpenFileName(this, "Select project file", LintOptions::m_lastDirectory, "Atmel 7 studio (*.cproj);; Visual Studio project (*.vcxproj)");
+            fileName = QFileDialog::getOpenFileName(this, "Select project file", LintOptions::m_lastDirectory,
+                                                    "Atmel 7 Studio (*.cproj);; "
+                                                    "Visual Studio Project (*.vcxproj);; "
+                                                    "Visual Studio Solution (*.sln) "
+                                                    );
             if (fileName != "")
             {
                 // Check file extension
@@ -515,8 +519,11 @@ void MainWindow::startLint(bool lintProject)
                 LintOptions::m_lastDirectory = QFileInfo(fileName).absolutePath();
 
                 ProjectSolution *project= nullptr;
+
+                // Possible solutions/projects
                 AtmelStudio7ProjectSolution as7ProjectSolution;
                 VisualStudioProject vsProject;
+                VisualStudioProjectSolution vsProjectSolution;
 
                 if (fileExtension == "cproj")
                 {
@@ -528,6 +535,12 @@ void MainWindow::startLint(bool lintProject)
                 {
                     // Visual studio project
                     project = &vsProject;
+                }
+                else if (fileExtension == "sln")
+                {
+                    // Visual studio solution
+                    project = &vsProjectSolution;
+                    project->setDirectory(QFileInfo(fileName).canonicalPath());
                 }
 
                 Q_ASSERT(project);

@@ -5,6 +5,7 @@
 #include "Log.h"
 #include <QFileInfo>
 #include <QMessageBox>
+#include <windows.h>
 
 Linter::Linter()
 {
@@ -81,6 +82,7 @@ LINTER_STATUS Linter::lint()
     m_arguments << ("-""format_specific= ");
     m_arguments << ("-hFs1");
     m_arguments << ("-pragma(message)");
+    m_arguments << ("-max_threads=8");
 
     // Add the lint file
     m_arguments << (m_lintFile);
@@ -88,6 +90,10 @@ LINTER_STATUS Linter::lint()
     // Add all files to lint
     for (const QString& file : m_filesToLint)
     {
+       if (file.length() > MAX_PATH)
+       {
+           Q_ASSERT(false);
+       }
        m_arguments << (file);
        DEBUG_LOG("Adding file to lint: " + file);
     }
@@ -111,7 +117,7 @@ LINTER_STATUS Linter::lint()
 
     if (!lintProcess.waitForStarted())
     {
-        DEBUG_LOG("### Failed to start lint executable because " + lintProcess.errorString());
+        DEBUG_LOG("### " + lintProcess.errorString());
         return LINTER_FAIL;
     }
 
