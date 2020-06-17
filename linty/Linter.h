@@ -1,5 +1,4 @@
-#ifndef LINTER_H
-#define LINTER_H
+#pragma once
 
 #include <QString>
 #include <QMetaType>
@@ -24,28 +23,33 @@ enum MESSAGE_TYPE
 
 typedef struct
 {
-    QString file;
-    QString line;
-    QString type;
-    QString code;
-    QString description;
+    QString file;           // The file that has the problem
+    QString line;           // The line that has the problem
+    QString type;           // The type of the problem
+    QString number;         // The message number
+    QString description;    // The message description
 } LintMessage;
 
-// XML related definitions
-#define XML_DOC "doc"
-#define XML_MESSAGE "message"
-#define XML_FILE "file"
-#define XML_LINE "line"
-#define XML_TYPE "type"
-#define XML_CODE "code"
-#define XML_DESCRIPTION "description"
 
-// Linter output related
-#define TYPE_ERROR "Error"
-#define TYPE_INFORMATION "Info"
-#define TYPE_WARNING "Warning"
+// XML tags
+#define XML_TAG_DOC_OPEN "<doc>"
+#define XML_TAG_DOC_CLOSED "</doc>"
+#define XML_TAG_MESSAGE_OPEN "<m>"
+#define XML_TAG_DESCRIPTION_CLOSED "</d>"
 
-#define COMPARE_TYPE(string, type) (!QString::compare(string, type, Qt::CaseInsensitive))
+// XML elements
+#define XML_ELEMENT_DOC "doc"
+#define XML_ELEMENT_FILE "f"
+#define XML_ELEMENT_LINE "l"
+#define XML_ELEMENT_MESSAGE_TYPE "t"
+#define XML_ELEMENT_MESSAGE_NUMBER "n"
+#define XML_ELEMENT_MESSAGE "m"
+#define XML_ELEMENT_DESCRIPTION "d"
+
+// PC-Lint types
+#define LINT_TYPE_ERROR "Error"
+#define LINT_TYPE_INFO "Info"
+#define LINT_TYPE_WARNING "Warning"
 
 class Linter : public QObject
 {
@@ -62,8 +66,8 @@ public:
 
     // Remove all associated messages with the given file
     void removeAssociatedMessages(const QString& file);
-    // Removes all messages with the given code
-    void removeMessagesWithCode(const QString& code);
+    // Removes all messages with the given number
+    void removeMessagesWithNumber(const QString& number);
 
     int numberOfErrors() const;
     int numberOfWarnings() const;
@@ -95,13 +99,14 @@ private:
 
 inline bool operator==(const LintMessage &e1, const LintMessage &e2)
 {
-    return (e1.code == e2.code) && (e1.file == e2.file) && (e1.line == e2.line) && (e1.type == e2.type) && (e1.description == e2.description);
+    return (e1.number == e2.number) &&
+            (e1.file == e2.file) &&
+            (e1.line == e2.line) &&
+            (e1.type == e2.type) &&
+            (e1.description == e2.description);
 }
 
 inline uint qHash(const LintMessage &key, uint seed)
 {
-    return qHash(key.code + key.line, seed) ^ qHash(key.file + key.type + key.description, seed);
+    return qHash(key.number + key.line, seed) ^ qHash(key.file + key.type + key.description, seed);
 }
-
-
-#endif // LINTER_H

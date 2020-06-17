@@ -66,15 +66,17 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     m_lineNumberBackgroundColour = LINE_CURRENT_BACKGROUND_COLOUR;
     m_zoomLabel = nullptr;
 
+    m_highlightError = false;
     this->setFont(QFont("Consolas",14));
 
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
     connect(this, &CodeEditor::updateRequest, this, &CodeEditor::updateLineNumberArea);
     connect(this, &CodeEditor::cursorPositionChanged, this, &CodeEditor::highlightCurrentLine);
 
+    setReadOnly(true);
+
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
-
 }
 
 void CodeEditor::setLineNumberAreaColour(const QColor& colour)
@@ -113,6 +115,11 @@ bool CodeEditor::loadFile(const QString& filename)
         QString text = in.readAll();
         this->setPlainText(text);
         file.close();
+
+        // Set the code editor read-only attribute to false
+        setReadOnly(false);
+        m_highlightError = true;
+
         return true;
     }
 }
@@ -193,7 +200,8 @@ void CodeEditor::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
-    if (!isReadOnly())
+    // Only highlight if a file is loaded
+    if (!isReadOnly() && m_currentFile.length())
     {
         QTextEdit::ExtraSelection selection;
 
@@ -201,6 +209,11 @@ void CodeEditor::highlightCurrentLine()
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
         selection.cursor = textCursor();
         selection.cursor.clearSelection();
+        if (m_highlightError)
+        {
+            selection.format.setForeground(QColor(255,0,0));
+            m_highlightError = false;
+        }
         extraSelections.append(selection);
     }
 
@@ -218,7 +231,8 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     int top = qRound(blockBoundingGeometry(block).translated(contentOffset()).top());
     int bottom = top + qRound(blockBoundingRect(block).height());
 
-    while (block.isValid() && top <= event->rect().bottom())
+    // Only draw the line number if we have a loaded file
+    while (block.isValid() && top <= event->rect().bottom() && m_currentFile.length())
     {
         if (block.isVisible() && bottom >= event->rect().top())
         {

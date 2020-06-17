@@ -51,7 +51,6 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QTextStream>
-#include <QMessageBox>
 #include <QDebug>
 #include <QMessageBox>
 #include <QDir>
@@ -61,6 +60,7 @@
 #include <QThread>
 #include <QToolButton>
 #include <QProcess>
+#include <QtGlobal>
 
 #include "Jenkins.h"
 #include "MainWindow.h"
@@ -73,8 +73,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow)
-{
-
+{ 
     qRegisterMetaType<LINTER_STATUS>("LINTER_STATUS");
     qRegisterMetaType<QSet<LintMessage>>("QSet<lintMessage>");
     qRegisterMetaType<QMap<QString,QDateTime>>("QMap<QString,QDateTime>");
@@ -327,7 +326,7 @@ void MainWindow::populateLintTable()
 
     for (const LintMessage& message : lintMessages)
     {
-        QString code = message.code;
+        QString number = message.number;
         QString file = message.file;
         QString line = message.line;
         QString type = message.type;
@@ -344,15 +343,15 @@ void MainWindow::populateLintTable()
         MESSAGE_TYPE messageType;
 
         // Determine type
-        if (!QString::compare(type, TYPE_ERROR, Qt::CaseInsensitive))
+        if (!QString::compare(type, LINT_TYPE_ERROR, Qt::CaseInsensitive))
         {
             messageType = MESSAGE_TYPE_ERROR;
         }
-        else if (!QString::compare(type, TYPE_WARNING, Qt::CaseInsensitive))
+        else if (!QString::compare(type, LINT_TYPE_WARNING, Qt::CaseInsensitive))
         {
             messageType = MESSAGE_TYPE_WARNING;
         }
-        else if (!QString::compare(type, TYPE_INFORMATION, Qt::CaseInsensitive))
+        else if (!QString::compare(type, LINT_TYPE_INFO, Qt::CaseInsensitive))
         {
             messageType = MESSAGE_TYPE_INFORMATION;
         }
@@ -396,7 +395,7 @@ void MainWindow::populateLintTable()
         QTableWidgetItem* lineWidget = new QTableWidgetItem;
         QTableWidgetItem* fileWidget = new QTableWidgetItem;
 
-        codeWidget->setData(Qt::DisplayRole,code.toUInt());
+        codeWidget->setData(Qt::DisplayRole,number.toUInt());
         lineWidget->setData(Qt::DisplayRole,line.toUInt());
         fileWidget->setData(Qt::DisplayRole, QFileInfo(file).fileName());
         fileWidget->setData(Qt::UserRole, file);
@@ -426,9 +425,16 @@ void MainWindow::populateLintTable()
         lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem(description));
         lintTable->setItem( lintTable->rowCount()-1, 3, fileWidget);
         lintTable->setItem( lintTable->rowCount()-1, 4, lineWidget);
+
         emit signalUpdateProgress(progress++);
     }
     lintTable->setSortingEnabled(true);
+
+    /*
+    lintTable->setWordWrap(true);
+    lintTable->setTextElideMode(Qt::ElideMiddle);
+    lintTable->resizeRowsToContents();
+    */
 
     // Show message if there are no lint problems
     if (m_linter->numberOfErrors() == 0 && m_linter->numberOfWarnings() == 0 && m_linter->numberOfInfo() == 0)
@@ -442,7 +448,6 @@ void MainWindow::populateLintTable()
 
     emit signalUpdateTypes(m_linter->numberOfErrors(), m_linter->numberOfWarnings(), m_linter->numberOfInfo());
     emit signalLintComplete();
-
 
     // Start the file monitor thread
     emit signalSetModifiedFiles(modifiedFiles);
@@ -603,8 +608,9 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
     // Get the file
     // Column 3 is just the file name
     QTableWidgetItem* item = m_ui->lintTable->item(row,3);
-
+    Q_ASSERT(item);
     QString fileToLoad = item->data(Qt::UserRole).value<QString>();
+
 
     if (!fileToLoad.isEmpty())
     {
@@ -815,7 +821,7 @@ void MainWindow::handleContextMenu(const QPoint& pos)
         connect(actionHideMessages, &QAction::triggered, this, [=]()
         {
             QString code = codeWidget->data(Qt::DisplayRole).value<QString>();
-            m_linter->removeMessagesWithCode(code);
+            m_linter->removeMessagesWithNumber(code);
             populateLintTable();
         });
 
