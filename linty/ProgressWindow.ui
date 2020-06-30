@@ -29,44 +29,44 @@
       <item>
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="labelTimeElapsed">
           <property name="text">
            <string>Time elapsed:</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QLabel" name="labelTimeElapsed">
+         <widget class="QLabel" name="timeElapsed">
           <property name="text">
            <string>00:00:00</string>
           </property>
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="label_3">
+         <widget class="QLabel" name="labelETA">
           <property name="text">
            <string>Estimated time remaining:</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QLabel" name="labelETA">
+         <widget class="QLabel" name="eta">
           <property name="text">
            <string>00:00:00</string>
           </property>
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="label_2">
+         <widget class="QLabel" name="labelFilesProcessed">
           <property name="text">
-           <string>Status:</string>
+           <string>File:</string>
           </property>
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QLabel" name="labelLintStatus">
+         <widget class="QLabel" name="filesProcessed">
           <property name="text">
-           <string>Linting...</string>
+           <string>0/0</string>
           </property>
          </widget>
         </item>

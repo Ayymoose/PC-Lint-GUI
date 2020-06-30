@@ -81,13 +81,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-
     ~MainWindow();
-
-    Linter* getLinter() const
-    {
-        return m_linter;
-    }
 
 signals:
     void signalUpdateProgress(int value);
@@ -96,6 +90,10 @@ signals:
     void signalLintComplete();
     void signalUpdateProgressTitle(QString title);
     void signalUpdateTypes(int errors, int warnings, int info);
+
+    //
+    void signalStartLint();
+    void signalSetLintData(const LintData& lintData);
 
     // Modified file signals
     void signalSetModifiedFiles(QMap<QString, ModifiedFile> modifiedFiles);
@@ -107,6 +105,8 @@ public slots:
     void slotLintError(LINTER_STATUS status);
     void slotUpdateLintTable();
     void handleContextMenu(const QPoint& pos);
+
+    void slotLintFinished(const LintResponse& lintResponse);
 private slots:
 
     void save();
@@ -145,10 +145,9 @@ private:
     bool m_toggleInfo;
     QString m_lastProjectLoaded;
     QList<QString> m_directoryFiles;
-    ProgressWindow* m_progressWindow;
     LintOptions* m_lintOptions;
     Icon m_icons;
-    Linter* m_linter;
+    Linter m_linter;
     Highlighter* m_highlighter;
     bool verifyLint();
 
@@ -156,6 +155,10 @@ private:
 
     // ModifiedFileWorker thread
     ModifiedFileThread* m_modifiedFileWorker;
+
+    void updateLintTable(const LintResponse& lintResponse);
+    void refreshLintTable();
+
 };
 
 #endif // MAINWINDOW_H

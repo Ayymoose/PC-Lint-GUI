@@ -1,12 +1,13 @@
 #ifndef PROGRESSWINDOW_H
 #define PROGRESSWINDOW_H
 
-#include <QDialog>
-#include <QSet>
+
 #include "Linter.h"
 #include "MainWindow.h"
-#include "Worker.h"
+
 #include <QTime>
+#include <QDialog>
+#include <QSet>
 
 class MainWindow;
 class Worker;
@@ -23,25 +24,34 @@ class ProgressWindow : public QDialog
 public:
     explicit ProgressWindow(QWidget *parent = nullptr);
     ~ProgressWindow();
-    void lintProcess();
+
+    void setLintData(const LintData& lintData);
 
 
 public slots:
     void slotUpdateProgress(int value);
     void slotUpdateProgressMax(int value);
-    void slotLintFinished(LINTER_STATUS status);
-    void slotUpdateStatus(QString status);
+    void slotLintFinished(const LintResponse& lintResponse);
     void slotLintComplete();
-    void slotUpdateTime();
+
+    void slotUpdateETA(int eta);
+
     void slotUpdateProgressTitle(QString title);
+    void slotUpdateProcessedFiles(int processedFiles, int processedFilesMax);
+
+    // Called by MainWindow
+    void slotStartLint();
 
 private slots:
     void on_lintCancel_clicked();
+    void slotUpdateTime();
 
 signals:
-    void signalStartLint(MainWindow* pMainWindow);
     void signalParseData();
     void signalLintError(LINTER_STATUS status);
+    void signalStartLint(bool start);
+    void signalSetLinterData(const LintData& lintData);
+    void signalLintFinished(const LintResponse& lintResponse);
 
 private:
     Ui::ProgressWindow *ui;
@@ -49,11 +59,11 @@ private:
     QString m_lintStatus;
     int m_elapsedTime;
     int m_eta;
-    QTimer* m_timer;
+    std::unique_ptr<QTimer> m_timer;
     QString m_windowTitle;
-    QThread* m_workerThread;
-    Worker* m_worker;
-
+    std::unique_ptr<QThread> m_workerThread;
+    LintData m_lintData;
+    Linter m_linter;
 };
 
 #endif // PROGRESSWINDOW_H

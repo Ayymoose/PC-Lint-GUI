@@ -4,13 +4,16 @@
 #include <QMetaType>
 #include <QSet>
 #include <QObject>
+#include <QProcess>
+#include <memory>
 
 enum LINTER_STATUS
 {
     LINTER_OK = 0,
     LINTER_UNSUPPORTED_VERSION,
-    LINTER_FAIL,
-    LINTER_ERROR,
+    LINTER_LICENSE_ERROR,
+    LINTER_PROCESS_ERROR,
+    LINTER_CANCEL,
 };
 
 enum MESSAGE_TYPE
@@ -30,6 +33,21 @@ typedef struct
     QString description;    // The message description
 } LintMessage;
 
+typedef struct
+{
+    QString linterExecutable;
+    QString lintOptionFile;
+    QList<QString> lintFiles;
+} LintData;
+
+typedef struct
+{
+    LINTER_STATUS status;
+    QSet<LintMessage> lintMessages;
+    int numberOfErrors;
+    int numberOfWarnings;
+    int numberOfInfo;
+} LintResponse;
 
 // XML tags
 #define XML_TAG_DOC_OPEN "<doc>"
@@ -58,11 +76,11 @@ public:
     Linter();
     void setLinterExecutable(const QString& linterExecutable);
     void setLinterFile(const QString& lintFile);
-    void setLinterDirectory(const QString& linterDirectory);
     void setLintFiles(const QList<QString>& files);
 
     // Gets the set of lintMessage returned after a lint
     QSet<LintMessage> getLinterMessages() const;
+    void setLinterMessages(const QSet<LintMessage>& lintMessages);
 
     // Remove all associated messages with the given file
     void removeAssociatedMessages(const QString& file);
@@ -73,16 +91,31 @@ public:
     int numberOfWarnings() const;
     int numberOfInfo() const;
 
+    void setNumberOfErrors(int numberOfErrors);
+    void setNumberOfWarnings(int numberOfWarnings);
+    void setNumberOfInfo(int numberOfInfo);
+
     // Lint a directory or some files
     LINTER_STATUS lint();
 
     QString getLintingDirectory() const;
     QString getLinterExecutable() const;
 
+public slots:
+    void slotStartLint();
+    void slotGetLinterData(const LintData& lintData);
+
+
 signals:
     void signalUpdateProgress(int value);
     void signalUpdateProgressMax(int value);
-    void signalUpdateStatus(QString status);
+    void signalUpdateETA(int eta);
+    void signalUpdateProcessedFiles(int processedFiles, int maxProcessedFiles);
+
+
+    //
+    void signalLinterProgress(int value);
+    void signalLintFinished(const LintResponse& lintResponse);
 
 private:
     QString m_lintingDirectory;

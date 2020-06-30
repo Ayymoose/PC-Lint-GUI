@@ -65,7 +65,6 @@
 #include "Jenkins.h"
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include "Worker.h"
 #include "Linter.h"
 #include "ProgressWindow.h"
 #include "ProjectSolution.h"
@@ -75,8 +74,10 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui(new Ui::MainWindow)
 { 
     qRegisterMetaType<LINTER_STATUS>("LINTER_STATUS");
-    qRegisterMetaType<QSet<LintMessage>>("QSet<lintMessage>");
+    qRegisterMetaType<QSet<LintMessage>>("QSet<LintMessage>");
     qRegisterMetaType<QMap<QString,QDateTime>>("QMap<QString,QDateTime>");
+    qRegisterMetaType<LintData>("LintData");
+    qRegisterMetaType<LintResponse>("LintResponse");
 
     // Turn UI into actual objects
     m_ui->setupUi(this);
@@ -105,8 +106,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // With syntax highlighting
     m_highlighter = new Highlighter(m_ui->codeEditor->document());
-
-    m_linter = new Linter;
 
     // Status bar labels
     m_ui->statusBar->addPermanentWidget(m_ui->label);
@@ -213,13 +212,14 @@ void MainWindow::configureLintTable()
     // Message width
     m_ui->lintTable->setColumnWidth(2,800);
 
+    m_ui->lintTable->setColumnWidth(3,200);
+
 }
 
 MainWindow::~MainWindow()
 {
     delete m_ui;
     delete m_highlighter;
-    delete m_linter;
     delete m_actionError;
     delete m_buttonErrors;
     delete m_actionWarning;
@@ -303,13 +303,13 @@ void MainWindow::populateLintTable()
     int rowCount = lintTable->rowCount();
     int colCount = lintTable->columnCount();
 
-    auto lintMessages = m_linter->getLinterMessages();
+    auto lintMessages = m_linter.getLinterMessages();
 
     int progress = 0;
     int maxProgress = (rowCount * colCount) + lintMessages.size();
-    emit signalUpdateProgress(progress);
-    emit signalUpdateProgressMax(maxProgress);
-    emit signalUpdateStatus("Updating table...");
+    //emit signalUpdateProgress(progress);
+    //emit signalUpdateProgressMax(maxProgress);
+    //emit signalUpdateStatus("Updating table...");
 
     for (int row=0; row < rowCount; row++)
     {
@@ -317,7 +317,7 @@ void MainWindow::populateLintTable()
         {
             QTableWidgetItem* item = lintTable->item(row,col);
             delete item;
-            emit signalUpdateProgress(progress++);
+            //emit signalUpdateProgress(progress++);
         }
     }
 
@@ -426,18 +426,12 @@ void MainWindow::populateLintTable()
         lintTable->setItem( lintTable->rowCount()-1, 3, fileWidget);
         lintTable->setItem( lintTable->rowCount()-1, 4, lineWidget);
 
-        emit signalUpdateProgress(progress++);
+        //emit signalUpdateProgress(progress++);
     }
     lintTable->setSortingEnabled(true);
 
-    /*
-    lintTable->setWordWrap(true);
-    lintTable->setTextElideMode(Qt::ElideMiddle);
-    lintTable->resizeRowsToContents();
-    */
-
     // Show message if there are no lint problems
-    if (m_linter->numberOfErrors() == 0 && m_linter->numberOfWarnings() == 0 && m_linter->numberOfInfo() == 0)
+    if (m_linter.numberOfErrors() == 0 && m_linter.numberOfWarnings() == 0 && m_linter.numberOfInfo() == 0)
     {
         // Set item data
         auto type = new QTableWidgetItem;
@@ -446,7 +440,7 @@ void MainWindow::populateLintTable()
         lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem("No errors were detected :)"));
     }
 
-    emit signalUpdateTypes(m_linter->numberOfErrors(), m_linter->numberOfWarnings(), m_linter->numberOfInfo());
+    emit signalUpdateTypes(m_linter.numberOfErrors(), m_linter.numberOfWarnings(), m_linter.numberOfInfo());
     emit signalLintComplete();
 
     // Start the file monitor thread
@@ -583,15 +577,18 @@ void MainWindow::startLint(bool lintProject)
         // Only start linting if a file was selected
         if (directoryFiles.size())
         {
-            m_linter->setLinterFile(m_lintOptions->getLinterLintFilePath().trimmed());
-            m_linter->setLinterExecutable(m_lintOptions->getLinterExecutablePath().trimmed());
-            m_linter->setLintFiles(directoryFiles);
+            m_linter.setLinterFile(m_lintOptions->getLinterLintFilePath().trimmed());
+            m_linter.setLinterExecutable(m_lintOptions->getLinterExecutablePath().trimmed());
+            m_linter.setLintFiles(directoryFiles);
 
             // Display directory name or filename
             if (fileName != "")
             {
                 // Lint a project solution
-                startLintThread(QFileInfo(fileName).fileName());
+//                for (;;)
+                {
+                    startLintThread(QFileInfo(fileName).fileName());
+                }
             }
             else
             {
@@ -661,12 +658,12 @@ void MainWindow::slotLintError(LINTER_STATUS status)
     switch (status)
     {
     case LINTER_UNSUPPORTED_VERSION:
-        QMessageBox::critical(this,"Error", "Unsupported lint version: '" + m_linter->getLinterExecutable() + "'");
+        QMessageBox::critical(this,"Error", "Unsupported lint version: '" + m_linter.getLinterExecutable() + "'");
         break;
-    case LINTER_FAIL:
-        QMessageBox::critical(this,"Error", "Failed to run lint executable: '" + m_linter->getLinterExecutable() + "'");
+    case LINTER_LICENSE_ERROR:
+        QMessageBox::critical(this,"Error", "Failed to run lint executable: '" + m_linter.getLinterExecutable() + "'");
         break;
-    case LINTER_ERROR:
+    case LINTER_PROCESS_ERROR:
         QMessageBox::critical(this,"Error", "Linter encountered an error!");
         break;
     case LINTER_OK:
@@ -676,14 +673,210 @@ void MainWindow::slotLintError(LINTER_STATUS status)
     }
 }
 
+void MainWindow::slotLintFinished(const LintResponse& lintResponse)
+{
+    switch (lintResponse.status)
+    {
+    case LINTER_UNSUPPORTED_VERSION:
+        QMessageBox::critical(this,"Error", "Unsupported lint version: '" + m_linter.getLinterExecutable() + "'");
+        break;
+    case LINTER_LICENSE_ERROR:
+        QMessageBox::critical(this,"Error", "Failed to run lint executable: '" + m_linter.getLinterExecutable() + "'");
+        break;
+    case LINTER_PROCESS_ERROR:
+        QMessageBox::critical(this,"Error", "Linter encountered an error!");
+        break;
+    case LINTER_OK:
+        updateLintTable(lintResponse);
+        break;
+    case LINTER_CANCEL:
+        // Do nothing
+        break;
+    default:
+        Q_ASSERT(false);
+    }
+}
+
+void MainWindow::updateLintTable(const LintResponse& lintResponse)
+{
+    // Populate the table view with all the lint messages
+    // Clear all existing entries
+
+    QMap<QString, ModifiedFile> modifiedFiles;
+
+    QTableWidget* lintTable = m_ui->lintTable;
+    lintTable->setSortingEnabled(false);
+    int rowCount = lintTable->rowCount();
+    int colCount = lintTable->columnCount();
+
+    // Save our messages
+    m_linter.setLinterMessages(lintResponse.lintMessages);
+    m_linter.setNumberOfErrors(lintResponse.numberOfErrors);
+    m_linter.setNumberOfWarnings(lintResponse.numberOfWarnings);
+    m_linter.setNumberOfInfo(lintResponse.numberOfInfo);
+
+    auto linterMessages = lintResponse.lintMessages;
+
+    int progress = 0;
+    //int maxProgress = (rowCount * colCount) + linterMessages.size();
+    //emit signalUpdateProgress(progress);
+    //emit signalUpdateProgressMax(maxProgress);
+    //emit signalUpdateStatus("Updating table...");
+
+    for (int row=0; row < rowCount; row++)
+    {
+        for (int col=0; col < colCount; col++)
+        {
+            QTableWidgetItem* item = lintTable->item(row,col);
+            delete item;
+            //emit signalUpdateProgress(progress++);
+        }
+    }
+
+    lintTable->clearContents();
+    lintTable->setRowCount(0);
+
+    for (const LintMessage& message : linterMessages)
+    {
+        QString number = message.number;
+        QString file = message.file;
+        QString line = message.line;
+        QString type = message.type;
+        QString description = message.description;
+
+
+        // Check if the file is actually a file and not some random junk
+        if (!QFile(file).exists())
+        {
+            DEBUG_LOG("### Unknown file in linter messages: " + file);
+            file = "";
+        }
+
+        MESSAGE_TYPE messageType;
+
+        // Determine type
+        if (!QString::compare(type, LINT_TYPE_ERROR, Qt::CaseInsensitive))
+        {
+            messageType = MESSAGE_TYPE_ERROR;
+        }
+        else if (!QString::compare(type, LINT_TYPE_WARNING, Qt::CaseInsensitive))
+        {
+            messageType = MESSAGE_TYPE_WARNING;
+        }
+        else if (!QString::compare(type, LINT_TYPE_INFO, Qt::CaseInsensitive))
+        {
+            messageType = MESSAGE_TYPE_INFORMATION;
+        }
+        else
+        {
+            messageType = MESSAGE_TYPE_UNKNOWN;
+        }
+
+
+        // Filter
+        if (!m_toggleError)
+        {
+            if (messageType == MESSAGE_TYPE_ERROR)
+            {
+                continue;
+            }
+        }
+
+        if (!m_toggleWarning)
+        {
+            if (messageType == MESSAGE_TYPE_WARNING)
+            {
+                continue;
+            }
+        }
+
+        if (!m_toggleInfo)
+        {
+            if (messageType == MESSAGE_TYPE_INFORMATION || messageType == MESSAGE_TYPE_UNKNOWN)
+            {
+                continue;
+            }
+        }
+
+        // Insert row
+        lintTable->insertRow(lintTable->rowCount());
+
+        // Set item data
+        QTableWidgetItem* typeWidget = new QTableWidgetItem;
+        QTableWidgetItem* codeWidget = new QTableWidgetItem;
+        QTableWidgetItem* lineWidget = new QTableWidgetItem;
+        QTableWidgetItem* fileWidget = new QTableWidgetItem;
+
+        codeWidget->setData(Qt::DisplayRole,number.toUInt());
+        lineWidget->setData(Qt::DisplayRole,line.toUInt());
+        fileWidget->setData(Qt::DisplayRole, QFileInfo(file).fileName());
+        fileWidget->setData(Qt::UserRole, file);
+
+        // Add to set of modified files
+        ModifiedFile modifiedFile;
+        modifiedFile.lastModified = QFileInfo(file).lastModified();
+        modifiedFile.keepFile = true;
+        modifiedFiles[fileWidget->data(Qt::UserRole).value<QString>()] = modifiedFile;
+
+        QImage* icon = nullptr;
+        switch (messageType)
+        {
+            case MESSAGE_TYPE_ERROR: icon = m_icons[ICON_ERROR];  break;
+            case MESSAGE_TYPE_WARNING: icon = m_icons[ICON_WARNING]; break;
+            case MESSAGE_TYPE_INFORMATION: icon = m_icons[ICON_INFORMATION]; break;
+            case MESSAGE_TYPE_UNKNOWN: icon = m_icons[ICON_UNKNOWN]; break;
+        }
+
+        if (icon)
+        {
+            typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(*icon));
+        }
+
+        lintTable->setItem( lintTable->rowCount()-1, 0, typeWidget);
+        lintTable->setItem( lintTable->rowCount()-1, 1, codeWidget);
+        lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem(description));
+        lintTable->setItem( lintTable->rowCount()-1, 3, fileWidget);
+        lintTable->setItem( lintTable->rowCount()-1, 4, lineWidget);
+
+        //emit signalUpdateProgress(progress++);
+    }
+    lintTable->setSortingEnabled(true);
+
+    // Show message if there are no lint problems
+    // TODO: Fix
+
+    if (lintResponse.numberOfErrors == 0 && lintResponse.numberOfWarnings == 0 && lintResponse.numberOfInfo == 0)
+    {
+        // Set item data
+        auto type = new QTableWidgetItem;
+        type->setData(Qt::DecorationRole, QPixmap::fromImage(*m_icons[ICON_CORRECT]));
+        lintTable->setItem( lintTable->rowCount()-1, 0, type);
+        lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem("No errors were detected :)"));
+    }
+
+    emit signalUpdateTypes(lintResponse.numberOfErrors, lintResponse.numberOfWarnings, lintResponse.numberOfInfo);
+
+
+    emit signalLintComplete();
+
+    // Start the file monitor thread
+    emit signalSetModifiedFiles(modifiedFiles);
+    emit signalStartMonitor();
+}
+
 void MainWindow::startLintThread(QString title)
 {
-    m_progressWindow = new ProgressWindow(this);
-    m_progressWindow->setModal(true);
-    m_progressWindow->lintProcess();
+    ProgressWindow progressWindow(this);
+    progressWindow.setModal(true);
+    LintData lintData
+    {
+       m_lintOptions->getLinterExecutablePath().trimmed(),
+       m_lintOptions->getLinterLintFilePath().trimmed(),
+       m_directoryFiles
+    };
+    progressWindow.setLintData(lintData);
     emit signalUpdateProgressTitle(title);
-    m_progressWindow->exec();
-    delete m_progressWindow;
+    progressWindow.exec();
 }
 
 void MainWindow::on_aboutLinty_triggered()
@@ -695,6 +888,7 @@ void MainWindow::on_aboutLinty_triggered()
                 "Version: " BUILD_VERSION "\n"
                 "Date: " BUILD_DATE "\n"
                 "Commit: " BUILD_COMMIT "\n"
+                // TODO: Add compiler + version used
                 );
     versionMessageBox.exec();
 }
@@ -705,9 +899,9 @@ void MainWindow::on_actionRefresh_triggered()
     // Then try to lint that again
     if (m_lastProjectLoaded != "")
     {
-        m_linter->setLinterFile(m_lintOptions->getLinterLintFilePath().trimmed());
-        m_linter->setLinterExecutable(m_lintOptions->getLinterExecutablePath().trimmed());
-        m_linter->setLintFiles(m_directoryFiles);
+        m_linter.setLinterFile(m_lintOptions->getLinterLintFilePath().trimmed());
+        m_linter.setLinterExecutable(m_lintOptions->getLinterExecutablePath().trimmed());
+        m_linter.setLintFiles(m_directoryFiles);
         startLintThread(QFileInfo(m_lastProjectLoaded).fileName());
     }
 }
@@ -775,7 +969,7 @@ void MainWindow::slotFileDoesntExist(const QString& deletedFile)
         }
 
         // Update the linter messages
-        m_linter->removeAssociatedMessages(deletedFile);
+        m_linter.removeAssociatedMessages(deletedFile);
 
         // Update the lint table again
         populateLintTable();
@@ -814,14 +1008,14 @@ void MainWindow::handleContextMenu(const QPoint& pos)
         connect(actionRemoveFile, &QAction::triggered, this, [=]()
         {
             QString file = fileWidget->data(Qt::UserRole).value<QString>();
-            m_linter->removeAssociatedMessages(file);
+            m_linter.removeAssociatedMessages(file);
             populateLintTable();
         });
 
         connect(actionHideMessages, &QAction::triggered, this, [=]()
         {
             QString code = codeWidget->data(Qt::DisplayRole).value<QString>();
-            m_linter->removeMessagesWithNumber(code);
+            m_linter.removeMessagesWithNumber(code);
             populateLintTable();
         });
 

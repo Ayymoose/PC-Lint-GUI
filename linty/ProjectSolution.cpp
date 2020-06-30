@@ -203,7 +203,7 @@ QList<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proj
               QString  projectUnclean = split[5];
               qDebug() << projectUnclean;
 
-              if (maxProjects < 10)
+              //if (maxProjects < 10)
               {
                   try
                   {

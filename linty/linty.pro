@@ -16,7 +16,6 @@ SOURCES += \
     ProgressWindow.cpp \
     ProjectSolution.cpp \
     Settings.cpp \
-    Worker.cpp \
     main.cpp
 
 HEADERS += \
@@ -31,8 +30,7 @@ HEADERS += \
     ModifiedFileThread.h \
     ProgressWindow.h \
     ProjectSolution.h \
-    Settings.h \
-    Worker.h
+    Settings.h
 
 FORMS += \
     LintOptions.ui \

@@ -1,26 +1,44 @@
 #include "ProgressWindow.h"
 #include "ui_ProgressWindow.h"
-#include <QDebug>
-#include "Worker.h"
 #include "Linter.h"
 #include "Jenkins.h"
+
+#include <QDebug>
+#include <QTimer>
 #include <QThread>
 
 ProgressWindow::ProgressWindow(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ProgressWindow)
 {
-    m_mainWindow = dynamic_cast<MainWindow*>(parent);
-    Q_ASSERT(m_mainWindow != nullptr);
+    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+
     m_elapsedTime = 0;
     m_eta = 5;
     ui->setupUi(this);
     ui->lintProgressBar->setValue(0);
-    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-    m_timer = new QTimer(this);
+    m_timer = std::make_unique<QTimer>();
 
-    connect(m_timer, &QTimer::timeout, this, &ProgressWindow::slotUpdateTime);
+    connect(m_timer.get(), &QTimer::timeout, this, &ProgressWindow::slotUpdateTime);
+    m_timer->start(1000);
 
+    m_workerThread = std::make_unique<QThread>(this);
+    m_linter.moveToThread(m_workerThread.get());
+    m_workerThread->start();
+
+    connect(&m_linter, &Linter::signalLintFinished, this, &ProgressWindow::slotLintFinished);
+    connect(this, &ProgressWindow::signalStartLint, &m_linter, &Linter::slotStartLint);
+    connect(this, &ProgressWindow::signalSetLinterData, &m_linter, &Linter::slotGetLinterData);
+
+    connect(&m_linter, &Linter::signalUpdateProgress, this, &ProgressWindow::slotUpdateProgress);
+    connect(&m_linter, &Linter::signalUpdateProgressMax, this, &ProgressWindow::slotUpdateProgressMax);
+    connect(&m_linter, &Linter::signalUpdateProcessedFiles, this, &ProgressWindow::slotUpdateProcessedFiles);
+    connect(&m_linter, &Linter::signalUpdateETA, this, &ProgressWindow::slotUpdateETA);
+
+
+    connect(this, &ProgressWindow::signalLintFinished, dynamic_cast<MainWindow*>(parent), &MainWindow::slotLintFinished);
+
+    QTimer::singleShot(250,this,&ProgressWindow::slotStartLint);
 }
 
 void ProgressWindow::slotUpdateProgress(int value)
@@ -28,65 +46,27 @@ void ProgressWindow::slotUpdateProgress(int value)
     ui->lintProgressBar->setValue(value);
 }
 
-
 void ProgressWindow::slotUpdateProgressMax(int value)
 {
     ui->lintProgressBar->setMaximum(value);
 }
 
-void ProgressWindow::slotUpdateStatus(QString status)
+void ProgressWindow::slotUpdateProcessedFiles(int processedFiles, int processedFilesMax)
 {
-    ui->labelLintStatus->setText(status);
+   ui->filesProcessed->setText(QString::number(processedFiles)+ "/" + QString::number(processedFilesMax));
 }
 
-void ProgressWindow::lintProcess()
+void ProgressWindow::slotUpdateETA(int eta)
 {
-    m_timer->start(1000);
-
-    m_workerThread = new QThread(this);
-    m_worker = new Worker;
-    m_worker->moveToThread(m_workerThread);
-    connect(this, &ProgressWindow::signalStartLint, m_worker, &Worker::slotStartLint);
-
-    connect( m_worker, &Worker::signalFinished, m_worker, [=]
-    {
-         m_worker->deleteLater();
-         m_workerThread->quit();
-         m_workerThread = Q_NULLPTR;
-    });
-
-    connect(m_worker, &Worker::signalLintFinished, this, &ProgressWindow::slotLintFinished);
-    connect(this, &ProgressWindow::signalParseData, m_worker, &Worker::slotParseData);
-
-    connect(this, &ProgressWindow::signalLintError, m_mainWindow, &MainWindow::slotLintError);
-
-    connect(m_mainWindow, &MainWindow::signalUpdateProgressTitle, this, &ProgressWindow::slotUpdateProgressTitle);
-
-    // Update the lint table
-    connect(m_worker, &Worker::signalUpdateLintTable, m_mainWindow, &MainWindow::slotUpdateLintTable);
-
-    Linter* linter = m_mainWindow->getLinter();
-
-    connect(linter, &Linter::signalUpdateProgress, this, &ProgressWindow::slotUpdateProgress);
-    connect(linter, &Linter::signalUpdateProgressMax, this, &ProgressWindow::slotUpdateProgressMax);
-    connect(linter, &Linter::signalUpdateStatus, this, &ProgressWindow::slotUpdateStatus);
-
-    connect(m_mainWindow, &MainWindow::signalUpdateProgress, this, &ProgressWindow::slotUpdateProgress);
-    connect(m_mainWindow, &MainWindow::signalUpdateProgressMax, this, &ProgressWindow::slotUpdateProgressMax);
-    connect(m_mainWindow, &MainWindow::signalUpdateStatus, this, &ProgressWindow::slotUpdateStatus);
-    connect(m_mainWindow, &MainWindow::signalLintComplete, this, &ProgressWindow::slotLintComplete);
-
-    m_workerThread->start();
-    emit signalStartLint(m_mainWindow);
-
+    m_eta = eta;
 }
 
 void ProgressWindow::slotUpdateTime()
 {
-    ui->labelTimeElapsed->setText(QDateTime::fromTime_t(m_elapsedTime++).toUTC().toString("hh:mm:ss"));
+    ui->timeElapsed->setText(QDateTime::fromTime_t(m_elapsedTime++).toUTC().toString("hh:mm:ss"));
     if (m_eta >= 0)
     {
-        ui->labelETA->setText(QDateTime::fromTime_t(m_eta--).toUTC().toString("hh:mm:ss"));
+        ui->eta->setText(QDateTime::fromTime_t(m_eta--).toUTC().toString("hh:mm:ss"));
     }
 
 }
@@ -97,19 +77,11 @@ void ProgressWindow::slotLintComplete()
     close();
 }
 
-void ProgressWindow::slotLintFinished(LINTER_STATUS status)
+void ProgressWindow::slotLintFinished(const LintResponse& lintResponse)
 {
-    if (status == LINTER_OK)
-    {
-        // Start parsing the data
-        emit signalParseData();
-    }
-    else
-    {
-        // Some error occured so let MainWindow handle it
-        emit signalLintError(status);
-        close();
-    }
+    // Send to MainWindow
+    emit signalLintFinished(lintResponse);
+    close();
 }
 
 void ProgressWindow::slotUpdateProgressTitle(QString title)
@@ -121,16 +93,23 @@ void ProgressWindow::slotUpdateProgressTitle(QString title)
 ProgressWindow::~ProgressWindow()
 {
     delete ui;
-    delete m_timer;
-    if (m_workerThread)
-    {
-        m_workerThread->quit();
-        m_workerThread->wait();
-    }
+    m_workerThread->quit();
+    Q_ASSERT(m_workerThread->wait());
+}
 
+// Kick off the lint thread
+void ProgressWindow::slotStartLint()
+{
+    emit signalStartLint(true);
+}
+
+// Send the lint data to the Linter object
+void ProgressWindow::setLintData(const LintData& lintData)
+{
+    emit signalSetLinterData(lintData);
 }
 
 void ProgressWindow::on_lintCancel_clicked()
 {
-    close();
+    m_workerThread->requestInterruption();
 }
