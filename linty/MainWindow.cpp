@@ -61,6 +61,7 @@
 #include <QToolButton>
 #include <QProcess>
 #include <QtGlobal>
+#include <QClipboard>
 
 #include "Jenkins.h"
 #include "MainWindow.h"
@@ -882,15 +883,26 @@ void MainWindow::startLintThread(QString title)
 void MainWindow::on_aboutLinty_triggered()
 {
     QMessageBox versionMessageBox(this);
+    versionMessageBox.setIcon(QMessageBox::Information);
+    versionMessageBox.addButton("Copy to clipboard", QMessageBox::AcceptRole);
     versionMessageBox.setWindowTitle("Information");
-    versionMessageBox.setText
-            (
-                "Version: " BUILD_VERSION "\n"
-                "Date: " BUILD_DATE "\n"
-                "Commit: " BUILD_COMMIT "\n"
-                // TODO: Add compiler + version used
-                );
-    versionMessageBox.exec();
+    char buildCompiler[23];
+    sprintf(buildCompiler,"MinGW 32-bit %d.%d.%d\n",__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__);
+
+    QString applicationInfo = "Build Version: " BUILD_VERSION "\n"
+                          "Build Date: " BUILD_DATE "\n"
+                          "Build Commit: " BUILD_COMMIT "\n"
+                          "Build Compiler: " + QString(buildCompiler) +"\n";
+
+    versionMessageBox.setText(applicationInfo);
+    switch (versionMessageBox.exec())
+    {
+    case QMessageBox::AcceptRole:
+        QApplication::clipboard()->setText(applicationInfo);
+        break;
+    default:
+        break;
+    }
 }
 
 void MainWindow::on_actionRefresh_triggered()
