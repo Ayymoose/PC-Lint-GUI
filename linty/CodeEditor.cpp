@@ -105,7 +105,7 @@ bool CodeEditor::loadFile(const QString& filename)
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QFile::Text))
     {
-        Log::log("### Cannot open file '" + filename + "' because of " + file.errorString());
+        Log::log("[Error] Cannot open file '" + filename + "' because of " + file.errorString());
         return false;
     }
     else

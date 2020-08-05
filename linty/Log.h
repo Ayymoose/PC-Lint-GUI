@@ -8,7 +8,7 @@
 #include <memory>
 #include <QtDebug>
 
-#define DEBUG_LOG(MESSAGE) qDebug() << (MESSAGE); Log::log(MESSAGE);
+#define DEBUG_LOG(MESSAGE) qDebug() << (MESSAGE);/* Log::log(MESSAGE);*/
 #define LOG_FILENAME "linty_log.txt"
 
 class Log : public QObject

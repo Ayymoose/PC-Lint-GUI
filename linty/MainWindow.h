@@ -87,13 +87,14 @@ signals:
     void signalUpdateProgress(int value);
     void signalUpdateProgressMax(int value);
     void signalUpdateStatus(QString status);
-    void signalLintComplete();
     void signalUpdateProgressTitle(QString title);
     void signalUpdateTypes(int errors, int warnings, int info);
 
     //
     void signalStartLint();
     void signalSetLintData(const LintData& lintData);
+
+    void signalSetLinterData(const LintData& lintData);
 
     // Modified file signals
     void signalSetModifiedFiles(QMap<QString, ModifiedFile> modifiedFiles);
@@ -102,11 +103,12 @@ signals:
     void signalRemoveFile(const QString& deletedFile);
     void signalKeepFile(const QString& keepFile);
 public slots:
-    void slotLintError(LINTER_STATUS status);
     void slotUpdateLintTable();
     void handleContextMenu(const QPoint& pos);
-
     void slotLintFinished(const LintResponse& lintResponse);
+    void slotGetLinterData();
+    void slotLintComplete();
+
 private slots:
 
     void save();
@@ -127,7 +129,6 @@ private slots:
 
 public:
     Ui::MainWindow *m_ui;
-    void populateLintTable();
     void configureLintTable();
     void startLint(bool lintProject);
     void startLintThread(QString title);
@@ -156,8 +157,7 @@ private:
     // ModifiedFileWorker thread
     ModifiedFileThread* m_modifiedFileWorker;
 
-    void updateLintTable(const LintResponse& lintResponse);
-    void refreshLintTable();
+    void displayLintTable();
 
 };
 

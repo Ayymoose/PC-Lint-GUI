@@ -9,6 +9,7 @@ SOURCES += \
     Highlighter.cpp \
     Icon.cpp \
     LintOptions.cpp \
+    LintThreadManager.cpp \
     Linter.cpp \
     Log.cpp \
     MainWindow.cpp \
@@ -24,6 +25,7 @@ HEADERS += \
     Icon.h \
     Jenkins.h \
     LintOptions.h \
+    LintThreadManager.h \
     Linter.h \
     Log.h \
     MainWindow.h \

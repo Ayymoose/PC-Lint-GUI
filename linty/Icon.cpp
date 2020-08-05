@@ -15,7 +15,7 @@ QImage* Icon::loadIcon(const QString& path)
     QImage *img = new QImage();
     if (!img->load(path))
     {
-        DEBUG_LOG("### Failed to load image: " + path);
+        DEBUG_LOG("[Error] Failed to load image: " + path);
         delete img;
         return nullptr;
     }

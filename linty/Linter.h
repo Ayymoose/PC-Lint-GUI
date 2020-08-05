@@ -7,12 +7,17 @@
 #include <QProcess>
 #include <memory>
 
+#define MAX_PROCESS_CHARACTERS 8192
+#define MAX_LINT_TIME 10*60*1000
+
 enum LINTER_STATUS
 {
-    LINTER_OK = 0,
+    LINTER_COMPLETE = 0,
+    LINTER_PARTIAL_COMPLETE,
     LINTER_UNSUPPORTED_VERSION,
     LINTER_LICENSE_ERROR,
     LINTER_PROCESS_ERROR,
+    LINTER_PROCESS_TIMEOUT,
     LINTER_CANCEL,
 };
 
@@ -74,6 +79,7 @@ class Linter : public QObject
     Q_OBJECT
 public:
     Linter();
+    ~Linter();
     void setLinterExecutable(const QString& linterExecutable);
     void setLinterFile(const QString& lintFile);
     void setLintFiles(const QList<QString>& files);
@@ -87,6 +93,9 @@ public:
     // Removes all messages with the given number
     void removeMessagesWithNumber(const QString& number);
 
+    // Clear all messages and information
+    void resetLinter();
+
     int numberOfErrors() const;
     int numberOfWarnings() const;
     int numberOfInfo() const;
@@ -94,6 +103,11 @@ public:
     void setNumberOfErrors(int numberOfErrors);
     void setNumberOfWarnings(int numberOfWarnings);
     void setNumberOfInfo(int numberOfInfo);
+
+    void appendLinterMessages(const QSet<LintMessage>& lintMessages);
+    void appendLinterErrors(int numberOfErrors);
+    void appendLinterWarnings(int numberOfWarnings);
+    void appendLinterInfo(int numberOfInfo);
 
     // Lint a directory or some files
     LINTER_STATUS lint();
@@ -110,7 +124,7 @@ signals:
     void signalUpdateProgress(int value);
     void signalUpdateProgressMax(int value);
     void signalUpdateETA(int eta);
-    void signalUpdateProcessedFiles(int processedFiles, int maxProcessedFiles);
+    void signalUpdateProcessedFiles(int processedFiles);
 
 
     //
@@ -132,11 +146,7 @@ private:
 
 inline bool operator==(const LintMessage &e1, const LintMessage &e2)
 {
-    return (e1.number == e2.number) &&
-            (e1.file == e2.file) &&
-            (e1.line == e2.line) &&
-            (e1.type == e2.type) &&
-            (e1.description == e2.description);
+    return (e1.number == e2.number) && (e1.file == e2.file) && (e1.line == e2.line) && (e1.type == e2.type) && (e1.description == e2.description);
 }
 
 inline uint qHash(const LintMessage &key, uint seed)

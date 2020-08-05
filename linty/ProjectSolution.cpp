@@ -50,7 +50,7 @@ QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proj
                         QString sourceFile = QFileInfo(projectPath + "\\" + include).canonicalFilePath();
                         if (sourceFile.length() >= MAX_PATH)
                         {
-                            DEBUG_LOG("### Source file name longer than " + QString(MAX_PATH) + " characters");
+                            DEBUG_LOG("[Error] Source file name longer than " + QString(MAX_PATH) + " characters");
                         }
                         else
                         {
@@ -70,7 +70,7 @@ QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proj
         projectFile.close();
         if(xmlReader.hasError())
         {
-            DEBUG_LOG("### XML parser error in " + projectFileName);
+            DEBUG_LOG("[Error] XML parser error in " + projectFileName);
             DEBUG_LOG("Error Type:       " + QString(xmlReader.error()));
             DEBUG_LOG("Error String:     " + xmlReader.errorString());
             DEBUG_LOG("Line Number:      " + QString::number(xmlReader.lineNumber()));
@@ -81,7 +81,7 @@ QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proj
     }
     else
     {
-        DEBUG_LOG("### Unable to open file: " + projectFileName);
+        DEBUG_LOG("[Error] Unable to open file: " + projectFileName);
         throw std::logic_error("Unable to open file: " + projectFileName.toStdString());
     }
 
@@ -130,7 +130,7 @@ QList<QString> VisualStudioProject::buildSourceFiles(const QString& projectFileN
                         QString sourceFile = QFileInfo(projectPath + "\\" + include).canonicalFilePath();
                         if (sourceFile.length() >= MAX_PATH)
                         {
-                            DEBUG_LOG("### Source file name longer than " + QString(MAX_PATH) + " characters");
+                            DEBUG_LOG("[Error] Source file name longer than " + QString(MAX_PATH) + " characters");
                         }
                         else
                         {
@@ -150,7 +150,7 @@ QList<QString> VisualStudioProject::buildSourceFiles(const QString& projectFileN
         projectFile.close();
         if(xmlReader.hasError())
         {
-            DEBUG_LOG("### XML parser error in " + projectFileName);
+            DEBUG_LOG("[Error] XML parser error in " + projectFileName);
             DEBUG_LOG("Error Type:       " + QString(xmlReader.error()));
             DEBUG_LOG("Error String:     " + xmlReader.errorString());
             DEBUG_LOG("Line Number:      " + QString::number(xmlReader.lineNumber()));
@@ -161,7 +161,7 @@ QList<QString> VisualStudioProject::buildSourceFiles(const QString& projectFileN
     }
     else
     {
-        DEBUG_LOG("### Unable to open file: " + projectFileName);
+        DEBUG_LOG("[Error] Unable to open file: " + projectFileName);
         throw std::logic_error("Unable to open file: " + projectFileName.toStdString());
     }
 
@@ -217,7 +217,7 @@ QList<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proj
                       }
                   } catch (const std::logic_error& e)
                   {
-                      DEBUG_LOG("### " + QString(e.what()));
+                      DEBUG_LOG("[Error] " + QString(e.what()));
                   }
 
 
