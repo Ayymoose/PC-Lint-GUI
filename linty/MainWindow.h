@@ -56,6 +56,7 @@
 #include <QToolButton>
 #include <QAction>
 #include <QMenu>
+#include <QMap>
 
 #include "ProgressWindow.h"
 #include "LintOptions.h"
@@ -153,6 +154,8 @@ private:
     bool verifyLint();
 
     QMenu* m_lintTableMenu;
+    QMap<QString, QString> m_projectLintMap;
+    int m_linterStatus;
 
     // ModifiedFileWorker thread
     ModifiedFileThread* m_modifiedFileWorker;

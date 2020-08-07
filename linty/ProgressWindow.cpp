@@ -7,7 +7,7 @@
 #include <QTimer>
 #include <QThread>
 
-ProgressWindow::ProgressWindow(QWidget *parent) :
+ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
     QDialog(parent),
     ui(new Ui::ProgressWindow)
 {
@@ -44,6 +44,8 @@ ProgressWindow::ProgressWindow(QWidget *parent) :
     connect(this, &ProgressWindow::signalLintFinished, dynamic_cast<MainWindow*>(parent), &MainWindow::slotLintFinished);
 
     connect(this, &ProgressWindow::signalLintComplete, dynamic_cast<MainWindow*>(parent), &MainWindow::slotLintComplete);
+
+    ui->lintGroupBox->setTitle(title);
 
     emit signalStartLintManager();
 }

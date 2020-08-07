@@ -150,11 +150,16 @@ void LintThreadManager::slotLintFinished(const LintResponse& lintResponse)
 void LintThreadManager::slotAbortLint()
 {
     qDebug() << "Attempting to abort lint...";
+    int threads = 1;
     std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[](auto& thread)
     {
         thread->requestInterruption();
         thread->quit();
+    });
+    std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[this,&threads](auto& thread)
+    {
         Q_ASSERT(thread->wait());
+        qDebug() << threads++ << "/" << m_lintThreads.size() << " finished";
     });
     qDebug() << "Lint aborted!";
 }

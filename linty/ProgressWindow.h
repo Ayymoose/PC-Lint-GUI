@@ -24,7 +24,7 @@ class ProgressWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit ProgressWindow(QWidget *parent = nullptr);
+    explicit ProgressWindow(QWidget *parent = nullptr, const QString& title = "");
     ~ProgressWindow();
 
     void setLintData(const LintData& lintData);

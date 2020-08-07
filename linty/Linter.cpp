@@ -133,13 +133,12 @@ LINTER_STATUS Linter::lint()
 
     connect(&lintProcess, &QProcess::errorOccurred, this, [&](const QProcess::ProcessError& error)
     {
-        status = LINTER_PROCESS_ERROR;
+        if (status != LINTER_CANCEL)
+        {
+            status = LINTER_PROCESS_ERROR;
+        }
         qDebug() << "## Process error: " << error;
-        //DEBUG_LOG("[Error] Process error: " << error);
     });
-
-
-
 
     connect(&lintProcess, &QProcess::readyReadStandardOutput, this, [&]()
     {
@@ -148,13 +147,13 @@ LINTER_STATUS Linter::lint()
             status = LINTER_CANCEL;
             lintProcess.closeReadChannel(QProcess::StandardOutput);
             lintProcess.closeReadChannel(QProcess::StandardError);
+            lintProcess.close();
+            return;
         }
 
         QByteArray readStdOut = lintProcess.readAllStandardOutput();
         lintData.append(readStdOut);
     });
-
-
 
     QList<QString> lintedFiles;
     QByteArray pclintVersion;
@@ -179,6 +178,8 @@ LINTER_STATUS Linter::lint()
             status = LINTER_CANCEL;
             lintProcess.closeReadChannel(QProcess::StandardOutput);
             lintProcess.closeReadChannel(QProcess::StandardError);
+            lintProcess.close();
+            return;
         }
 
         QByteArray readStdErr = lintProcess.readAllStandardError();
@@ -206,6 +207,8 @@ LINTER_STATUS Linter::lint()
                 lintProcess.closeReadChannel(QProcess::StandardOutput);
                 lintProcess.closeReadChannel(QProcess::StandardError);
                 DEBUG_LOG("[Error] Failed to start lint because version unsupported: " + QString(pclintVersion));
+                lintProcess.close();
+                return;
             }
             // But it sometimes drags module information into the first read
             // Find any module information that sneaked into this chunk
@@ -236,7 +239,6 @@ LINTER_STATUS Linter::lint()
 
                 // Linter can perform multiple passes over the same file
                 // TODO: Support multiple passes
-                // TODO: Fix process error when too many files
                 if (!lintedFiles.contains(file))
                 {
                     qDebug() << "[" << QThread::currentThreadId() << "]" << "Processed: " << file;
@@ -316,7 +318,7 @@ LINTER_STATUS Linter::lint()
 
    // m_arguments << ("-passes(6)");
 
-    for (QString str : m_arguments)
+    for (const QString& str : m_arguments)
     {
         cmdString += " \"" + str + "\"";
     }
@@ -327,7 +329,15 @@ LINTER_STATUS Linter::lint()
 
     cmdString += " \"" + m_lintFile + "\"";
 
-    // TODO: Assert argument length + lint executable path < 512
+
+    // Assert argument length + lint executable path < 512
+    int totalLength = 0;
+    for (const QString& argument : m_arguments)
+    {
+        totalLength += argument.length();
+    }
+
+    Q_ASSERT(totalLength + m_linterExecutable.length() < 512);
 
     // Add all files to lint    
     for (const QString& file : m_filesToLint)
@@ -340,12 +350,6 @@ LINTER_STATUS Linter::lint()
     Q_ASSERT(m_linterExecutable.length());
     //DEBUG_LOG("Lint path: " + m_linterExecutable);
     //DEBUG_LOG("Lint file: " + m_lintFile);
-
-    // Display arguments
-    for (const QString& argument : m_arguments)
-    {
-       // DEBUG_LOG("Lint argument: " + argument);
-    }
 
     // TODO: Temporary debug information
     QFile file("D:\\Users\\Ayman\\Desktop\\Linty\\test\\xmldata.xml");
@@ -396,7 +400,8 @@ LINTER_STATUS Linter::lint()
     emit signalUpdateProcessedFiles(processedFiles);
 
     // Wait forever until finished
-    // TODO: Timeout?
+    // TODO: Wait forever but timeout after 1 minute if stuck on a file?
+    // TODO: Loop with a delay to check if lint process finished
     if (!lintProcess.waitForFinished(MAX_LINT_TIME))
     {
         DEBUG_LOG("[Error] Lint process exited as it took too long (" + QString::number(MAX_LINT_TIME) + "ms) It's possible the lint executable became stuck on a particular file.");
@@ -416,10 +421,6 @@ LINTER_STATUS Linter::lint()
         return LINTER_CANCEL;
     }
 
-    // They must be the same or something went horribly wrong internally
-    // We must expect all the output files to be in our list
-    //Q_ASSERT(lintedFiles.size() == m_filesToLint.size());
-
     if (lintedFiles.size() == m_filesToLint.size())
     {
         qDebug() << "[" << QThread::currentThreadId() << "]" << "All files in project linted";
@@ -429,11 +430,6 @@ LINTER_STATUS Linter::lint()
         qDebug() << "[" << QThread::currentThreadId() << "]" << "Only " << lintedFiles.size() << "/" << m_filesToLint.size() << " were linted!";
         status = LINTER_PARTIAL_COMPLETE;
     }
-
-    //qDebug() << "[Error]";
-    //qDebug() << "Command line argument: " << cmdString;
-    //qDebug() << "[Error]";
-
 
     // Show lint version used
     qDebug() << "[" << QThread::currentThreadId() << "]" << "Lint version: " << QString(pclintVersion);
@@ -572,11 +568,10 @@ LINTER_STATUS Linter::lint()
                 {
                     // TODO: Fix for supplemental messages
                     // Unknown types are treated as informational messages with '?' icon
+                    Q_ASSERT(false);
                     m_numberOfInfo++;
                 }
             }
-            //progress += (message.number + message.description + message.type + message.line + message.file).size();
-            //emit signalUpdateProgress(progress);
             message = {};
         }
     }

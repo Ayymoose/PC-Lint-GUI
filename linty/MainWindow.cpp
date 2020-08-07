@@ -159,6 +159,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_lowerToolbar->addWidget(m_buttonInfo);
     m_lowerToolbar->addSeparator();
 
+    m_linterStatus = 0;
+
     connect(m_actionError, &QAction::triggered, this, [this](bool checked)
     {
         m_toggleError = checked;
@@ -341,6 +343,12 @@ void MainWindow::startLint(bool lintProject)
     // It will show all output in a list view where we can view it
     // Should be in a separate thread really
 
+    // If a project is selected
+    // If we have a lint file associated with it, start the linter on the project with the given lint file
+    // Otherwise select the lint file, associate it with the project
+
+    // Similar logic for directory
+
 
     if (verifyLint())
     {
@@ -355,8 +363,15 @@ void MainWindow::startLint(bool lintProject)
                                                     "Visual Studio Project (*.vcxproj);; "
                                                     "Visual Studio Solution (*.sln) "
                                                     );
-            if (fileName != "")
+            if (!fileName.isEmpty())
             {
+
+                // Have we got an association to a lint file already?
+
+                // What if we want to use a different lint file for a project?
+                // Where would we display the lint file being used?
+
+
                 // Check file extension
                 QString fileExtension = QFileInfo(fileName).completeSuffix();
                 LintOptions::m_lastDirectory = QFileInfo(fileName).absolutePath();
@@ -509,6 +524,22 @@ void MainWindow::slotLintFinished(const LintResponse& lintResponse)
     {
         qDebug() << "[Error] Linter error " << lintResponse.status << "occurred so not appending any data";
     }
+
+    // Save status
+    m_linterStatus |= lintResponse.status;
+
+    /*
+     * MEssage box
+     *    LINTER_PARTIAL_COMPLETE,
+    // Lint version unknown
+    LINTER_UNSUPPORTED_VERSION,
+    // Lint license error
+    LINTER_LICENSE_ERROR,
+    // Lint process error
+    LINTER_PROCESS_ERROR,
+    // Lint process timeout
+    LINTER_PROCESS_TIMEOUT,
+     */
 }
 
 void MainWindow::displayLintTable()
@@ -656,6 +687,30 @@ void MainWindow::displayLintTable()
     emit signalUpdateTypes(m_linter.numberOfErrors(), m_linter.numberOfWarnings(), m_linter.numberOfInfo());
 
 
+    // Display any outstanding messages
+    if (m_linterStatus & LINTER_PARTIAL_COMPLETE)
+    {
+        QMessageBox::information(this, "Information", "Not all files were successfully linted as errors were generated in the lint output.");
+    }
+    else if (m_linterStatus & LINTER_UNSUPPORTED_VERSION)
+    {
+        QMessageBox::critical(this, "Error", "Failed to start lint because of unknown PC-Lint version.");
+    }
+    else if (m_linterStatus & LINTER_LICENSE_ERROR)
+    {
+        QMessageBox::critical(this, "Error", "Failed to start lint because of invalid license. Check your PC-Lint license");
+    }
+    else if (m_linterStatus & LINTER_PROCESS_ERROR)
+    {
+        QMessageBox::critical(this, "Error", "Failed to complete lint because of an internal error");
+    }
+    else if (m_linterStatus & LINTER_PROCESS_TIMEOUT)
+    {
+        QMessageBox::critical(this, "Error", "Failed to complete lint because process became stuck");
+    }
+
+    m_linterStatus = 0;
+
     // Start the file monitor thread
     emit signalSetModifiedFiles(modifiedFiles);
     emit signalStartMonitor();
@@ -684,7 +739,7 @@ void MainWindow::startLintThread(QString title)
 {
     // Clear any existing data
     m_linter.resetLinter();
-    ProgressWindow progressWindow(this);
+    ProgressWindow progressWindow(this,title);
     Qt::WindowFlags flags = progressWindow.windowFlags();
     progressWindow.setWindowFlags(flags | Qt::Tool);
     progressWindow.exec();

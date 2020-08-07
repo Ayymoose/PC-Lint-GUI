@@ -12,13 +12,20 @@
 
 enum LINTER_STATUS
 {
+    // Lint completed successfully
     LINTER_COMPLETE = 0,
-    LINTER_PARTIAL_COMPLETE,
-    LINTER_UNSUPPORTED_VERSION,
-    LINTER_LICENSE_ERROR,
-    LINTER_PROCESS_ERROR,
-    LINTER_PROCESS_TIMEOUT,
-    LINTER_CANCEL,
+    // Lint partially completed but didn't lint all files
+    LINTER_PARTIAL_COMPLETE = 1,
+    // Lint version unknown
+    LINTER_UNSUPPORTED_VERSION = 2,
+    // Lint license error
+    LINTER_LICENSE_ERROR = 4,
+    // Lint process error
+    LINTER_PROCESS_ERROR = 8,
+    // Lint process timeout
+    LINTER_PROCESS_TIMEOUT = 16,
+    // Lint cancelled
+    LINTER_CANCEL = 32,
 };
 
 enum MESSAGE_TYPE
