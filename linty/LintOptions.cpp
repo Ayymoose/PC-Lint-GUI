@@ -24,28 +24,28 @@ LintOptions::LintOptions(QWidget *parent) :
     }
 }
 
-QString LintOptions::getLinterExecutablePath() const
+QString LintOptions::getLinterExecutablePath() const noexcept
 {
     return m_ui->lintInputText->text();
 }
 
-QString LintOptions::getLinterLintFilePath() const
+QString LintOptions::getLinterLintFilePath() const noexcept
 {
     return m_ui->lintFileInputText->text();
 }
 
-QString LintOptions::getLinterLintOptions() const
+QString LintOptions::getLinterLintOptions() const noexcept
 {
    return m_ui->lintOptionsInputText->text();
 }
 
-QString LintOptions::getLinterDirectory() const
+QString LintOptions::getLinterDirectory() const noexcept
 {
     return m_ui->sourceFileInputText->text();
 }
 
 
-void LintOptions::loadSettings()
+void LintOptions::loadSettings() noexcept
 {
     // Load settings
     QMap<QString,QString> keyValues = Settings::loadINISettings();

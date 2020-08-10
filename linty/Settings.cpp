@@ -2,7 +2,7 @@
 #include <QSettings>
 #include <QDebug>
 
-QMap<QString,QString> Settings::loadINISettings()
+QMap<QString,QString> Settings::loadINISettings() noexcept
 {
     // Load settings from INI
     QMap<QString,QString> keyValues;
@@ -18,7 +18,7 @@ QMap<QString,QString> Settings::loadINISettings()
     return keyValues;
 }
 
-void Settings::writeINI(const QString &key, const QVariant &value)
+void Settings::writeINI(const QString &key, const QVariant &value) noexcept
 {
     QSettings settings(INI_SETTINGS_FILE, QSettings::IniFormat);
     settings.beginGroup(INI_SETTINGS_GROUP);

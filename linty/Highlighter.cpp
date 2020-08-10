@@ -125,7 +125,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     m_commentEndExpression = QRegularExpression(QStringLiteral("\\*/"));
 }
 
-void Highlighter::highlightBlock(const QString &text)
+void Highlighter::highlightBlock(const QString &text) noexcept
 {
     for (const HighlightingRule &rule : qAsConst(m_highlightingRules))
     {

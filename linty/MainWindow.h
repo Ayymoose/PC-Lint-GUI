@@ -93,8 +93,6 @@ signals:
 
     //
     void signalStartLint();
-    void signalSetLintData(const LintData& lintData);
-
     void signalSetLinterData(const LintData& lintData);
 
     // Modified file signals

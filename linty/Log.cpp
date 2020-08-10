@@ -3,7 +3,7 @@
 
 std::unique_ptr<QFile> Log::m_file;
 
-void Log::createLogFile(const QString &file)
+void Log::createLogFile(const QString &file) noexcept
 {
     m_file = std::make_unique<QFile>(new QFile);
     m_file->setFileName(file);
@@ -13,7 +13,7 @@ void Log::createLogFile(const QString &file)
     }
 }
 
-void Log::log(const QString &value)
+void Log::log(const QString &value) noexcept
 {
     QString text = value;
     text = QDateTime::currentDateTime().toString("[dd.MM.yyyy hh:mm:ss] ") + text + "\n";

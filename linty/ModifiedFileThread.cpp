@@ -62,27 +62,27 @@ ModifiedFileThread::~ModifiedFileThread()
     qDebug() << "Monitor thread died";
 }
 
-void ModifiedFileThread::slotSetModifiedFiles(QMap<QString, ModifiedFile> modifiedFiles)
+void ModifiedFileThread::slotSetModifiedFiles(QMap<QString, ModifiedFile> modifiedFiles) noexcept
 {
     QMutexLocker mutexLocker(&m_modifiedFileMutex);
     m_modifiedFiles = modifiedFiles;
 }
 
-void ModifiedFileThread::slotSetModifiedFile(const QString& modifiedFile, const QDateTime& dateTime)
+void ModifiedFileThread::slotSetModifiedFile(const QString& modifiedFile, const QDateTime& dateTime) noexcept
 {
     QMutexLocker mutexLocker(&m_modifiedFileMutex);
     m_modifiedFiles[modifiedFile].lastModified = dateTime;
     m_modifiedFiles[modifiedFile].keepFile = true;
 }
 
-void ModifiedFileThread::slotRemoveFile(const QString& deletedFile)
+void ModifiedFileThread::slotRemoveFile(const QString& deletedFile) noexcept
 {
     QMutexLocker mutexLocker(&m_modifiedFileMutex);
     // Remove from the CodeEditor too
     m_modifiedFiles.remove(deletedFile);
 }
 
-void ModifiedFileThread::slotKeepFile(const QString& keepFile)
+void ModifiedFileThread::slotKeepFile(const QString& keepFile) noexcept
 {
     QMutexLocker mutexLocker(&m_modifiedFileMutex);
     // Record that we want to keep this file

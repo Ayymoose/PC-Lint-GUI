@@ -15,8 +15,8 @@ class Log : public QObject
 {
     Q_OBJECT
 public:
-    static void createLogFile(const QString &file);
-    static void log(const QString &message);
+    static void createLogFile(const QString &file) noexcept;
+    static void log(const QString &message) noexcept;
     Log() = delete;
 private:
     static std::unique_ptr<QFile> m_file;

@@ -10,7 +10,7 @@ public:
     ProjectSolution() = default;
     ~ProjectSolution() = default;
     virtual QList<QString> buildSourceFiles(const QString& projectFileName) = 0;
-    virtual void setDirectory(const QString& directory) = 0;
+    virtual void setDirectory(const QString&) = 0;
 };
 
 class AtmelStudio7ProjectSolution : public ProjectSolution
@@ -19,7 +19,7 @@ public:
 
      AtmelStudio7ProjectSolution() = default;
      ~AtmelStudio7ProjectSolution() = default;
-     void setDirectory(const QString& directory) override {}
+     void setDirectory(const QString&) override {}
      QList<QString> buildSourceFiles(const QString& projectFileName) override;
 };
 
@@ -30,7 +30,7 @@ public:
 
      VisualStudioProject() = default;
      ~VisualStudioProject() = default;
-     void setDirectory(const QString& directory) override {}
+     void setDirectory(const QString&) override {}
      QList<QString> buildSourceFiles(const QString& projectFileName) override;
 };
 
@@ -41,7 +41,7 @@ public:
 
      VisualStudioProjectSolution() = default;
      ~VisualStudioProjectSolution() = default;
-     void setDirectory(const QString& directory) override;
+     void setDirectory(const QString&) override;
      QList<QString> buildSourceFiles(const QString& projectFileName) override;
 private:
      QString m_directory;

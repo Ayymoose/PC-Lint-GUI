@@ -24,10 +24,10 @@ public:
 protected:
     void run() override;
 public slots:
-    void slotSetModifiedFiles(QMap<QString, ModifiedFile> modifiedFiles);
-    void slotSetModifiedFile(const QString& modifiedFile, const QDateTime& dateTime);
-    void slotRemoveFile(const QString& deletedFile);
-    void slotKeepFile(const QString& keepFile);
+    void slotSetModifiedFiles(QMap<QString, ModifiedFile> modifiedFiles) noexcept;
+    void slotSetModifiedFile(const QString& modifiedFile, const QDateTime& dateTime) noexcept;
+    void slotRemoveFile(const QString& deletedFile) noexcept;
+    void slotKeepFile(const QString& keepFile) noexcept;
 
 signals:
     void signalFinished();

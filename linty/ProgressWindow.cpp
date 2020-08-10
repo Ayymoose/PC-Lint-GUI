@@ -50,14 +50,14 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
     emit signalStartLintManager();
 }
 
-void ProgressWindow::slotUpdateProgress(int value)
+void ProgressWindow::slotUpdateProgress(int value) noexcept
 {
     m_currentProgress += value;
     qDebug() << "Progress now: (" << m_currentProgress << "/" << m_progressMax << ")";
     ui->lintProgressBar->setValue(m_currentProgress);
 }
 
-void ProgressWindow::slotUpdateProgressMax(int value)
+void ProgressWindow::slotUpdateProgressMax(int value) noexcept
 {
     qDebug() << "Progress max received maximum: " << value;
     // Accumulate progress
@@ -65,13 +65,13 @@ void ProgressWindow::slotUpdateProgressMax(int value)
     ui->lintProgressBar->setMaximum(m_progressMax);
 }
 
-void ProgressWindow::slotUpdateProcessedFiles(int processedFiles)
+void ProgressWindow::slotUpdateProcessedFiles(int processedFiles) noexcept
 {
    m_currentFileProgress += processedFiles;
    ui->filesProcessed->setText(QString::number(m_currentFileProgress)+ "/" + QString::number(m_progressMax));
 }
 
-void ProgressWindow::slotUpdateETA(int eta)
+void ProgressWindow::slotUpdateETA(int eta) noexcept
 {
     static int etaMax = 0;
     if (etaMax < eta)
@@ -81,7 +81,7 @@ void ProgressWindow::slotUpdateETA(int eta)
     }
 }
 
-void ProgressWindow::slotUpdateTime()
+void ProgressWindow::slotUpdateTime() noexcept
 {
     ui->timeElapsed->setText(QDateTime::fromTime_t(m_elapsedTime++).toUTC().toString("hh:mm:ss"));
     if (m_eta >= 0)
@@ -90,18 +90,18 @@ void ProgressWindow::slotUpdateTime()
     }
 }
 
-void ProgressWindow::slotLintFinished(const LintResponse& lintResponse)
+void ProgressWindow::slotLintFinished(const LintResponse& lintResponse) noexcept
 {
     emit signalLintFinished(lintResponse);
 }
 
-void ProgressWindow::slotLintComplete()
+void ProgressWindow::slotLintComplete() noexcept
 {
     emit signalLintComplete();
     close();
 }
 
-void ProgressWindow::slotUpdateProgressTitle(QString title)
+void ProgressWindow::slotUpdateProgressTitle(QString title) noexcept
 {
     ui->lintGroupBox->setTitle(title);
     m_windowTitle = title;

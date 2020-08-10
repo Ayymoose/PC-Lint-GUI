@@ -87,44 +87,41 @@ class Linter : public QObject
 public:
     Linter();
     ~Linter();
-    void setLinterExecutable(const QString& linterExecutable);
-    void setLinterFile(const QString& lintFile);
-    void setLintFiles(const QList<QString>& files);
+    void setLinterExecutable(const QString& linterExecutable) noexcept;
+    void setLinterFile(const QString& lintFile) noexcept;
+    void setLintFiles(const QList<QString>& files) noexcept;
 
     // Gets the set of lintMessage returned after a lint
-    QSet<LintMessage> getLinterMessages() const;
-    void setLinterMessages(const QSet<LintMessage>& lintMessages);
+    QSet<LintMessage> getLinterMessages() const noexcept;
+    void setLinterMessages(const QSet<LintMessage>& lintMessages) noexcept;
 
     // Remove all associated messages with the given file
-    void removeAssociatedMessages(const QString& file);
+    void removeAssociatedMessages(const QString& file) noexcept;
     // Removes all messages with the given number
-    void removeMessagesWithNumber(const QString& number);
+    void removeMessagesWithNumber(const QString& number) noexcept;
 
     // Clear all messages and information
-    void resetLinter();
+    void resetLinter() noexcept;
 
-    int numberOfErrors() const;
-    int numberOfWarnings() const;
-    int numberOfInfo() const;
+    int numberOfErrors() const noexcept;
+    int numberOfWarnings() const noexcept;
+    int numberOfInfo() const noexcept;
 
-    void setNumberOfErrors(int numberOfErrors);
-    void setNumberOfWarnings(int numberOfWarnings);
-    void setNumberOfInfo(int numberOfInfo);
+    void setNumberOfErrors(int numberOfErrors) noexcept;
+    void setNumberOfWarnings(int numberOfWarnings) noexcept;
+    void setNumberOfInfo(int numberOfInfo) noexcept;
 
-    void appendLinterMessages(const QSet<LintMessage>& lintMessages);
-    void appendLinterErrors(int numberOfErrors);
-    void appendLinterWarnings(int numberOfWarnings);
-    void appendLinterInfo(int numberOfInfo);
+    void appendLinterMessages(const QSet<LintMessage>& lintMessages) noexcept;
+    void appendLinterErrors(int numberOfErrors) noexcept;
+    void appendLinterWarnings(int numberOfWarnings) noexcept;
+    void appendLinterInfo(int numberOfInfo) noexcept;
 
     // Lint a directory or some files
-    LINTER_STATUS lint();
-
-    QString getLintingDirectory() const;
-    QString getLinterExecutable() const;
+    LINTER_STATUS lint() noexcept;
 
 public slots:
-    void slotStartLint();
-    void slotGetLinterData(const LintData& lintData);
+    void slotStartLint() noexcept;
+    void slotGetLinterData(const LintData& lintData) noexcept;
 
 
 signals:
@@ -132,9 +129,6 @@ signals:
     void signalUpdateProgressMax(int value);
     void signalUpdateETA(int eta);
     void signalUpdateProcessedFiles(int processedFiles);
-
-
-    //
     void signalLinterProgress(int value);
     void signalLintFinished(const LintResponse& lintResponse);
 

@@ -11,8 +11,8 @@ class Settings
 {
 
 public:
-    static QMap<QString,QString> loadINISettings();
-    static void writeINI(const QString &key, const QVariant &value);
+    static QMap<QString,QString> loadINISettings() noexcept;
+    static void writeINI(const QString &key, const QVariant &value) noexcept;
 private:
     Settings() = delete;
 };

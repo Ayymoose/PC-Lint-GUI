@@ -79,12 +79,12 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     highlightCurrentLine();
 }
 
-void CodeEditor::setLineNumberAreaColour(const QColor& colour)
+void CodeEditor::setLineNumberAreaColour(const QColor& colour) noexcept
 {
     m_lineNumberAreaColour = colour;
 }
 
-void CodeEditor::setLineNumberBackgroundColour(const QColor& colour)
+void CodeEditor::setLineNumberBackgroundColour(const QColor& colour) noexcept
 {
     m_lineNumberBackgroundColour = colour;
 }
@@ -94,13 +94,13 @@ CodeEditor::~CodeEditor()
     delete m_lineNumberArea;
 }
 
-QString CodeEditor::loadedFile() const
+QString CodeEditor::loadedFile() const noexcept
 {
     return m_currentFile;
 }
 
 // Loads a file into the editor
-bool CodeEditor::loadFile(const QString& filename)
+bool CodeEditor::loadFile(const QString& filename) noexcept
 {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QFile::Text))
@@ -124,7 +124,7 @@ bool CodeEditor::loadFile(const QString& filename)
     }
 }
 
-int CodeEditor::lineNumberAreaWidth()
+int CodeEditor::lineNumberAreaWidth() noexcept
 {
     int digits = 1;
     int max = qMax(1, blockCount());
@@ -139,13 +139,13 @@ int CodeEditor::lineNumberAreaWidth()
     return space;
 }
 
-void CodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
+void CodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */) noexcept
 {
     setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
 }
 
 
-void CodeEditor::updateLineNumberArea(const QRect &rect, int dy)
+void CodeEditor::updateLineNumberArea(const QRect &rect, int dy) noexcept
 {
     if (dy)
     {
@@ -163,7 +163,7 @@ void CodeEditor::updateLineNumberArea(const QRect &rect, int dy)
 }
 
 
-void CodeEditor::resizeEvent(QResizeEvent *e)
+void CodeEditor::resizeEvent(QResizeEvent *e) noexcept
 {
     QPlainTextEdit::resizeEvent(e);
 
@@ -171,7 +171,7 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
     m_lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
-void CodeEditor::selectLine(uint32_t line)
+void CodeEditor::selectLine(uint32_t line) noexcept
 {
     // line-1 because line number starts from 0
     QTextCursor cursor(this->document()->findBlockByLineNumber(line-1));
@@ -196,7 +196,7 @@ void CodeEditor::selectLine(uint32_t line)
 }
 
 
-void CodeEditor::highlightCurrentLine()
+void CodeEditor::highlightCurrentLine() noexcept
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
@@ -221,7 +221,7 @@ void CodeEditor::highlightCurrentLine()
 }
 
 
-void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
+void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event) noexcept
 {
     QPainter painter(m_lineNumberArea);
     painter.fillRect(event->rect(), m_lineNumberAreaColour);
@@ -248,7 +248,7 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     }
 }
 
-bool CodeEditor::eventFilter(QObject *object, QEvent *event)
+bool CodeEditor::eventFilter(QObject *object, QEvent *event) noexcept
 {
     if (event->type() == QEvent::Wheel)
     {
@@ -288,7 +288,7 @@ bool CodeEditor::eventFilter(QObject *object, QEvent *event)
     }
 }
 
-void CodeEditor::setLabel(QLabel* label)
+void CodeEditor::setLabel(QLabel* label) noexcept
 {
     m_zoomLabel = label;
 }

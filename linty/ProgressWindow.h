@@ -27,30 +27,24 @@ public:
     explicit ProgressWindow(QWidget *parent = nullptr, const QString& title = "");
     ~ProgressWindow();
 
-    void setLintData(const LintData& lintData);
-
-
 public slots:
-    void slotUpdateProgress(int value);
-    void slotUpdateProgressMax(int value);
-    void slotUpdateETA(int eta);
-    void slotUpdateProgressTitle(QString title);
-    void slotUpdateProcessedFiles(int processedFiles);
-    void slotLintFinished(const LintResponse& lintResponse);
-    void slotLintComplete();
+    void slotUpdateProgress(int value) noexcept;
+    void slotUpdateProgressMax(int value) noexcept;
+    void slotUpdateETA(int eta) noexcept;
+    void slotUpdateProgressTitle(QString title) noexcept;
+    void slotUpdateProcessedFiles(int processedFiles) noexcept;
+    void slotLintFinished(const LintResponse& lintResponse) noexcept;
+    void slotLintComplete() noexcept;
 
 private slots:
     void on_lintCancel_clicked();
-    void slotUpdateTime();
+    void slotUpdateTime() noexcept;
 
 signals:
-    void signalParseData();
-    void signalLintError(LINTER_STATUS status);
     void signalStartLint(bool start);
     void signalSetLinterData(const LintData& lintData);
     void signalLintComplete();
     void signalLintFinished(const LintResponse& lintResponse);
-
     void signalAbortLint();
     void signalStartLintManager();
 private:

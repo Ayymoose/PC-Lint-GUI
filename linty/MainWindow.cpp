@@ -527,19 +527,6 @@ void MainWindow::slotLintFinished(const LintResponse& lintResponse)
 
     // Save status
     m_linterStatus |= lintResponse.status;
-
-    /*
-     * MEssage box
-     *    LINTER_PARTIAL_COMPLETE,
-    // Lint version unknown
-    LINTER_UNSUPPORTED_VERSION,
-    // Lint license error
-    LINTER_LICENSE_ERROR,
-    // Lint process error
-    LINTER_PROCESS_ERROR,
-    // Lint process timeout
-    LINTER_PROCESS_TIMEOUT,
-     */
 }
 
 void MainWindow::displayLintTable()
@@ -752,6 +739,8 @@ void MainWindow::on_aboutLinty_triggered()
     versionMessageBox.addButton("Copy to clipboard", QMessageBox::AcceptRole);
     versionMessageBox.setWindowTitle("Information");
     char buildCompiler[23];
+
+    // TODO: Get actual compiler used
     sprintf(buildCompiler,"MinGW 32-bit %d.%d.%d\n",__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__);
 
     QString applicationInfo = "Build Version: " BUILD_VERSION "\n"

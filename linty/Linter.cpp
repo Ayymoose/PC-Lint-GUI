@@ -38,42 +38,42 @@ Linter::~Linter()
     qDebug() << "Linter destroyed";
 }
 
-QSet<LintMessage> Linter::getLinterMessages() const
+QSet<LintMessage> Linter::getLinterMessages() const noexcept
 {
     return m_linterMessages;
 }
 
-void Linter::setLinterFile(const QString& lintFile)
+void Linter::setLinterFile(const QString& lintFile) noexcept
 {
     m_lintFile = lintFile;
 }
 
-void Linter::setLinterExecutable(const QString& linterExecutable)
+void Linter::setLinterExecutable(const QString& linterExecutable) noexcept
 {
     m_linterExecutable = linterExecutable;
 }
 
-void Linter::setLintFiles(const QList<QString>& files)
+void Linter::setLintFiles(const QList<QString>& files) noexcept
 {
     m_filesToLint = files;
 }
 
-int Linter::numberOfInfo() const
+int Linter::numberOfInfo() const noexcept
 {
     return m_numberOfInfo;
 }
 
-int Linter::numberOfWarnings() const
+int Linter::numberOfWarnings() const noexcept
 {
     return m_numberOfWarnings;
 }
 
-int Linter::numberOfErrors() const
+int Linter::numberOfErrors() const noexcept
 {
     return m_numberOfErrors;
 }
 
-void Linter::slotGetLinterData(const LintData& lintData)
+void Linter::slotGetLinterData(const LintData& lintData) noexcept
 {
     qDebug() << "[" << QThread::currentThreadId() << "]" << " - Got linter data";
     setLintFiles(lintData.lintFiles);
@@ -81,27 +81,27 @@ void Linter::slotGetLinterData(const LintData& lintData)
     setLinterExecutable(lintData.linterExecutable);
 }
 
-void Linter::setLinterMessages(const QSet<LintMessage>& lintMessages)
+void Linter::setLinterMessages(const QSet<LintMessage>& lintMessages) noexcept
 {
     m_linterMessages = lintMessages;
 }
 
-void Linter::setNumberOfErrors(int numberOfErrors)
+void Linter::setNumberOfErrors(int numberOfErrors) noexcept
 {
     m_numberOfErrors = numberOfErrors;
 }
 
-void Linter::setNumberOfWarnings(int numberOfWarnings)
+void Linter::setNumberOfWarnings(int numberOfWarnings) noexcept
 {
     m_numberOfWarnings = numberOfWarnings;
 }
 
-void Linter::setNumberOfInfo(int numberOfInfo)
+void Linter::setNumberOfInfo(int numberOfInfo) noexcept
 {
     m_numberOfInfo = numberOfInfo;
 }
 
-void Linter::slotStartLint()
+void Linter::slotStartLint() noexcept
 {
     LintResponse lintResponse;
     lintResponse.status = lint();
@@ -112,7 +112,7 @@ void Linter::slotStartLint()
     emit signalLintFinished(lintResponse);
 }
 
-LINTER_STATUS Linter::lint()
+LINTER_STATUS Linter::lint() noexcept
 {
     LINTER_STATUS status = LINTER_COMPLETE;
 
@@ -597,17 +597,7 @@ LINTER_STATUS Linter::lint()
     return status;
 }
 
-QString Linter::getLintingDirectory() const
-{
-    return m_lintingDirectory;
-}
-
-QString Linter::getLinterExecutable() const
-{
-    return m_linterExecutable;
-}
-
-void Linter::removeAssociatedMessages(const QString& file)
+void Linter::removeAssociatedMessages(const QString& file) noexcept
 {
     // Find the LintMessage who has the same file part
     QSet<LintMessage>::iterator it = m_linterMessages.begin();
@@ -625,7 +615,7 @@ void Linter::removeAssociatedMessages(const QString& file)
     }
 }
 
-void Linter::removeMessagesWithNumber(const QString& number)
+void Linter::removeMessagesWithNumber(const QString& number) noexcept
 {
     // Find the LintMessage who has the same code part
     QSet<LintMessage>::iterator it = m_linterMessages.begin();
@@ -643,7 +633,7 @@ void Linter::removeMessagesWithNumber(const QString& number)
     }
 }
 
-void Linter::appendLinterMessages(const QSet<LintMessage>& lintMessages)
+void Linter::appendLinterMessages(const QSet<LintMessage>& lintMessages) noexcept
 {
     for (const auto& message : lintMessages)
     {
@@ -651,22 +641,22 @@ void Linter::appendLinterMessages(const QSet<LintMessage>& lintMessages)
     }
 }
 
-void Linter::appendLinterErrors(int numberOfErrors)
+void Linter::appendLinterErrors(int numberOfErrors) noexcept
 {
     m_numberOfErrors += numberOfErrors;
 }
 
-void Linter::appendLinterWarnings(int numberOfWarnings)
+void Linter::appendLinterWarnings(int numberOfWarnings) noexcept
 {
     m_numberOfWarnings += numberOfWarnings;
 }
 
-void Linter::appendLinterInfo(int numberOfInfo)
+void Linter::appendLinterInfo(int numberOfInfo) noexcept
 {
     m_numberOfInfo += numberOfInfo;
 }
 
-void Linter::resetLinter()
+void Linter::resetLinter() noexcept
 {
     m_linterMessages.clear();
     m_numberOfErrors = 0;

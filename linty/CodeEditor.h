@@ -76,22 +76,22 @@ class CodeEditor : public QPlainTextEdit
 public:
     CodeEditor(QWidget *parent = nullptr);
     ~CodeEditor();
-    void lineNumberAreaPaintEvent(QPaintEvent *event);
-    int lineNumberAreaWidth();
-    bool loadFile(const QString& file);
-    void selectLine(uint32_t line);
-    void setLineNumberAreaColour(const QColor& colour);
-    void setLineNumberBackgroundColour(const QColor& colour);
-    QString loadedFile() const;
-    void setLabel(QLabel* label);
+    void lineNumberAreaPaintEvent(QPaintEvent *event) noexcept;
+    int lineNumberAreaWidth() noexcept;
+    bool loadFile(const QString& file) noexcept;
+    void selectLine(uint32_t line) noexcept;
+    void setLineNumberAreaColour(const QColor& colour) noexcept;
+    void setLineNumberBackgroundColour(const QColor& colour) noexcept;
+    QString loadedFile() const noexcept;
+    void setLabel(QLabel* label) noexcept;
 protected:
-    void resizeEvent(QResizeEvent *event) override;
-    bool eventFilter(QObject *object, QEvent *event) override;
+    void resizeEvent(QResizeEvent *event) noexcept override;
+    bool eventFilter(QObject *object, QEvent *event) noexcept override;
 
 private slots:
-    void updateLineNumberAreaWidth(int newBlockCount);
-    void highlightCurrentLine();
-    void updateLineNumberArea(const QRect &rect, int dy);
+    void updateLineNumberAreaWidth(int newBlockCount) noexcept;
+    void highlightCurrentLine() noexcept;
+    void updateLineNumberArea(const QRect &rect, int dy) noexcept;
 
 private:
     LineNumberArea *m_lineNumberArea;

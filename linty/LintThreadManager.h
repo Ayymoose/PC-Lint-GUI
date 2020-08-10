@@ -21,13 +21,13 @@ signals:
     void signalLintFinished(const LintResponse& lintResponse);
     void signalLintComplete();
 public slots:
-    void slotSetLinterData(const LintData& lintData);
-    void slotStartLintManager();
-    void slotAbortLint();
+    void slotSetLinterData(const LintData& lintData) noexcept;
+    void slotStartLintManager() noexcept;
+    void slotAbortLint() noexcept;
 private slots:
-    void slotLintFinished(const LintResponse& lintResponse);
+    void slotLintFinished(const LintResponse& lintResponse) noexcept;
 private:
-    void startLint();
+    void startLint() noexcept;
     std::vector<std::unique_ptr<QThread>> m_lintThreads;
     std::vector<std::unique_ptr<Linter>> m_lintPointers;
     LintData m_lintData;

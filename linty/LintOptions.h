@@ -17,12 +17,12 @@ public:
     ~LintOptions();
 
     // Common class needed for this maybe
-    void loadSettings();
+    void loadSettings() noexcept;
 
-    QString getLinterExecutablePath() const;
-    QString getLinterLintFilePath() const;
-    QString getLinterLintOptions() const;
-    QString getLinterDirectory() const;
+    QString getLinterExecutablePath() const noexcept;
+    QString getLinterLintFilePath() const noexcept;
+    QString getLinterLintOptions() const noexcept;
+    QString getLinterDirectory() const noexcept;
     static QString m_lastDirectory;
 
 private slots:

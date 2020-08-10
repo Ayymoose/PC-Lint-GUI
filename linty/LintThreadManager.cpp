@@ -25,7 +25,7 @@ LintThreadManager::~LintThreadManager()
     qDebug() << "LintThreadManager destroyed";
 }
 
-void LintThreadManager::slotSetLinterData(const LintData& lintData)
+void LintThreadManager::slotSetLinterData(const LintData& lintData) noexcept
 {
     qDebug() << "[" << QThread::currentThreadId() << "]" << "Number of lint files: " << lintData.lintFiles.size();
     qDebug() << "[" << QThread::currentThreadId() << "]" << "Lint option file: " << lintData.lintOptionFile;
@@ -34,13 +34,13 @@ void LintThreadManager::slotSetLinterData(const LintData& lintData)
     emit startLint();
 }
 
-void LintThreadManager::slotStartLintManager()
+void LintThreadManager::slotStartLintManager() noexcept
 {
     qDebug() << "[" << QThread::currentThreadId() << "]" << "Starting Lint Manager";
     emit signalGetLinterData();
 }
 
-void LintThreadManager::startLint()
+void LintThreadManager::startLint() noexcept
 {
     // Because the maximum we can write to a process is 8192 characters on Windows
     // We will need to split it between threads
@@ -121,7 +121,7 @@ void LintThreadManager::startLint()
     }
 }
 
-void LintThreadManager::slotLintFinished(const LintResponse& lintResponse)
+void LintThreadManager::slotLintFinished(const LintResponse& lintResponse) noexcept
 {
     const QString debugString = "[LintThreadManager::slotLintFinished]";
 
@@ -147,7 +147,7 @@ void LintThreadManager::slotLintFinished(const LintResponse& lintResponse)
     }
 }
 
-void LintThreadManager::slotAbortLint()
+void LintThreadManager::slotAbortLint() noexcept
 {
     qDebug() << "Attempting to abort lint...";
     int threads = 1;
