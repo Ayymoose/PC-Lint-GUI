@@ -92,9 +92,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // Load any settings we have
     m_lintOptions->loadSettings();
 
-    // Load icons
-    m_icons.loadIcons();
-
     // Configure the lint table
     configureLintTable();
 
@@ -637,19 +634,16 @@ void MainWindow::displayLintTable()
         modifiedFile.keepFile = true;
         modifiedFiles[fileWidget->data(Qt::UserRole).value<QString>()] = modifiedFile;
 
-        QImage* icon = nullptr;
+        QImage icon;
         switch (messageType)
         {
-            case MESSAGE_TYPE_ERROR: icon = m_icons[ICON_ERROR];  break;
-            case MESSAGE_TYPE_WARNING: icon = m_icons[ICON_WARNING]; break;
-            case MESSAGE_TYPE_INFORMATION: icon = m_icons[ICON_INFORMATION]; break;
-            case MESSAGE_TYPE_UNKNOWN: icon = m_icons[ICON_UNKNOWN]; break;
+            case MESSAGE_TYPE_ERROR: icon.load(":/images/error.png");  break;
+            case MESSAGE_TYPE_WARNING: icon.load(":/images/warning.png"); break;
+            case MESSAGE_TYPE_INFORMATION: icon.load(":/images/info.png"); break;
+            default: Q_ASSERT(false); break;
         }
 
-        if (icon)
-        {
-            typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(*icon));
-        }
+        typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(icon));
 
         lintTable->setItem( lintTable->rowCount()-1, 0, typeWidget);
         lintTable->setItem( lintTable->rowCount()-1, 1, codeWidget);
@@ -666,7 +660,7 @@ void MainWindow::displayLintTable()
     {
         // Set item data
         auto type = new QTableWidgetItem;
-        type->setData(Qt::DecorationRole, QPixmap::fromImage(*m_icons[ICON_CORRECT]));
+        //type->setData(Qt::DecorationRole, QPixmap::fromImage(*m_icons[ICON_CORRECT]));
         lintTable->setItem( lintTable->rowCount()-1, 0, type);
         lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem("No errors were detected :)"));
     }

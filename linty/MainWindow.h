@@ -146,7 +146,6 @@ private:
     QString m_lastProjectLoaded;
     QList<QString> m_directoryFiles;
     LintOptions* m_lintOptions;
-    Icon m_icons;
     Linter m_linter;
     Highlighter* m_highlighter;
     bool verifyLint();

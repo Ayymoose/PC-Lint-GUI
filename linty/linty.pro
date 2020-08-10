@@ -7,7 +7,6 @@ requires(qtConfig(fontdialog))
 SOURCES += \
     CodeEditor.cpp \
     Highlighter.cpp \
-    Icon.cpp \
     LintOptions.cpp \
     LintThreadManager.cpp \
     Linter.cpp \
@@ -22,7 +21,6 @@ SOURCES += \
 HEADERS += \
     CodeEditor.h \
     Highlighter.h \
-    Icon.h \
     Jenkins.h \
     LintOptions.h \
     LintThreadManager.h \
