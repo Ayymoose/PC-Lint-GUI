@@ -29,7 +29,7 @@ void ModifiedFileThread::run()
             ModifiedFile modifiedFile = iterator.value();
 
             // Only keep the file if we want it
-            if (currentFile != "" && !QFile(currentFile).exists() && modifiedFile.keepFile)
+            if (!currentFile.isEmpty() && !QFile(currentFile).exists() && modifiedFile.keepFile)
             {
                 // Notify main thread
                 emit signalFileDoesntExist(currentFile);

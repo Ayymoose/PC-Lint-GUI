@@ -61,7 +61,7 @@
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
     // Line number area
-    m_lineNumberArea = new LineNumberArea(this);
+    m_lineNumberArea = std::make_unique<LineNumberArea>(this);
     m_lineNumberAreaColour = LINE_NUMBER_AREA_COLOUR;
     m_lineNumberBackgroundColour = LINE_CURRENT_BACKGROUND_COLOUR;
     m_zoomLabel = nullptr;
@@ -91,7 +91,6 @@ void CodeEditor::setLineNumberBackgroundColour(const QColor& colour) noexcept
 
 CodeEditor::~CodeEditor()
 {
-    delete m_lineNumberArea;
 }
 
 QString CodeEditor::loadedFile() const noexcept
@@ -223,7 +222,7 @@ void CodeEditor::highlightCurrentLine() noexcept
 
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event) noexcept
 {
-    QPainter painter(m_lineNumberArea);
+    QPainter painter(m_lineNumberArea.get());
     painter.fillRect(event->rect(), m_lineNumberAreaColour);
 
     QTextBlock block = firstVisibleBlock();
@@ -244,7 +243,7 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event) noexcept
         block = block.next();
         top = bottom;
         bottom = top + qRound(blockBoundingRect(block).height());
-        ++blockNumber;
+        blockNumber++;
     }
 }
 

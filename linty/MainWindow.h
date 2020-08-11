@@ -57,11 +57,11 @@
 #include <QAction>
 #include <QMenu>
 #include <QMap>
+#include <memory>
 
 #include "ProgressWindow.h"
 #include "LintOptions.h"
 #include "Linter.h"
-#include "Icon.h"
 #include "Log.h"
 #include "CodeEditor.h"
 #include "Highlighter.h"
@@ -133,29 +133,29 @@ public:
     void startLintThread(QString title);
 
 private:
-    QToolBar* m_lowerToolbar;
-    QToolButton* m_buttonErrors;
-    QToolButton* m_buttonWarnings;
-    QToolButton* m_buttonInfo;
-    QAction* m_actionError;
-    QAction* m_actionWarning;
-    QAction* m_actionInfo;
+    std::unique_ptr<QToolBar> m_lowerToolbar;
+    std::unique_ptr<QToolButton> m_buttonErrors;
+    std::unique_ptr<QToolButton> m_buttonWarnings;
+    std::unique_ptr<QToolButton> m_buttonInfo;
+    std::unique_ptr<QAction> m_actionError;
+    std::unique_ptr<QAction> m_actionWarning;
+    std::unique_ptr<QAction> m_actionInfo;
     bool m_toggleError;
     bool m_toggleWarning;
     bool m_toggleInfo;
     QString m_lastProjectLoaded;
     QList<QString> m_directoryFiles;
-    LintOptions* m_lintOptions;
+    std::unique_ptr<LintOptions> m_lintOptions;
     Linter m_linter;
-    Highlighter* m_highlighter;
+    std::unique_ptr<Highlighter> m_highlighter;
     bool verifyLint();
 
-    QMenu* m_lintTableMenu;
+    std::unique_ptr<QMenu> m_lintTableMenu;
     QMap<QString, QString> m_projectLintMap;
     int m_linterStatus;
 
     // ModifiedFileWorker thread
-    ModifiedFileThread* m_modifiedFileWorker;
+    std::unique_ptr<ModifiedFileThread> m_modifiedFileWorker;
 
     void displayLintTable();
 

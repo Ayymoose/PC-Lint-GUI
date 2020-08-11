@@ -94,7 +94,7 @@ private slots:
     void updateLineNumberArea(const QRect &rect, int dy) noexcept;
 
 private:
-    LineNumberArea *m_lineNumberArea;
+    std::unique_ptr<LineNumberArea> m_lineNumberArea;
     QColor m_lineNumberAreaColour;
     QColor m_lineNumberBackgroundColour;
     QString m_currentFile;

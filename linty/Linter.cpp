@@ -169,8 +169,6 @@ LINTER_STATUS Linter::lint() noexcept
         lintStartTime = std::chrono::steady_clock::now();
     });
 
-
-
     connect(&lintProcess, &QProcess::readyReadStandardError, this,[&,this]()
     {
         if (QThread::currentThread()->isInterruptionRequested())
@@ -200,7 +198,16 @@ LINTER_STATUS Linter::lint() noexcept
             pclintVersion = readStdErr.left(versionEnd);
 
             // Some unknown executable or lint version we don't know about
-            // TODO: License error check
+            if (pclintVersion.contains("License Error"))
+            {
+                status = LINTER_LICENSE_ERROR;
+                lintProcess.closeReadChannel(QProcess::StandardOutput);
+                lintProcess.closeReadChannel(QProcess::StandardError);
+                DEBUG_LOG("[Error] Failed to start lint because of license error");
+                lintProcess.close();
+                return;
+            }
+
             if (!m_supportedVersions.contains(QString(pclintVersion)))
             {
                 status = LINTER_UNSUPPORTED_VERSION;
@@ -282,9 +289,6 @@ LINTER_STATUS Linter::lint() noexcept
 
     });
 
-
-    QString cmdString = m_linterExecutable;
-
     // Clear existing arguments
     m_arguments.clear();
 
@@ -318,17 +322,8 @@ LINTER_STATUS Linter::lint() noexcept
 
    // m_arguments << ("-passes(6)");
 
-    for (const QString& str : m_arguments)
-    {
-        cmdString += " \"" + str + "\"";
-    }
-
-
     // Add the lint file
     m_arguments << (m_lintFile);
-
-    cmdString += " \"" + m_lintFile + "\"";
-
 
     // Assert argument length + lint executable path < 512
     int totalLength = 0;
@@ -343,21 +338,12 @@ LINTER_STATUS Linter::lint() noexcept
     for (const QString& file : m_filesToLint)
     {
        m_arguments << file;
-       //DEBUG_LOG("Adding file to lint: " + file);
-       cmdString += " \"" + file + "\"";
+       DEBUG_LOG("Adding file to lint: " + file);
     }
 
     Q_ASSERT(m_linterExecutable.length());
-    //DEBUG_LOG("Lint path: " + m_linterExecutable);
-    //DEBUG_LOG("Lint file: " + m_lintFile);
-
-    // TODO: Temporary debug information
-    QFile file("D:\\Users\\Ayman\\Desktop\\Linty\\test\\xmldata.xml");
-    file.open(QIODevice::WriteOnly);
-    file.write(cmdString.toLocal8Bit());
-    file.close();
-    //
-
+    DEBUG_LOG("Lint path: " + m_linterExecutable);
+    DEBUG_LOG("Lint file: " + m_lintFile);
 
     lintProcess.setProgram(m_linterExecutable);
     lintProcess.setArguments(m_arguments);
@@ -368,23 +354,11 @@ LINTER_STATUS Linter::lint() noexcept
     m_numberOfInfo = 0;
     m_numberOfWarnings = 0;
 
-
-    /*QString str;
-    str.sprintf("D:\\Users\\Ayman\\Desktop\\Linty\\test\\xmldata0x%p.xml", QThread::currentThreadId());
-    QFile fileX(str);
-    fileX.open(QIODevice::WriteOnly);
-    fileX.write(cmdString.toLocal8Bit());
-    fileX.close();
-
-    Q_ASSERT(cmdString.length() < MAX_PROCESS_CHARACTERS);*/
-
     if (!lintProcess.waitForStarted())
     {
         DEBUG_LOG("[Error] " + lintProcess.errorString());
         return LINTER_PROCESS_ERROR;
     }
-
-
 
     // Estimate progress of lint
     // PC-Lint gives no progress indication other than which modules were processed
@@ -416,9 +390,9 @@ LINTER_STATUS Linter::lint() noexcept
 
 
     // Check linter version (if we can't determine the version then return error)
-    if (status == LINTER_CANCEL)
+    if (status == LINTER_CANCEL || status == LINTER_LICENSE_ERROR || status == LINTER_UNSUPPORTED_VERSION)
     {
-        return LINTER_CANCEL;
+        return status;
     }
 
     if (lintedFiles.size() == m_filesToLint.size())

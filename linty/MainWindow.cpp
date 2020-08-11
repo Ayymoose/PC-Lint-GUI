@@ -88,7 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->actionCopy, &QAction::triggered, this, &MainWindow::copy);
     connect(m_ui->actionCut, &QAction::triggered, this, &MainWindow::cut);
 
-    m_lintOptions = new LintOptions(this);
+    m_lintOptions = std::make_unique<LintOptions>(this);
     // Load any settings we have
     m_lintOptions->loadSettings();
 
@@ -103,7 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui->splitter->setSizes(QList<int>() << 400 << 200);
 
     // With syntax highlighting
-    m_highlighter = new Highlighter(m_ui->codeEditor->document());
+    m_highlighter = std::make_unique<Highlighter>(m_ui->codeEditor->document());
 
     // Status bar labels
     m_ui->statusBar->addPermanentWidget(m_ui->label);
@@ -117,60 +117,60 @@ MainWindow::MainWindow(QWidget *parent) :
     m_toggleInfo = true;
     m_toggleWarning = true;
 
-    m_lowerToolbar = new QToolBar;
-    m_buttonErrors = new QToolButton;
-    m_buttonWarnings = new QToolButton;
-    m_buttonInfo = new QToolButton;
+    m_lowerToolbar = std::make_unique<QToolBar>();
+    m_buttonErrors = std::make_unique<QToolButton>();
+    m_buttonWarnings = std::make_unique<QToolButton>();
+    m_buttonInfo = std::make_unique<QToolButton>();
 
     m_buttonErrors->setCheckable(true);
     m_buttonErrors->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    m_actionError = new QAction;
+    m_actionError = std::make_unique<QAction>();
     m_actionError->setIcon(QIcon(":/images/error.png"));
     m_actionError->setText("Errors: 0");
-    m_buttonErrors->setDefaultAction(m_actionError);
+    m_buttonErrors->setDefaultAction(m_actionError.get());
     m_actionError->setCheckable(true);
     m_actionError->setChecked(m_toggleError);
 
     m_buttonWarnings->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    m_actionWarning = new QAction;
+    m_actionWarning = std::make_unique<QAction>();
     m_actionWarning->setIcon(QIcon(":/images/warning.png"));
     m_actionWarning->setText("Warnings: 0");
-    m_buttonWarnings->setDefaultAction(m_actionWarning);
+    m_buttonWarnings->setDefaultAction(m_actionWarning.get());
     m_actionWarning->setCheckable(true);
     m_actionWarning->setChecked(m_toggleWarning);
 
     m_buttonInfo->setCheckable(true);
     m_buttonInfo->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    m_actionInfo = new QAction;
+    m_actionInfo = std::make_unique<QAction>();
     m_actionInfo->setIcon(QIcon(":/images/info.png"));
     m_actionInfo->setText("Information: 0");
-    m_buttonInfo->setDefaultAction(m_actionInfo);
+    m_buttonInfo->setDefaultAction(m_actionInfo.get());
     m_actionInfo->setCheckable(true);
-    m_actionInfo->setChecked(m_buttonInfo);
+    m_actionInfo->setChecked(m_buttonInfo.get());
 
-    m_ui->verticalLayout_2->addWidget(m_lowerToolbar);
-    m_lowerToolbar->addWidget(m_buttonErrors);
+    m_ui->verticalLayout_2->addWidget(m_lowerToolbar.get());
+    m_lowerToolbar->addWidget(m_buttonErrors.get());
     m_lowerToolbar->addSeparator();
-    m_lowerToolbar->addWidget(m_buttonWarnings);
+    m_lowerToolbar->addWidget(m_buttonWarnings.get());
     m_lowerToolbar->addSeparator();
-    m_lowerToolbar->addWidget(m_buttonInfo);
+    m_lowerToolbar->addWidget(m_buttonInfo.get());
     m_lowerToolbar->addSeparator();
 
     m_linterStatus = 0;
 
-    connect(m_actionError, &QAction::triggered, this, [this](bool checked)
+    connect(m_actionError.get(), &QAction::triggered, this, [this](bool checked)
     {
         m_toggleError = checked;
         displayLintTable();
     });
 
-    connect(m_actionInfo, &QAction::triggered, this, [this](bool checked)
+    connect(m_actionInfo.get(), &QAction::triggered, this, [this](bool checked)
     {
         m_toggleInfo = checked;
         displayLintTable();
     });
 
-    connect(m_actionWarning, &QAction::triggered, this, [this](bool checked)
+    connect(m_actionWarning.get(), &QAction::triggered, this, [this](bool checked)
     {
         m_toggleWarning = checked;
         displayLintTable();
@@ -187,15 +187,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->lintTable, &QTableWidget::customContextMenuRequested, this, &MainWindow::handleContextMenu);
 
 
-    m_lintTableMenu = new QMenu(this);
+    m_lintTableMenu = std::make_unique<QMenu>(this);
 
     // Start the modified file thread
-    m_modifiedFileWorker = new ModifiedFileThread(this);
-    connect(this, &MainWindow::signalSetModifiedFile, m_modifiedFileWorker, &ModifiedFileThread::slotSetModifiedFile);
-    connect(this, &MainWindow::signalSetModifiedFiles, m_modifiedFileWorker, &ModifiedFileThread::slotSetModifiedFiles);
-    connect(this, &MainWindow::signalKeepFile, m_modifiedFileWorker, &ModifiedFileThread::slotKeepFile);
-    connect(m_modifiedFileWorker, &ModifiedFileThread::signalFileDoesntExist, this, &MainWindow::slotFileDoesntExist);
-    connect(m_modifiedFileWorker, &ModifiedFileThread::signalFileModified, this, &MainWindow::slotFileModified);
+    m_modifiedFileWorker = std::make_unique<ModifiedFileThread>(this);
+    connect(this, &MainWindow::signalSetModifiedFile, m_modifiedFileWorker.get(), &ModifiedFileThread::slotSetModifiedFile);
+    connect(this, &MainWindow::signalSetModifiedFiles, m_modifiedFileWorker.get(), &ModifiedFileThread::slotSetModifiedFiles);
+    connect(this, &MainWindow::signalKeepFile, m_modifiedFileWorker.get(), &ModifiedFileThread::slotKeepFile);
+    connect(m_modifiedFileWorker.get(), &ModifiedFileThread::signalFileDoesntExist, this, &MainWindow::slotFileDoesntExist);
+    connect(m_modifiedFileWorker.get(), &ModifiedFileThread::signalFileModified, this, &MainWindow::slotFileModified);
     m_modifiedFileWorker->start();
 }
 
@@ -219,23 +219,10 @@ void MainWindow::configureLintTable()
 MainWindow::~MainWindow()
 {
     delete m_ui;
-    delete m_highlighter;
-    delete m_actionError;
-    delete m_buttonErrors;
-    delete m_actionWarning;
-    delete m_buttonWarnings;
-    delete m_actionInfo;
-    delete m_buttonInfo;
-    delete m_lowerToolbar;
-    delete m_lintOptions;
-    delete m_lintTableMenu;
-
     // Stop all threads
     m_modifiedFileWorker->requestInterruption();
     m_modifiedFileWorker->quit();
     m_modifiedFileWorker->wait();
-
-    delete m_modifiedFileWorker;
 }
 
 void MainWindow::slotUpdateLintTable()
@@ -438,7 +425,7 @@ void MainWindow::startLint(bool lintProject)
             m_linter.setLintFiles(directoryFiles);
 
             // Display directory name or filename
-            if (fileName != "")
+            if (!fileName.isEmpty())
             {
                 startLintThread(QFileInfo(fileName).fileName());
             }
@@ -654,11 +641,10 @@ void MainWindow::displayLintTable()
     lintTable->setSortingEnabled(true);
 
     // Show message if there are no lint problems
-    // TODO: Fix
-
     if (m_linter.numberOfErrors() == 0 && m_linter.numberOfWarnings() == 0 && m_linter.numberOfInfo() == 0)
     {
         // Set item data
+        // TODO: Fix memory leak
         auto type = new QTableWidgetItem;
         //type->setData(Qt::DecorationRole, QPixmap::fromImage(*m_icons[ICON_CORRECT]));
         lintTable->setItem( lintTable->rowCount()-1, 0, type);
@@ -757,7 +743,7 @@ void MainWindow::on_actionRefresh_triggered()
 {
     // If we have a project name that was already loaded
     // Then try to lint that again
-    if (m_lastProjectLoaded != "")
+    if (!m_lastProjectLoaded.isEmpty())
     {
         m_linter.setLinterFile(m_lintOptions->getLinterLintFilePath().trimmed());
         m_linter.setLinterExecutable(m_lintOptions->getLinterExecutablePath().trimmed());
@@ -768,7 +754,7 @@ void MainWindow::on_actionRefresh_triggered()
 
 void MainWindow::slotFileModified(QString modifiedFile)
 {
-    const QSignalBlocker blocker(m_modifiedFileWorker);
+    const QSignalBlocker blocker(m_modifiedFileWorker.get());
     QMessageBox msgBox(this);
     msgBox.setText(modifiedFile);
     msgBox.setInformativeText("This file has been modified by another program. \n Do you want to reload it?");
@@ -810,7 +796,7 @@ void MainWindow::slotFileModified(QString modifiedFile)
 
 void MainWindow::slotFileDoesntExist(const QString& deletedFile)
 {
-    const QSignalBlocker blocker(m_modifiedFileWorker);
+    const QSignalBlocker blocker(m_modifiedFileWorker.get());
     QMessageBox msgBox(this);
     msgBox.setText("The file " + deletedFile + " doesn't exist anymore.");
     msgBox.setInformativeText("Keep this file in editor?");
