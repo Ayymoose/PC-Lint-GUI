@@ -31,7 +31,6 @@ public slots:
     void slotUpdateProgress(int value) noexcept;
     void slotUpdateProgressMax(int value) noexcept;
     void slotUpdateETA(int eta) noexcept;
-    void slotUpdateProgressTitle(QString title) noexcept;
     void slotUpdateProcessedFiles(int processedFiles) noexcept;
     void slotLintFinished(const LintResponse& lintResponse) noexcept;
     void slotLintComplete() noexcept;
@@ -41,27 +40,24 @@ private slots:
     void slotUpdateTime() noexcept;
 
 signals:
-    void signalStartLint(bool start);
-    void signalSetLinterData(const LintData& lintData);
     void signalLintComplete();
     void signalLintFinished(const LintResponse& lintResponse);
     void signalAbortLint();
     void signalStartLintManager();
 private:
     Ui::ProgressWindow *ui;
-    MainWindow* m_mainWindow;
-    QString m_lintStatus;
     int m_elapsedTime;
     int m_eta;
     int m_progressMax;
     int m_currentProgress;
     int m_fileProgressMax;
     int m_currentFileProgress;
+    bool m_aborted;
     std::unique_ptr<QTimer> m_timer;
     QString m_windowTitle;
     std::unique_ptr<LintThreadManager> m_lintThreadManager;
     std::unique_ptr<QThread> m_workerThread;
-    LintData m_lintData;
+    MainWindow* m_parent;
 };
 
 #endif // PROGRESSWINDOW_H

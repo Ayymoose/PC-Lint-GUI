@@ -85,14 +85,8 @@ public:
     ~MainWindow();
 
 signals:
-    void signalUpdateProgress(int value);
-    void signalUpdateProgressMax(int value);
-    void signalUpdateStatus(QString status);
-    void signalUpdateProgressTitle(QString title);
     void signalUpdateTypes(int errors, int warnings, int info);
 
-    //
-    void signalStartLint();
     void signalSetLinterData(const LintData& lintData);
 
     // Modified file signals
@@ -102,7 +96,6 @@ signals:
     void signalRemoveFile(const QString& deletedFile);
     void signalKeepFile(const QString& keepFile);
 public slots:
-    void slotUpdateLintTable();
     void handleContextMenu(const QPoint& pos);
     void slotLintFinished(const LintResponse& lintResponse);
     void slotGetLinterData();

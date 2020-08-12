@@ -131,6 +131,8 @@ LINTER_STATUS Linter::lint() noexcept
     QByteArray lintData;
 
 
+    QString cmdString = m_linterExecutable;
+
     connect(&lintProcess, &QProcess::errorOccurred, this, [&](const QProcess::ProcessError& error)
     {
         if (status != LINTER_CANCEL)
@@ -264,23 +266,29 @@ LINTER_STATUS Linter::lint() noexcept
                 // In case we process more than 1 file in a single read of stderr
                 int newProcessedFiles = (processedFiles - nowProcessedFiles);
 
-                std::chrono::steady_clock::time_point lintEndTime = std::chrono::steady_clock::now();
-                // Total processing time (in ms) for newProcessedFiles files
-                processingTimeTotal = std::chrono::duration_cast<std::chrono::milliseconds>(lintEndTime - lintStartTime).count();
-
-                // Processing time for 1 file
-                float processingTime = (processingTimeTotal / 1000.0f) / newProcessedFiles;
-                qDebug() << "[" << QThread::currentThreadId() << "]" << "Processed: " << newProcessedFiles << " file in " << (processingTimeTotal / 1000.0f) << "s";
-                float eta = 1 + (processingTime * (m_filesToLint.size() - processedFiles));
-                qDebug() << "[" << QThread::currentThreadId() << "]" << "ETA: " << eta << "s";
-                lintStartTime = std::chrono::steady_clock::now();
-
-                static float etaMax = 0;
-                if (etaMax < eta)
+                // If there are any new processed files
+                if (newProcessedFiles != 0)
                 {
-                    etaMax = eta;
-                    emit signalUpdateETA(eta);
+                    std::chrono::steady_clock::time_point lintEndTime = std::chrono::steady_clock::now();
+                    // Total processing time (in ms) for newProcessedFiles files
+                    processingTimeTotal = std::chrono::duration_cast<std::chrono::milliseconds>(lintEndTime - lintStartTime).count();
+
+                    // Processing time for 1 file
+                    float processingTime = (processingTimeTotal / 1000.0f) / newProcessedFiles;
+                    qDebug() << "[" << QThread::currentThreadId() << "]" << "Processed: " << newProcessedFiles << " file in " << (processingTimeTotal / 1000.0f) << "s";
+                    float eta = 1 + (processingTime * (m_filesToLint.size() - processedFiles));
+                    qDebug() << "[" << QThread::currentThreadId() << "]" << "ETA: " << eta << "s";
+                    lintStartTime = std::chrono::steady_clock::now();
+
+                    static float etaMax = 0;
+                    if (etaMax < eta)
+                    {
+                        etaMax = eta;
+                        emit signalUpdateETA(eta);
+                    }
                 }
+
+
 
             }
 
@@ -322,6 +330,13 @@ LINTER_STATUS Linter::lint() noexcept
 
    // m_arguments << ("-passes(6)");
 
+    cmdString += " \"" + m_lintFile + "\"";
+
+    for (const QString& str : m_arguments)
+    {
+        cmdString += " \"" + str + "\"";
+    }
+
     // Add the lint file
     m_arguments << (m_lintFile);
 
@@ -338,6 +353,7 @@ LINTER_STATUS Linter::lint() noexcept
     for (const QString& file : m_filesToLint)
     {
        m_arguments << file;
+       cmdString += " \"" + file + "\"";
        DEBUG_LOG("Adding file to lint: " + file);
     }
 
@@ -461,7 +477,7 @@ LINTER_STATUS Linter::lint() noexcept
     // TODO: Temporary debug information
     QFile file2("D:\\Users\\Ayman\\Desktop\\Linty\\test\\xmldata.xml");
     file2.open(QIODevice::WriteOnly);
-    file2.write(lintData);
+    file2.write(cmdString.toLocal8Bit());
     file2.close();
     //
 

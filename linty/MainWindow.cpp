@@ -225,11 +225,6 @@ MainWindow::~MainWindow()
     m_modifiedFileWorker->wait();
 }
 
-void MainWindow::slotUpdateLintTable()
-{
-    displayLintTable();
-}
-
 void MainWindow::save()
 {
     QString currentFile = m_ui->codeEditor->loadedFile();
@@ -706,6 +701,7 @@ void MainWindow::startLintThread(QString title)
 {
     // Clear any existing data
     m_linter.resetLinter();
+
     ProgressWindow progressWindow(this,title);
     Qt::WindowFlags flags = progressWindow.windowFlags();
     progressWindow.setWindowFlags(flags | Qt::Tool);

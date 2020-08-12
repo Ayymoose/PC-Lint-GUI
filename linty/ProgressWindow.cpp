@@ -22,12 +22,13 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
 
     connect(m_timer.get(), &QTimer::timeout, this, &ProgressWindow::slotUpdateTime);
     m_timer->start(1000);
-
+    m_windowTitle = title;
     m_progressMax = 0;
     m_currentProgress = 0;
     m_fileProgressMax = 0;
     m_currentFileProgress = 0;
-
+    m_parent = dynamic_cast<MainWindow*>(parent);
+    m_aborted = false;
     m_lintThreadManager = std::make_unique<LintThreadManager>(this);
 
     m_workerThread = std::make_unique<QThread>(this);
@@ -37,13 +38,13 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
     // Signal lint thread manager to start linting
     connect(this, &ProgressWindow::signalStartLintManager, m_lintThreadManager.get(), &LintThreadManager::slotStartLintManager);
     // Get linter data from MainWindow
-    connect(m_lintThreadManager.get(), &LintThreadManager::signalGetLinterData, dynamic_cast<MainWindow*>(parent), &MainWindow::slotGetLinterData);
+    connect(m_lintThreadManager.get(), &LintThreadManager::signalGetLinterData, m_parent, &MainWindow::slotGetLinterData);
     // Send linter data to Lint thread manager
-    connect(dynamic_cast<MainWindow*>(parent), &MainWindow::signalSetLinterData, m_lintThreadManager.get(), &LintThreadManager::slotSetLinterData);
+    connect(m_parent, &MainWindow::signalSetLinterData, m_lintThreadManager.get(), &LintThreadManager::slotSetLinterData);
     // Tell MainWindow we are done
-    connect(this, &ProgressWindow::signalLintFinished, dynamic_cast<MainWindow*>(parent), &MainWindow::slotLintFinished);
+    connect(this, &ProgressWindow::signalLintFinished, m_parent, &MainWindow::slotLintFinished);
 
-    connect(this, &ProgressWindow::signalLintComplete, dynamic_cast<MainWindow*>(parent), &MainWindow::slotLintComplete);
+    connect(this, &ProgressWindow::signalLintComplete, m_parent, &MainWindow::slotLintComplete);
 
     ui->lintGroupBox->setTitle(title);
 
@@ -101,14 +102,16 @@ void ProgressWindow::slotLintComplete() noexcept
     close();
 }
 
-void ProgressWindow::slotUpdateProgressTitle(QString title) noexcept
-{
-    ui->lintGroupBox->setTitle(title);
-    m_windowTitle = title;
-}
-
 ProgressWindow::~ProgressWindow()
 {
+    if (m_aborted == true)
+    {
+        m_parent->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION);
+    }
+    else
+    {
+        m_parent->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION " - " + m_windowTitle);
+    }
     delete ui;
     m_workerThread->quit();
     Q_ASSERT(m_workerThread->wait());
@@ -117,5 +120,6 @@ ProgressWindow::~ProgressWindow()
 
 void ProgressWindow::on_lintCancel_clicked()
 {
+    m_aborted = true;
     emit signalAbortLint();
 }
