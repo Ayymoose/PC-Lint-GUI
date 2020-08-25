@@ -137,7 +137,7 @@ private:
     bool m_toggleWarning;
     bool m_toggleInfo;
     QString m_lastProjectLoaded;
-    QList<QString> m_directoryFiles;
+    QSet<QString> m_directoryFiles;
     std::unique_ptr<LintOptions> m_lintOptions;
     Linter m_linter;
     std::unique_ptr<Highlighter> m_highlighter;
@@ -151,6 +151,8 @@ private:
     std::unique_ptr<ModifiedFileThread> m_modifiedFileWorker;
 
     void displayLintTable();
+
+    QSet<QString> recursiveBuildSourceFileSet(const QString& directory);
 
 };
 

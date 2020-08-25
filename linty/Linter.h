@@ -33,6 +33,7 @@ enum MESSAGE_TYPE
     MESSAGE_TYPE_ERROR = 0,
     MESSAGE_TYPE_WARNING,
     MESSAGE_TYPE_INFORMATION,
+    MESSAGE_TYPE_SUPPLEMENTAL,
     MESSAGE_TYPE_UNKNOWN,
 };
 
@@ -49,7 +50,7 @@ typedef struct
 {
     QString linterExecutable;
     QString lintOptionFile;
-    QList<QString> lintFiles;
+    QSet<QString> lintFiles;
 } LintData;
 
 typedef struct
@@ -80,6 +81,7 @@ typedef struct
 #define LINT_TYPE_ERROR "Error"
 #define LINT_TYPE_INFO "Info"
 #define LINT_TYPE_WARNING "Warning"
+#define LINT_TYPE_SUPPLEMENTAL "Supplemental"
 
 class Linter : public QObject
 {
@@ -89,7 +91,7 @@ public:
     ~Linter();
     void setLinterExecutable(const QString& linterExecutable) noexcept;
     void setLinterFile(const QString& lintFile) noexcept;
-    void setLintFiles(const QList<QString>& files) noexcept;
+    void setLintFiles(const QSet<QString>& files) noexcept;
 
     // Gets the set of lintMessage returned after a lint
     QSet<LintMessage> getLinterMessages() const noexcept;
@@ -138,7 +140,7 @@ private:
     QStringList m_arguments;
     QString m_linterExecutable;
     QString m_lintFile;
-    QList<QString> m_filesToLint;
+    QSet<QString> m_filesToLint;
     QSet<LintMessage> m_linterMessages;
     int m_numberOfErrors;
     int m_numberOfWarnings;

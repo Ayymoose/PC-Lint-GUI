@@ -331,7 +331,7 @@ void MainWindow::startLint(bool lintProject)
 
     if (verifyLint())
     {
-        QList<QString> directoryFiles;
+        QSet<QString> directoryFiles;
         QString fileName;
 
         // Lint a project solution file
@@ -399,16 +399,8 @@ void MainWindow::startLint(bool lintProject)
         {
             // Lint a directory containing some source file(s)
             // Lint only C or CPP files
-            QDirIterator dirIteratorC(m_lintOptions->getLinterDirectory().trimmed(), QStringList() << "*.c");
-            while (dirIteratorC.hasNext())
-            {
-                directoryFiles.append(dirIteratorC.next());
-            }
-            QDirIterator dirIteratorCPP(m_lintOptions->getLinterDirectory().trimmed(), QStringList() << "*.cpp");
-            while (dirIteratorCPP.hasNext())
-            {
-                directoryFiles.append(dirIteratorCPP.next());
-            }
+            directoryFiles = recursiveBuildSourceFileSet(m_lintOptions->getLinterDirectory().trimmed());
+            m_directoryFiles = directoryFiles;
         }
         //
 
@@ -565,6 +557,10 @@ void MainWindow::displayLintTable()
         {
             messageType = MESSAGE_TYPE_INFORMATION;
         }
+        else if (!QString::compare(type, LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
+        {
+            messageType = MESSAGE_TYPE_SUPPLEMENTAL;
+        }
         else
         {
             messageType = MESSAGE_TYPE_UNKNOWN;
@@ -590,7 +586,7 @@ void MainWindow::displayLintTable()
 
         if (!m_toggleInfo)
         {
-            if (messageType == MESSAGE_TYPE_INFORMATION || messageType == MESSAGE_TYPE_UNKNOWN)
+            if (messageType == MESSAGE_TYPE_INFORMATION || messageType == MESSAGE_TYPE_SUPPLEMENTAL)
             {
                 continue;
             }
@@ -622,6 +618,8 @@ void MainWindow::displayLintTable()
             case MESSAGE_TYPE_ERROR: icon.load(":/images/error.png");  break;
             case MESSAGE_TYPE_WARNING: icon.load(":/images/warning.png"); break;
             case MESSAGE_TYPE_INFORMATION: icon.load(":/images/info.png"); break;
+            // TODO: Get an icon for supplemental
+            case MESSAGE_TYPE_SUPPLEMENTAL: icon.load(":/images/info.png"); break;
             default: Q_ASSERT(false); break;
         }
 
@@ -875,4 +873,53 @@ void MainWindow::on_actionLog_triggered()
     // Display the event log
     QProcess log;
     log.startDetached("notepad.exe", QStringList() << LOG_FILENAME);
+}
+
+QSet<QString> MainWindow::recursiveBuildSourceFileSet(const QString& directory)
+{
+    qDebug() << "Scanning directory: " << directory;
+    QSet<QString> directoryFiles;
+    // Add any of these file types (e.g .C, .cc, .cpp, .CPP, .c++, .cp, or .cxx.)
+    QDirIterator dirIteratorCP(directory, QStringList() << "*.cp", QDir::Files, QDirIterator::Subdirectories);
+    while (dirIteratorCP.hasNext())
+    {
+        directoryFiles.insert(dirIteratorCP.next());
+    }
+    QDirIterator dirIteratorCC(directory, QStringList() << "*.cc", QDir::Files, QDirIterator::Subdirectories);
+    while (dirIteratorCC.hasNext())
+    {
+        directoryFiles.insert(dirIteratorCC.next());
+    }
+    QDirIterator dirIteratorCPlusPlus(directory, QStringList() << "*.c++", QDir::Files, QDirIterator::Subdirectories);
+    while (dirIteratorCPlusPlus.hasNext())
+    {
+        directoryFiles.insert(dirIteratorCPlusPlus.next());
+    }
+    QDirIterator dirIteratorCFileLowerCase(directory, QStringList() << "*.c", QDir::Files, QDirIterator::Subdirectories);
+    while (dirIteratorCFileLowerCase.hasNext())
+    {
+        directoryFiles.insert(dirIteratorCFileLowerCase.next());
+    }
+    QDirIterator dirIteratorCPP(directory, QStringList() << "*.cpp", QDir::Files, QDirIterator::Subdirectories);
+    while (dirIteratorCPP.hasNext())
+    {
+        directoryFiles.insert(dirIteratorCPP.next());
+    }
+    QDirIterator dirIteratorCPPUpperCase(directory, QStringList() << "*.CPP", QDir::Files, QDirIterator::Subdirectories);
+    while (dirIteratorCPPUpperCase.hasNext())
+    {
+        directoryFiles.insert(dirIteratorCPPUpperCase.next());
+    }
+    QDirIterator dirIteratorCFileUpperCase(directory, QStringList() << "*.C", QDir::Files, QDirIterator::Subdirectories);
+    while (dirIteratorCFileUpperCase.hasNext())
+    {
+        directoryFiles.insert(dirIteratorCFileUpperCase.next());
+    }
+    QDirIterator dirIteratorCXX(directory, QStringList() << "*.cxx", QDir::Files, QDirIterator::Subdirectories);
+    while (dirIteratorCXX.hasNext())
+    {
+        directoryFiles.insert(dirIteratorCXX.next());
+    }
+    qDebug() << "Total files scanned: " << directoryFiles.size();
+    return directoryFiles;
 }

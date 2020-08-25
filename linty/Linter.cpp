@@ -53,7 +53,7 @@ void Linter::setLinterExecutable(const QString& linterExecutable) noexcept
     m_linterExecutable = linterExecutable;
 }
 
-void Linter::setLintFiles(const QList<QString>& files) noexcept
+void Linter::setLintFiles(const QSet<QString>& files) noexcept
 {
     m_filesToLint = files;
 }
@@ -210,7 +210,7 @@ LINTER_STATUS Linter::lint() noexcept
                 return;
             }
 
-            if (!m_supportedVersions.contains(QString(pclintVersion)))
+            /*if (!m_supportedVersions.contains(QString(pclintVersion)))
             {
                 status = LINTER_UNSUPPORTED_VERSION;
                 lintProcess.closeReadChannel(QProcess::StandardOutput);
@@ -218,7 +218,7 @@ LINTER_STATUS Linter::lint() noexcept
                 DEBUG_LOG("[Error] Failed to start lint because version unsupported: " + QString(pclintVersion));
                 lintProcess.close();
                 return;
-            }
+            }*/
             // But it sometimes drags module information into the first read
             // Find any module information that sneaked into this chunk
             while (it.hasNext())
@@ -554,12 +554,15 @@ LINTER_STATUS Linter::lint() noexcept
                 {
                     m_numberOfInfo++;
                 }
-                else
+                else if (!QString::compare(message.type, LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
                 {
                     // TODO: Fix for supplemental messages
+                    //m_numberOfSupplemental++;
+                }
+                else
+                {
                     // Unknown types are treated as informational messages with '?' icon
-                    Q_ASSERT(false);
-                    m_numberOfInfo++;
+                    DEBUG_LOG("[Warning] Unknown message type received: " + message.type);
                 }
             }
             message = {};

@@ -7,9 +7,9 @@
 #include "Log.h"
 #include <stdexcept>
 
-QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& projectFileName)
+QSet<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& projectFileName)
 {
-    QList<QString> sourceFiles;
+    QSet<QString> sourceFiles;
 
     // Get the file path for the project
     QString projectPath = QFileInfo(projectFileName).absolutePath();
@@ -54,7 +54,7 @@ QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proj
                         }
                         else
                         {
-                            sourceFiles.append(sourceFile);
+                            sourceFiles.insert(sourceFile);
                         }
                     }
 
@@ -88,9 +88,9 @@ QList<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proj
     return sourceFiles;
 }
 
-QList<QString> VisualStudioProject::buildSourceFiles(const QString& projectFileName)
+QSet<QString> VisualStudioProject::buildSourceFiles(const QString& projectFileName)
 {
-    QList<QString> sourceFiles;
+    QSet<QString> sourceFiles;
 
     // Get the file path for the project
     QString projectPath = QFileInfo(projectFileName).absolutePath();
@@ -134,7 +134,7 @@ QList<QString> VisualStudioProject::buildSourceFiles(const QString& projectFileN
                         }
                         else
                         {
-                            sourceFiles.append(sourceFile);
+                            sourceFiles.insert(sourceFile);
                         }
                     }
 
@@ -173,9 +173,9 @@ void VisualStudioProjectSolution::setDirectory(const QString &directory)
     m_directory = directory;
 }
 
-QList<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &projectFileName)
+QSet<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &projectFileName)
 {
-    QList<QString> sourceFiles;
+    QSet<QString> sourceFiles;
     VisualStudioProject vsProject;
 
     int maxProjects = 0;
@@ -207,13 +207,13 @@ QList<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proj
               {
                   try
                   {
-                      QList<QString> solutionFiles =  vsProject.buildSourceFiles(m_directory + "/" + projectUnclean);
+                      QSet<QString> solutionFiles =  vsProject.buildSourceFiles(m_directory + "/" + projectUnclean);
                       maxProjects++;
 
                       // TODO: Redo this inneficient way to appending QList together
                       for (auto const& file : solutionFiles)
                       {
-                          sourceFiles.append(file);
+                          sourceFiles.insert(file);
                       }
                   } catch (const std::logic_error& e)
                   {

@@ -27,6 +27,10 @@ LintThreadManager::~LintThreadManager()
 
 void LintThreadManager::slotSetLinterData(const LintData& lintData) noexcept
 {
+    Q_ASSERT(lintData.lintFiles.size());
+    Q_ASSERT(lintData.lintOptionFile.size());
+    Q_ASSERT(lintData.linterExecutable.size());
+
     qDebug() << "[" << QThread::currentThreadId() << "]" << "Number of lint files: " << lintData.lintFiles.size();
     qDebug() << "[" << QThread::currentThreadId() << "]" << "Lint option file: " << lintData.lintOptionFile;
     qDebug() << "[" << QThread::currentThreadId() << "]" << "Lint executable: " << lintData.linterExecutable;
@@ -50,40 +54,40 @@ void LintThreadManager::startLint() noexcept
     // Give to one thread
     // Repeat until no files left then start all threads
 
-    QList<QList<QString>> lintFilePerThread;
-    QList<QString> lintFiles;
+    QSet<QSet<QString>> lintFilePerThread;
+    QSet<QString> lintFiles;
     int length = 512;
 
     for (const QString& file : m_lintData.lintFiles)
     {
         if (length + file.size() < MAX_PROCESS_CHARACTERS)
         {
-            lintFiles.append(file);
+            lintFiles.insert(file);
             length += file.size();
         }
         else
         {
-            lintFilePerThread.append(lintFiles);
+            lintFilePerThread.insert(lintFiles);
             length = 512;
             lintFiles.clear();
-            lintFiles.append(file);
+            lintFiles.insert(file);
         }
     }
     if (lintFiles.size())
     {
-        lintFilePerThread.append(lintFiles);
+        lintFilePerThread.insert(lintFiles);
     }
 
     // Sanity check
     int size = 0;
-    std::for_each(lintFilePerThread.begin(), lintFilePerThread.end(),[&size](const QList<QString>& list){ size += list.size(); });
+    std::for_each(lintFilePerThread.begin(), lintFilePerThread.end(),[&size](const QSet<QString>& list){ size += list.size(); });
     Q_ASSERT(size == m_lintData.lintFiles.size());
 
     m_lintPointers.clear();
     m_lintThreads.clear();
 
     int count = 0;
-    for (const QList<QString>& lintFileList : lintFilePerThread)
+    for (const QSet<QString>& lintFileList : lintFilePerThread)
     {
 
         // Create a new thread
@@ -162,4 +166,5 @@ void LintThreadManager::slotAbortLint() noexcept
         qDebug() << threads++ << "/" << m_lintThreads.size() << " finished";
     });
     qDebug() << "Lint aborted!";
+    emit signalLintComplete();
 }
