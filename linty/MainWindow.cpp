@@ -69,6 +69,7 @@
 #include "Linter.h"
 #include "ProgressWindow.h"
 #include "ProjectSolution.h"
+#include "Compiler.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -712,13 +713,14 @@ void MainWindow::on_aboutLinty_triggered()
     versionMessageBox.setWindowTitle("Information");
     char buildCompiler[23];
 
-    // TODO: Get actual compiler used
-    sprintf(buildCompiler,"MinGW 32-bit %d.%d.%d\n",__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__);
+    // Compiler name + Compiler version + 32/64-bit version
+    sprintf(buildCompiler,"%s %s 32-bit\n", COMPILER_NAME, COMPILER_VERSION);
 
-    QString applicationInfo = "Build Version: " BUILD_VERSION "\n"
-                          "Build Date: " BUILD_DATE "\n"
-                          "Build Commit: " BUILD_COMMIT "\n"
-                          "Build Compiler: " + QString(buildCompiler) +"\n";
+    QString applicationInfo =
+            "Build Version: " BUILD_VERSION "\n"
+            "Build Date: " BUILD_DATE "\n"
+            "Build Commit: " BUILD_COMMIT "\n"
+            "Build Compiler: " + QString(buildCompiler) +"\n";
 
     versionMessageBox.setText(applicationInfo);
     switch (versionMessageBox.exec())

@@ -19,6 +19,7 @@ SOURCES += \
 
 HEADERS += \
     CodeEditor.h \
+    Compiler.h \
     Highlighter.h \
     Jenkins.h \
     LintThreadManager.h \
