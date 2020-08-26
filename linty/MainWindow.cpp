@@ -652,11 +652,11 @@ void MainWindow::displayLintTable()
     }
     else if (m_linterStatus & LINTER_UNSUPPORTED_VERSION)
     {
-        QMessageBox::critical(this, "Error", "Failed to start lint because of unknown PC-Lint version.");
+        QMessageBox::critical(this, "Error", "Failed to start lint because of unknown PC-Lint/PC-Lint Plus version.");
     }
     else if (m_linterStatus & LINTER_LICENSE_ERROR)
     {
-        QMessageBox::critical(this, "Error", "Failed to start lint because of invalid license. Check your PC-Lint license");
+        QMessageBox::critical(this, "Error", "Failed to start lint because of license error. Check your PC-Lint/PC-Lint Plus license");
     }
     else if (m_linterStatus & LINTER_PROCESS_ERROR)
     {

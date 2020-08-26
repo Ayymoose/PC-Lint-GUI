@@ -17,6 +17,7 @@ public:
     ~Preferences();
     QString getLinterExecutablePath() const noexcept;
     QString getLinterLintFilePath() const noexcept;
+    int getLinterHardwareThreads() const noexcept;
     static QString m_lastDirectory;
 
 private slots:

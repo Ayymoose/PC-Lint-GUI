@@ -13,21 +13,6 @@
 
 Linter::Linter()
 {
-    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00a, Copyright Gimpel Software 1985-2009");
-    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00b, Copyright Gimpel Software 1985-2009");
-    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00c, Copyright Gimpel Software 1985-2009");
-    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00d, Copyright Gimpel Software 1985-2009");
-    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00e, Copyright Gimpel Software 1985-2010");
-    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00f, Copyright Gimpel Software 1985-2010");
-    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00g, Copyright Gimpel Software 1985-2011");
-    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00h, Copyright Gimpel Software 1985-2011");
-    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00i, Copyright Gimpel Software 1985-2012");
-    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00j, Copyright Gimpel Software 1985-2012");
-    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00k, Copyright Gimpel Software 1985-2013");
-    m_supportedVersions.insert("PC-lint for C/C++ (NT) Vers. 9.00L, Copyright Gimpel Software 1985-2014");
-    m_supportedVersions.insert("PC-lint Plus 1.3 for Windows, Copyright Gimpel Software LLC 1985-2019");
-    m_supportedVersions.insert("PC-lint Plus 1.3.5 for Windows, Copyright Gimpel Software LLC 1985-2020");
-
     m_numberOfErrors = 0;
     m_numberOfInfo = 0;
     m_numberOfWarnings = 0;
@@ -130,11 +115,11 @@ LINTER_STATUS Linter::lint() noexcept
 
     connect(&lintProcess, &QProcess::errorOccurred, this, [&](const QProcess::ProcessError& error)
     {
-        if (status != LINTER_CANCEL)
+        if (status != LINTER_CANCEL && status != LINTER_UNSUPPORTED_VERSION)
         {
             status = LINTER_PROCESS_ERROR;
+            qDebug() << "## Process error: " << error;
         }
-        qDebug() << "## Process error: " << error;
     });
 
     connect(&lintProcess, &QProcess::readyReadStandardOutput, this, [&]()
@@ -205,7 +190,7 @@ LINTER_STATUS Linter::lint() noexcept
                 return;
             }
 
-            /*if (!m_supportedVersions.contains(QString(pclintVersion)))
+            if (!(pclintVersion.contains("PC-lint Plus") || pclintVersion.contains("PC-lint")))
             {
                 status = LINTER_UNSUPPORTED_VERSION;
                 lintProcess.closeReadChannel(QProcess::StandardOutput);
@@ -213,7 +198,8 @@ LINTER_STATUS Linter::lint() noexcept
                 DEBUG_LOG("[Error] Failed to start lint because version unsupported: " + QString(pclintVersion));
                 lintProcess.close();
                 return;
-            }*/
+            }
+
             // But it sometimes drags module information into the first read
             // Find any module information that sneaked into this chunk
             while (it.hasNext())
@@ -470,10 +456,15 @@ LINTER_STATUS Linter::lint() noexcept
     qDebug() << "[" << QThread::currentThreadId() << "]" << "XML data size: " << lintData.size();
 
     // TODO: Temporary debug information
-    QFile file2("D:\\Users\\Ayman\\Desktop\\Linty\\test\\xmldata.xml");
+    QFile file2("D:\\Users\\Ayman\\Desktop\\Linty\\test\\cmdline.xml");
     file2.open(QIODevice::WriteOnly);
     file2.write(cmdString.toLocal8Bit());
     file2.close();
+
+    QFile lintXMLOutputFile("D:\\Users\\Ayman\\Desktop\\Linty\\test\\xmldata.xml");
+    lintXMLOutputFile.open(QIODevice::WriteOnly);
+    lintXMLOutputFile.write(lintData);
+    lintXMLOutputFile.close();
     //
 
     QSet<LintMessage> lintMessages;

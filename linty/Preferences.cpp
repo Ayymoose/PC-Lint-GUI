@@ -70,6 +70,11 @@ QString Preferences::getLinterLintFilePath() const noexcept
     return m_ui->lintFileLineEdit->text();
 }
 
+int Preferences::getLinterHardwareThreads() const noexcept
+{
+    return m_ui->lintUsingThreadsComboBox->currentIndex();
+}
+
 void Preferences::on_lintPathFileOpen_clicked()
 {
     QFileDialog dialogue(this);

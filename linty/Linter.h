@@ -135,7 +135,6 @@ signals:
 
 private:
     QString m_lintingDirectory;
-    QSet<QString> m_supportedVersions;
     QStringList m_arguments;
     QString m_linterExecutable;
     QString m_lintFile;
