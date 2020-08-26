@@ -275,7 +275,7 @@ selection-color: rgb(0, 0, 0);</string>
   </action>
   <action name="actionLint_options">
    <property name="text">
-    <string>Lint options</string>
+    <string>Preferences</string>
    </property>
   </action>
   <action name="actionLint_project">

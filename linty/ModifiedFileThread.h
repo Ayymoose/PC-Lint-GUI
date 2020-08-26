@@ -20,7 +20,6 @@ class ModifiedFileThread : public QThread
     Q_OBJECT
 public:
     explicit ModifiedFileThread(QObject *parent = nullptr) : QThread(parent) {}
-    ~ModifiedFileThread();
 protected:
     void run() override;
 public slots:

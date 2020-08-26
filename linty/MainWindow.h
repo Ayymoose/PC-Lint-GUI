@@ -60,7 +60,7 @@
 #include <memory>
 
 #include "ProgressWindow.h"
-#include "LintOptions.h"
+#include "Preferences.h"
 #include "Linter.h"
 #include "Log.h"
 #include "CodeEditor.h"
@@ -138,7 +138,7 @@ private:
     bool m_toggleInfo;
     QString m_lastProjectLoaded;
     QSet<QString> m_directoryFiles;
-    std::unique_ptr<LintOptions> m_lintOptions;
+    std::unique_ptr<Preferences> m_preferences;
     Linter m_linter;
     std::unique_ptr<Highlighter> m_highlighter;
     bool verifyLint();

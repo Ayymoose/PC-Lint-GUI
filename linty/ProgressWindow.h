@@ -12,7 +12,6 @@
 #include <memory>
 
 class MainWindow;
-class Worker;
 
 namespace Ui
 {

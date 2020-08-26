@@ -7,34 +7,32 @@ requires(qtConfig(fontdialog))
 SOURCES += \
     CodeEditor.cpp \
     Highlighter.cpp \
-    LintOptions.cpp \
     LintThreadManager.cpp \
     Linter.cpp \
     Log.cpp \
     MainWindow.cpp \
     ModifiedFileThread.cpp \
+    Preferences.cpp \
     ProgressWindow.cpp \
     ProjectSolution.cpp \
-    Settings.cpp \
     main.cpp
 
 HEADERS += \
     CodeEditor.h \
     Highlighter.h \
     Jenkins.h \
-    LintOptions.h \
     LintThreadManager.h \
     Linter.h \
     Log.h \
     MainWindow.h \
     ModifiedFileThread.h \
+    Preferences.h \
     ProgressWindow.h \
-    ProjectSolution.h \
-    Settings.h
+    ProjectSolution.h
 
 FORMS += \
-    LintOptions.ui \
     MainWindow.ui \
+    Preferences.ui \
     ProgressWindow.ui
 
 RESOURCES += \

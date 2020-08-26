@@ -57,11 +57,6 @@ void ModifiedFileThread::run()
 
 }
 
-ModifiedFileThread::~ModifiedFileThread()
-{
-    qDebug() << "Monitor thread died";
-}
-
 void ModifiedFileThread::slotSetModifiedFiles(QMap<QString, ModifiedFile> modifiedFiles) noexcept
 {
     QMutexLocker mutexLocker(&m_modifiedFileMutex);

@@ -33,11 +33,6 @@ Linter::Linter()
     m_numberOfWarnings = 0;
 }
 
-Linter::~Linter()
-{
-    qDebug() << "Linter destroyed";
-}
-
 QSet<LintMessage> Linter::getLinterMessages() const noexcept
 {
     return m_linterMessages;

@@ -88,9 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->actionCopy, &QAction::triggered, this, &MainWindow::copy);
     connect(m_ui->actionCut, &QAction::triggered, this, &MainWindow::cut);
 
-    m_lintOptions = std::make_unique<LintOptions>(this);
-    // Load any settings we have
-    m_lintOptions->loadSettings();
+    m_preferences = std::make_unique<Preferences>(this);
 
     // Configure the lint table
     configureLintTable();
@@ -265,12 +263,11 @@ void MainWindow::cut()
 
 }
 
+// Open preferences
 void MainWindow::on_actionLint_options_triggered()
 {
-    m_lintOptions->setModal(true);
-    m_lintOptions->loadSettings();
-    m_lintOptions->exec();
-
+    m_preferences->setModal(true);
+    m_preferences->exec();
 }
 
 bool MainWindow::verifyLint()
@@ -279,12 +276,12 @@ bool MainWindow::verifyLint()
     QFileInfo fileInfo;
 
     // Check if executable exists
-    QString linterExecutable = m_lintOptions->getLinterExecutablePath().trimmed();
+    QString linterExecutable = m_preferences->getLinterExecutablePath().trimmed();
     fileInfo.setFile(linterExecutable);
 
     if (!fileInfo.exists())
     {
-        QMessageBox::critical(this,"Error", "Lint executable does not exist: '" + linterExecutable + "'");
+        QMessageBox::critical(this,"Error", "PC-Lintt/PC-Lint Plus executable does not exist: '" + linterExecutable + "'");
         return false;
     }
 
@@ -295,20 +292,11 @@ bool MainWindow::verifyLint()
     }
 
     // Check if lint file exists
-    QString linterLintFile = m_lintOptions->getLinterLintFilePath().trimmed();
+    QString linterLintFile = m_preferences->getLinterLintFilePath().trimmed();
     fileInfo.setFile(linterLintFile);
     if (!fileInfo.exists())
     {
-        QMessageBox::critical(this,"Error", "Lint file does not exist: '" + linterLintFile + "'");
-        return false;
-    }
-
-    // Check if the directory exists
-    QString lintDirectory = m_lintOptions->getLinterDirectory().trimmed();
-    path.setPath(lintDirectory);
-    if (!path.exists())
-    {
-        QMessageBox::critical(this,"Error", "Directory does not exist: '" + lintDirectory + "'");
+        QMessageBox::critical(this,"Error", "PC-Lint file (.lnt) does not exist: '" + linterLintFile + "'");
         return false;
     }
 
@@ -332,12 +320,13 @@ void MainWindow::startLint(bool lintProject)
     if (verifyLint())
     {
         QSet<QString> directoryFiles;
+        QString directoryToLint;
         QString fileName;
 
         // Lint a project solution file
         if (lintProject)
         {
-            fileName = QFileDialog::getOpenFileName(this, "Select project file", LintOptions::m_lastDirectory,
+            fileName = QFileDialog::getOpenFileName(this, "Select project file", Preferences::m_lastDirectory,
                                                     "Atmel 7 Studio (*.cproj);; "
                                                     "Visual Studio Project (*.vcxproj);; "
                                                     "Visual Studio Solution (*.sln) "
@@ -353,7 +342,7 @@ void MainWindow::startLint(bool lintProject)
 
                 // Check file extension
                 QString fileExtension = QFileInfo(fileName).completeSuffix();
-                LintOptions::m_lastDirectory = QFileInfo(fileName).absolutePath();
+                Preferences::m_lastDirectory = QFileInfo(fileName).absolutePath();
 
                 ProjectSolution *project= nullptr;
 
@@ -399,16 +388,25 @@ void MainWindow::startLint(bool lintProject)
         {
             // Lint a directory containing some source file(s)
             // Lint only C or CPP files
-            directoryFiles = recursiveBuildSourceFileSet(m_lintOptions->getLinterDirectory().trimmed());
-            m_directoryFiles = directoryFiles;
+            directoryToLint = QFileDialog::getExistingDirectory(this,
+                                                            tr("Select directory to lint"),
+                                                            Preferences::m_lastDirectory,
+                                                            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+            if (!directoryToLint.isEmpty())
+            {
+                directoryFiles = recursiveBuildSourceFileSet(directoryToLint);
+                m_directoryFiles = directoryFiles;
+            }
+
         }
         //
 
         // Only start linting if a file was selected
         if (directoryFiles.size())
         {
-            m_linter.setLinterFile(m_lintOptions->getLinterLintFilePath().trimmed());
-            m_linter.setLinterExecutable(m_lintOptions->getLinterExecutablePath().trimmed());
+            m_linter.setLinterFile(m_preferences->getLinterLintFilePath().trimmed());
+            m_linter.setLinterExecutable(m_preferences->getLinterExecutablePath().trimmed());
             m_linter.setLintFiles(directoryFiles);
 
             // Display directory name or filename
@@ -419,7 +417,7 @@ void MainWindow::startLint(bool lintProject)
             else
             {
                 // Start linting a directory
-                startLintThread(m_lintOptions->getLinterDirectory().trimmed());
+                startLintThread(directoryToLint);
             }
         }
     }
@@ -688,8 +686,8 @@ void MainWindow::slotGetLinterData()
 {
     LintData lintData
     {
-       m_lintOptions->getLinterExecutablePath().trimmed(),
-       m_lintOptions->getLinterLintFilePath().trimmed(),
+       m_preferences->getLinterExecutablePath().trimmed(),
+       m_preferences->getLinterLintFilePath().trimmed(),
        m_directoryFiles
     };
     emit signalSetLinterData(lintData);
@@ -739,8 +737,8 @@ void MainWindow::on_actionRefresh_triggered()
     // Then try to lint that again
     if (!m_lastProjectLoaded.isEmpty())
     {
-        m_linter.setLinterFile(m_lintOptions->getLinterLintFilePath().trimmed());
-        m_linter.setLinterExecutable(m_lintOptions->getLinterExecutablePath().trimmed());
+        m_linter.setLinterFile(m_preferences->getLinterLintFilePath().trimmed());
+        m_linter.setLinterExecutable(m_preferences->getLinterExecutablePath().trimmed());
         m_linter.setLintFiles(m_directoryFiles);
         startLintThread(QFileInfo(m_lastProjectLoaded).fileName());
     }

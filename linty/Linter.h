@@ -88,7 +88,6 @@ class Linter : public QObject
     Q_OBJECT
 public:
     Linter();
-    ~Linter();
     void setLinterExecutable(const QString& linterExecutable) noexcept;
     void setLinterFile(const QString& lintFile) noexcept;
     void setLintFiles(const QSet<QString>& files) noexcept;

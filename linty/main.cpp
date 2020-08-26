@@ -62,6 +62,9 @@ int main(int argc, char *argv[])
 {
     QApplication EditorApp(argc, argv);
 
+    QCoreApplication::setOrganizationName("Linty");
+    QCoreApplication::setApplicationName("Linty");
+
     Log::createLogFile(LOG_FILENAME);
     DEBUG_LOG("---------- Starting Linty ----------");
     DEBUG_LOG("Linty version: " BUILD_VERSION);
