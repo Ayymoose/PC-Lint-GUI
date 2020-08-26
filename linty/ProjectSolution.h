@@ -1,5 +1,4 @@
-#ifndef PROJECTSOLUTION_H
-#define PROJECTSOLUTION_H
+#pragma once
 
 #include <QList>
 #include <QString>
@@ -46,5 +45,3 @@ public:
 private:
      QString m_directory;
 };
-
-#endif // PROJECTSOLUTION_H

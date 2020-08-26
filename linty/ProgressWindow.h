@@ -1,5 +1,4 @@
-#ifndef PROGRESSWINDOW_H
-#define PROGRESSWINDOW_H
+#pragma once
 
 #include "Linter.h"
 #include "MainWindow.h"
@@ -58,5 +57,3 @@ private:
     std::unique_ptr<QThread> m_workerThread;
     MainWindow* m_parent;
 };
-
-#endif // PROGRESSWINDOW_H

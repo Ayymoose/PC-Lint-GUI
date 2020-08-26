@@ -1,5 +1,4 @@
-#ifndef LINTOPTIONS_H
-#define LINTOPTIONS_H
+#pragma once
 
 #include <QDialog>
 #include <QSettings>
@@ -29,5 +28,3 @@ private slots:
 private:
     Ui::Preferences* m_ui;
 };
-
-#endif // LINTOPTIONS_H

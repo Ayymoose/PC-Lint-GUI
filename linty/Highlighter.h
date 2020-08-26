@@ -48,8 +48,7 @@
 **
 ****************************************************************************/
 
-#ifndef HIGHLIGHTER_H
-#define HIGHLIGHTER_H
+#pragma once
 
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
@@ -63,7 +62,6 @@ QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
 
-//! [0]
 class Highlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
@@ -92,6 +90,3 @@ private:
     QTextCharFormat m_quotationFormat;
     QTextCharFormat m_functionFormat;
 };
-//! [0]
-
-#endif // HIGHLIGHTER_H

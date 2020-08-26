@@ -48,8 +48,7 @@
 **
 ****************************************************************************/
 
-#ifndef CODEEDITOR_H
-#define CODEEDITOR_H
+#pragma once
 
 #include <QPlainTextEdit>
 #include <QColor>
@@ -125,5 +124,3 @@ protected:
 private:
     CodeEditor *m_codeEditor;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
 
 #include <QObject>
 #include <QFile>
@@ -21,5 +20,3 @@ public:
 private:
     static std::unique_ptr<QFile> m_file;
 };
-
-#endif // LOGGER_H

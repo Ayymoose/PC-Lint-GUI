@@ -1,5 +1,4 @@
-#ifndef LINTTHREADMANAGER_H
-#define LINTTHREADMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QThread>
@@ -34,5 +33,3 @@ private:
     unsigned int m_completedLints;
     QObject* m_parent;
 };
-
-#endif // LINTTHREADMANAGER_H

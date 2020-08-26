@@ -47,8 +47,7 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QPoint>
 #include <QMainWindow>
@@ -155,5 +154,3 @@ private:
     QSet<QString> recursiveBuildSourceFileSet(const QString& directory);
 
 };
-
-#endif // MAINWINDOW_H
