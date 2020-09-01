@@ -446,23 +446,36 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
         }*/
 
         // Load the file into the code editor
-        if (m_ui->codeEditor->loadFile(fileToLoad))
+        if (m_ui->codeEditor->loadedFile() != fileToLoad)
         {
-            DEBUG_LOG("Loading file: " + fileToLoad);
+            if (m_ui->codeEditor->loadFile(fileToLoad))
+            {
+                DEBUG_LOG("Loading file: " + fileToLoad);
 
-            // Update the status bar
-            m_ui->statusBar->showMessage("Loaded " + fileToLoad + " at " + QDateTime::currentDateTime().toString());
+                // Select the line number
+                item = m_ui->lintTable->item(row,4);
+                uint32_t lineNumber = item->text().toUInt();
+                m_ui->codeEditor->selectLine(lineNumber);
 
+                // Update the status bar
+                m_ui->statusBar->showMessage("Loaded " + fileToLoad + " at " + QDateTime::currentDateTime().toString());
+            }
+            else
+            {
+                // TODO: Reason for failure
+                QMessageBox::critical(this, "Error", "Unable to open file: " + fileToLoad);
+            }
+        }
+        else
+        {
             // Select the line number
             item = m_ui->lintTable->item(row,4);
             uint32_t lineNumber = item->text().toUInt();
             m_ui->codeEditor->selectLine(lineNumber);
+            qDebug() << fileToLoad << " already loaded";
         }
-        else
-        {
-            // TODO: Reason for failure
-            QMessageBox::critical(this, "Error", "Unable to open file: " + fileToLoad);
-        }
+
+
 
     }
 
@@ -880,45 +893,15 @@ QSet<QString> MainWindow::recursiveBuildSourceFileSet(const QString& directory)
     qDebug() << "Scanning directory: " << directory;
     QSet<QString> directoryFiles;
     // Add any of these file types (e.g .C, .cc, .cpp, .CPP, .c++, .cp, or .cxx.)
-    QDirIterator dirIteratorCP(directory, QStringList() << "*.cp", QDir::Files, QDirIterator::Subdirectories);
-    while (dirIteratorCP.hasNext())
+
+    const QStringList extensions[] = {{"*.c"},{"*.C"}, {"*.cc"}, {"*.cpp"}, {"*.CPP"}, {"*.c++"}, {"*.cp"}, {"*.cxx"}};
+    for (const QStringList& stringList : extensions)
     {
-        directoryFiles.insert(dirIteratorCP.next());
-    }
-    QDirIterator dirIteratorCC(directory, QStringList() << "*.cc", QDir::Files, QDirIterator::Subdirectories);
-    while (dirIteratorCC.hasNext())
-    {
-        directoryFiles.insert(dirIteratorCC.next());
-    }
-    QDirIterator dirIteratorCPlusPlus(directory, QStringList() << "*.c++", QDir::Files, QDirIterator::Subdirectories);
-    while (dirIteratorCPlusPlus.hasNext())
-    {
-        directoryFiles.insert(dirIteratorCPlusPlus.next());
-    }
-    QDirIterator dirIteratorCFileLowerCase(directory, QStringList() << "*.c", QDir::Files, QDirIterator::Subdirectories);
-    while (dirIteratorCFileLowerCase.hasNext())
-    {
-        directoryFiles.insert(dirIteratorCFileLowerCase.next());
-    }
-    QDirIterator dirIteratorCPP(directory, QStringList() << "*.cpp", QDir::Files, QDirIterator::Subdirectories);
-    while (dirIteratorCPP.hasNext())
-    {
-        directoryFiles.insert(dirIteratorCPP.next());
-    }
-    QDirIterator dirIteratorCPPUpperCase(directory, QStringList() << "*.CPP", QDir::Files, QDirIterator::Subdirectories);
-    while (dirIteratorCPPUpperCase.hasNext())
-    {
-        directoryFiles.insert(dirIteratorCPPUpperCase.next());
-    }
-    QDirIterator dirIteratorCFileUpperCase(directory, QStringList() << "*.C", QDir::Files, QDirIterator::Subdirectories);
-    while (dirIteratorCFileUpperCase.hasNext())
-    {
-        directoryFiles.insert(dirIteratorCFileUpperCase.next());
-    }
-    QDirIterator dirIteratorCXX(directory, QStringList() << "*.cxx", QDir::Files, QDirIterator::Subdirectories);
-    while (dirIteratorCXX.hasNext())
-    {
-        directoryFiles.insert(dirIteratorCXX.next());
+        QDirIterator dirIterator(directory, stringList, QDir::Files, QDirIterator::Subdirectories);
+        while (dirIterator.hasNext())
+        {
+            directoryFiles.insert(dirIterator.next());
+        }
     }
     qDebug() << "Total files scanned: " << directoryFiles.size();
     return directoryFiles;
