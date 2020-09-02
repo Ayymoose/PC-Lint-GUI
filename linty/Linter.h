@@ -67,6 +67,7 @@ namespace Lint
 
     const int MAX_PROCESS_CHARACTERS = 8192;
     const int MAX_LINT_TIME = 10*60*1000;
+    const int MAX_LINT_PATH = 512;
 };
 
 typedef struct

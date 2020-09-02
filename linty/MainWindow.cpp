@@ -282,7 +282,7 @@ bool MainWindow::verifyLint()
 
     if (!fileInfo.exists())
     {
-        QMessageBox::critical(this,"Error", "PC-Lintt/PC-Lint Plus executable does not exist: '" + linterExecutable + "'");
+        QMessageBox::critical(this,"Error", "PC-Lint/PC-Lint Plus executable does not exist: '" + linterExecutable + "'");
         return false;
     }
 

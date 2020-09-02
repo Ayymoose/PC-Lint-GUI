@@ -32,4 +32,6 @@ private:
     LintData m_lintData;
     unsigned int m_completedLints;
     QObject* m_parent;
+
+    void joinAll() const noexcept;
 };

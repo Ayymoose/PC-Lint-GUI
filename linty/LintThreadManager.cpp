@@ -15,13 +15,22 @@ LintThreadManager::LintThreadManager(QObject *parent)
 
 }
 
-LintThreadManager::~LintThreadManager()
+void LintThreadManager::joinAll() const noexcept
 {
     for (auto const& thread : m_lintThreads)
-    {
-        thread->quit();
-        Q_ASSERT(thread->wait());
-    }
+     {
+         thread->quit();
+     }
+     std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[](auto const& thread)
+     {
+         Q_ASSERT(thread->wait());
+     });
+}
+
+LintThreadManager::~LintThreadManager()
+{
+    // Join all
+    joinAll();
     qDebug() << "LintThreadManager destroyed";
 }
 
@@ -56,7 +65,7 @@ void LintThreadManager::startLint() noexcept
 
     QSet<QSet<QString>> lintFilePerThread;
     QSet<QString> lintFiles;
-    int length = 512;
+    int length = Lint::MAX_LINT_PATH;
 
     for (const QString& file : m_lintData.lintFiles)
     {
@@ -68,7 +77,7 @@ void LintThreadManager::startLint() noexcept
         else
         {
             lintFilePerThread.insert(lintFiles);
-            length = 512;
+            length = Lint::MAX_LINT_PATH;
             lintFiles.clear();
             lintFiles.insert(file);
         }
@@ -141,12 +150,7 @@ void LintThreadManager::slotLintFinished(const LintResponse& lintResponse) noexc
     if (m_completedLints == m_lintThreads.size())
     {
         // Join all
-        std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[](auto& thread)
-        {
-            thread->quit();
-            Q_ASSERT(thread->wait());
-        });
-
+        joinAll();
         emit signalLintComplete();
     }
 }
@@ -155,12 +159,12 @@ void LintThreadManager::slotAbortLint() noexcept
 {
     qDebug() << "Attempting to abort lint...";
     int threads = 1;
-    std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[](auto& thread)
+    std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[](const auto& thread)
     {
         thread->requestInterruption();
         thread->quit();
     });
-    std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[this,&threads](auto& thread)
+    std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[this,&threads](const auto& thread)
     {
         Q_ASSERT(thread->wait());
         qDebug() << threads++ << "/" << m_lintThreads.size() << " finished";
