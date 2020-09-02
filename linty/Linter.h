@@ -7,34 +7,66 @@
 #include <QProcess>
 #include <memory>
 
-#define MAX_PROCESS_CHARACTERS 8192
-#define MAX_LINT_TIME 10*60*1000
-
-enum LINTER_STATUS
+namespace Lint
 {
-    // Lint completed successfully
-    LINTER_COMPLETE = 0,
-    // Lint partially completed but didn't lint all files
-    LINTER_PARTIAL_COMPLETE = 1,
-    // Lint version unknown
-    LINTER_UNSUPPORTED_VERSION = 2,
-    // Lint license error
-    LINTER_LICENSE_ERROR = 4,
-    // Lint process error
-    LINTER_PROCESS_ERROR = 8,
-    // Lint process timeout
-    LINTER_PROCESS_TIMEOUT = 16,
-    // Lint cancelled
-    LINTER_CANCEL = 32,
-};
 
-enum MESSAGE_TYPE
-{
-    MESSAGE_TYPE_ERROR = 0,
-    MESSAGE_TYPE_WARNING,
-    MESSAGE_TYPE_INFORMATION,
-    MESSAGE_TYPE_SUPPLEMENTAL,
-    MESSAGE_TYPE_UNKNOWN,
+    namespace Xml
+    {
+        // XML tags
+        const QString XML_TAG_DOC_OPEN = "<doc>";
+        const QString XML_TAG_DOC_CLOSED = "</doc>";
+        const QString XML_TAG_MESSAGE_OPEN = "<m>";
+        const QString XML_TAG_DESCRIPTION_CLOSED = "</d>";
+
+        // XML elements
+        const QString XML_ELEMENT_DOC = "doc";
+        const QString XML_ELEMENT_FILE = "f";
+        const QString XML_ELEMENT_LINE = "l";
+        const QString XML_ELEMENT_MESSAGE_TYPE = "t";
+        const QString XML_ELEMENT_MESSAGE_NUMBER = "n";
+        const QString XML_ELEMENT_MESSAGE = "m";
+        const QString XML_ELEMENT_DESCRIPTION = "d";
+    };
+
+    namespace Type
+    {
+        // PC-Lint types
+        const QString LINT_TYPE_ERROR = "Error";
+        const QString LINT_TYPE_INFO = "Info";
+        const QString LINT_TYPE_WARNING = "Warning";
+        const QString LINT_TYPE_SUPPLEMENTAL = "Supplemental";
+    };
+
+
+    enum Status
+    {
+        // Lint completed successfully
+        LINTER_COMPLETE = 0,
+        // Lint partially completed but didn't lint all files
+        LINTER_PARTIAL_COMPLETE = 1,
+        // Lint version unknown
+        LINTER_UNSUPPORTED_VERSION = 2,
+        // Lint license error
+        LINTER_LICENSE_ERROR = 4,
+        // Lint process error
+        LINTER_PROCESS_ERROR = 8,
+        // Lint process timeout
+        LINTER_PROCESS_TIMEOUT = 16,
+        // Lint cancelled
+        LINTER_CANCEL = 32,
+    };
+
+    enum Message
+    {
+        MESSAGE_TYPE_ERROR = 0,
+        MESSAGE_TYPE_WARNING,
+        MESSAGE_TYPE_INFORMATION,
+        MESSAGE_TYPE_SUPPLEMENTAL,
+        MESSAGE_TYPE_UNKNOWN,
+    };
+
+    const int MAX_PROCESS_CHARACTERS = 8192;
+    const int MAX_LINT_TIME = 10*60*1000;
 };
 
 typedef struct
@@ -55,33 +87,12 @@ typedef struct
 
 typedef struct
 {
-    LINTER_STATUS status;
+    Lint::Status status;
     QSet<LintMessage> lintMessages;
     int numberOfErrors;
     int numberOfWarnings;
     int numberOfInfo;
 } LintResponse;
-
-// XML tags
-#define XML_TAG_DOC_OPEN "<doc>"
-#define XML_TAG_DOC_CLOSED "</doc>"
-#define XML_TAG_MESSAGE_OPEN "<m>"
-#define XML_TAG_DESCRIPTION_CLOSED "</d>"
-
-// XML elements
-#define XML_ELEMENT_DOC "doc"
-#define XML_ELEMENT_FILE "f"
-#define XML_ELEMENT_LINE "l"
-#define XML_ELEMENT_MESSAGE_TYPE "t"
-#define XML_ELEMENT_MESSAGE_NUMBER "n"
-#define XML_ELEMENT_MESSAGE "m"
-#define XML_ELEMENT_DESCRIPTION "d"
-
-// PC-Lint types
-#define LINT_TYPE_ERROR "Error"
-#define LINT_TYPE_INFO "Info"
-#define LINT_TYPE_WARNING "Warning"
-#define LINT_TYPE_SUPPLEMENTAL "Supplemental"
 
 class Linter : public QObject
 {
@@ -118,7 +129,7 @@ public:
     void appendLinterInfo(int numberOfInfo) noexcept;
 
     // Lint a directory or some files
-    LINTER_STATUS lint() noexcept;
+    Lint::Status lint() noexcept;
 
     // Return path to the lint file used (.lnt)
     QString getLinterFile() const noexcept;

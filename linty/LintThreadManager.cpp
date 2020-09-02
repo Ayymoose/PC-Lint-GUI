@@ -60,7 +60,7 @@ void LintThreadManager::startLint() noexcept
 
     for (const QString& file : m_lintData.lintFiles)
     {
-        if (length + file.size() < MAX_PROCESS_CHARACTERS)
+        if (length + file.size() < Lint::MAX_PROCESS_CHARACTERS)
         {
             lintFiles.insert(file);
             length += file.size();

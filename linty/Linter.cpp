@@ -92,9 +92,9 @@ void Linter::slotStartLint() noexcept
     emit signalLintFinished(lintResponse);
 }
 
-LINTER_STATUS Linter::lint() noexcept
+Lint::Status Linter::lint() noexcept
 {
-    LINTER_STATUS status = LINTER_COMPLETE;
+    Lint::Status status = Lint::LINTER_COMPLETE;
 
     auto startLintTime = std::chrono::steady_clock::now();
 
@@ -115,9 +115,9 @@ LINTER_STATUS Linter::lint() noexcept
 
     connect(&lintProcess, &QProcess::errorOccurred, this, [&](const QProcess::ProcessError& error)
     {
-        if (status != LINTER_CANCEL && status != LINTER_UNSUPPORTED_VERSION)
+        if (status != Lint::LINTER_CANCEL && status != Lint::LINTER_UNSUPPORTED_VERSION)
         {
-            status = LINTER_PROCESS_ERROR;
+            status = Lint::LINTER_PROCESS_ERROR;
             qDebug() << "## Process error: " << error;
         }
     });
@@ -126,7 +126,7 @@ LINTER_STATUS Linter::lint() noexcept
     {
         if (QThread::currentThread()->isInterruptionRequested())
         {
-            status = LINTER_CANCEL;
+            status = Lint::LINTER_CANCEL;
             lintProcess.closeReadChannel(QProcess::StandardOutput);
             lintProcess.closeReadChannel(QProcess::StandardError);
             lintProcess.close();
@@ -155,7 +155,7 @@ LINTER_STATUS Linter::lint() noexcept
     {
         if (QThread::currentThread()->isInterruptionRequested())
         {
-            status = LINTER_CANCEL;
+            status = Lint::LINTER_CANCEL;
             lintProcess.closeReadChannel(QProcess::StandardOutput);
             lintProcess.closeReadChannel(QProcess::StandardError);
             lintProcess.close();
@@ -182,7 +182,7 @@ LINTER_STATUS Linter::lint() noexcept
             // Some unknown executable or lint version we don't know about
             if (pclintVersion.contains("License Error"))
             {
-                status = LINTER_LICENSE_ERROR;
+                status = Lint::LINTER_LICENSE_ERROR;
                 lintProcess.closeReadChannel(QProcess::StandardOutput);
                 lintProcess.closeReadChannel(QProcess::StandardError);
                 DEBUG_LOG("[Error] Failed to start lint because of license error");
@@ -192,7 +192,7 @@ LINTER_STATUS Linter::lint() noexcept
 
             if (!(pclintVersion.contains("PC-lint Plus") || pclintVersion.contains("PC-lint")))
             {
-                status = LINTER_UNSUPPORTED_VERSION;
+                status = Lint::LINTER_UNSUPPORTED_VERSION;
                 lintProcess.closeReadChannel(QProcess::StandardOutput);
                 lintProcess.closeReadChannel(QProcess::StandardError);
                 DEBUG_LOG("[Error] Failed to start lint because version unsupported: " + QString(pclintVersion));
@@ -354,7 +354,7 @@ LINTER_STATUS Linter::lint() noexcept
     if (!lintProcess.waitForStarted())
     {
         DEBUG_LOG("[Error] " + lintProcess.errorString());
-        return LINTER_PROCESS_ERROR;
+        return Lint::LINTER_PROCESS_ERROR;
     }
 
     // Estimate progress of lint
@@ -373,11 +373,11 @@ LINTER_STATUS Linter::lint() noexcept
     // Wait forever until finished
     // TODO: Wait forever but timeout after 1 minute if stuck on a file?
     // TODO: Loop with a delay to check if lint process finished
-    if (!lintProcess.waitForFinished(MAX_LINT_TIME))
+    if (!lintProcess.waitForFinished(Lint::MAX_LINT_TIME))
     {
-        DEBUG_LOG("[Error] Lint process exited as it took too long (" + QString::number(MAX_LINT_TIME) + "ms) It's possible the lint executable became stuck on a particular file.");
+        DEBUG_LOG("[Error] Lint process exited as it took too long (" + QString::number(Lint::MAX_LINT_TIME) + "ms) It's possible the lint executable became stuck on a particular file.");
         lintProcess.close();
-        return LINTER_PROCESS_TIMEOUT;
+        return Lint::LINTER_PROCESS_TIMEOUT;
     }
 
     // TODO: Command string
@@ -387,7 +387,7 @@ LINTER_STATUS Linter::lint() noexcept
 
 
     // Check linter version (if we can't determine the version then return error)
-    if (status == LINTER_CANCEL || status == LINTER_LICENSE_ERROR || status == LINTER_UNSUPPORTED_VERSION)
+    if (status == Lint::LINTER_CANCEL || status == Lint::LINTER_LICENSE_ERROR || status == Lint::LINTER_UNSUPPORTED_VERSION)
     {
         return status;
     }
@@ -399,7 +399,7 @@ LINTER_STATUS Linter::lint() noexcept
     else
     {
         qDebug() << "[" << QThread::currentThreadId() << "]" << "Only " << lintedFiles.size() << "/" << m_filesToLint.size() << " were linted!";
-        status = LINTER_PARTIAL_COMPLETE;
+        status = Lint::Status::LINTER_PARTIAL_COMPLETE;
     }
 
     // Show lint version used
@@ -486,32 +486,32 @@ LINTER_STATUS Linter::lint() noexcept
         //If token is StartElement - read it
         if(token == QXmlStreamReader::StartElement)
         {
-            if(lintXML.name() == XML_ELEMENT_DOC || lintXML.name() == XML_ELEMENT_MESSAGE)
+            if(lintXML.name() == Lint::Xml::XML_ELEMENT_DOC || lintXML.name() == Lint::Xml::XML_ELEMENT_MESSAGE)
             {
                 continue;
             }
 
-            if(lintXML.name() == XML_ELEMENT_FILE)
+            if(lintXML.name() == Lint::Xml::XML_ELEMENT_FILE)
             {
                 message.file = lintXML.readElementText();
                 //Q_ASSERT(message.file.length() > 0);
             }
-            if(lintXML.name() == XML_ELEMENT_LINE)
+            if(lintXML.name() == Lint::Xml::XML_ELEMENT_LINE)
             {
                 message.line = lintXML.readElementText();
                 Q_ASSERT(message.line.length() > 0);
             }
-            if(lintXML.name() == XML_ELEMENT_MESSAGE_TYPE)
+            if(lintXML.name() == Lint::Xml::XML_ELEMENT_MESSAGE_TYPE)
             {
                 message.type = lintXML.readElementText();
                 Q_ASSERT(message.type.length() > 0);
             }
-            if(lintXML.name() == XML_ELEMENT_MESSAGE_NUMBER)
+            if(lintXML.name() == Lint::Xml::XML_ELEMENT_MESSAGE_NUMBER)
             {
                 message.number = lintXML.readElementText();
                 Q_ASSERT(message.number.length() > 0);
             }
-            if(lintXML.name() == XML_ELEMENT_DESCRIPTION)
+            if(lintXML.name() == Lint::Xml::XML_ELEMENT_DESCRIPTION)
             {
                 message.description = lintXML.readElementText();
                 Q_ASSERT(message.description.length() > 0);
@@ -519,7 +519,7 @@ LINTER_STATUS Linter::lint() noexcept
 
         }
 
-        if((token == QXmlStreamReader::EndElement) && (lintXML.name() == XML_ELEMENT_MESSAGE))
+        if((token == QXmlStreamReader::EndElement) && (lintXML.name() == Lint::Xml::XML_ELEMENT_MESSAGE))
         {
             // Lint can spit out duplicates for some reason
             // This is a quick way to check if it was inserted or not
@@ -528,19 +528,19 @@ LINTER_STATUS Linter::lint() noexcept
             if (lintMessages.size() > size)
             {
                 // Ascertain type
-                if (!QString::compare(message.type, LINT_TYPE_ERROR, Qt::CaseInsensitive))
+                if (!QString::compare(message.type, Lint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
                 {
                     m_numberOfErrors++;
                 }
-                else if (!QString::compare(message.type, LINT_TYPE_WARNING, Qt::CaseInsensitive))
+                else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
                 {
                     m_numberOfWarnings++;
                 }
-                else if (!QString::compare(message.type, LINT_TYPE_INFO, Qt::CaseInsensitive))
+                else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
                 {
                     m_numberOfInfo++;
                 }
-                else if (!QString::compare(message.type, LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
+                else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
                 {
                     // TODO: Fix for supplemental messages
                     //m_numberOfSupplemental++;
@@ -563,7 +563,7 @@ LINTER_STATUS Linter::lint() noexcept
         DEBUG_LOG("Line Number:      " + QString::number(lintXML.lineNumber()));
         DEBUG_LOG("Column Number:    " + QString::number(lintXML.columnNumber()));
         DEBUG_LOG("Character Offset: " + QString::number(lintXML.characterOffset()));
-        return LINTER_PROCESS_ERROR;
+        return Lint::Status::LINTER_PROCESS_ERROR;
     }
 
 

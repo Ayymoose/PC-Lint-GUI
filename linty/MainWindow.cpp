@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow)
 { 
-    qRegisterMetaType<LINTER_STATUS>("LINTER_STATUS");
+    qRegisterMetaType<Lint::Status>("Lint::Status");
     qRegisterMetaType<QSet<LintMessage>>("QSet<LintMessage>");
     qRegisterMetaType<QMap<QString,QDateTime>>("QMap<QString,QDateTime>");
     qRegisterMetaType<LintData>("LintData");
@@ -496,7 +496,9 @@ void MainWindow::slotLintFinished(const LintResponse& lintResponse)
     // Accumulate lint data here
     // Only when lint complete is sent then we populate lint table
 
-    if (lintResponse.status == LINTER_PARTIAL_COMPLETE || lintResponse.status == LINTER_COMPLETE || lintResponse.status == LINTER_PROCESS_ERROR)
+    if (lintResponse.status == Lint::Status::LINTER_PARTIAL_COMPLETE ||
+            lintResponse.status == Lint::Status::LINTER_COMPLETE ||
+            lintResponse.status == Lint::Status::LINTER_PROCESS_ERROR)
     {
         m_linter.appendLinterMessages(lintResponse.lintMessages);
         m_linter.appendLinterErrors(lintResponse.numberOfErrors);
@@ -562,35 +564,35 @@ void MainWindow::displayLintTable()
             }
         }
 
-        MESSAGE_TYPE messageType;
+        Lint::Message messageType;
 
         // Determine type
-        if (!QString::compare(type, LINT_TYPE_ERROR, Qt::CaseInsensitive))
+        if (!QString::compare(type, Lint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
         {
-            messageType = MESSAGE_TYPE_ERROR;
+            messageType = Lint::Message::MESSAGE_TYPE_ERROR;
         }
-        else if (!QString::compare(type, LINT_TYPE_WARNING, Qt::CaseInsensitive))
+        else if (!QString::compare(type, Lint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
         {
-            messageType = MESSAGE_TYPE_WARNING;
+            messageType = Lint::Message::MESSAGE_TYPE_WARNING;
         }
-        else if (!QString::compare(type, LINT_TYPE_INFO, Qt::CaseInsensitive))
+        else if (!QString::compare(type, Lint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
         {
-            messageType = MESSAGE_TYPE_INFORMATION;
+            messageType = Lint::Message::MESSAGE_TYPE_INFORMATION;
         }
-        else if (!QString::compare(type, LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
+        else if (!QString::compare(type, Lint::Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
         {
-            messageType = MESSAGE_TYPE_SUPPLEMENTAL;
+            messageType = Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL;
         }
         else
         {
-            messageType = MESSAGE_TYPE_UNKNOWN;
+            messageType = Lint::Message::MESSAGE_TYPE_UNKNOWN;
         }
 
 
         // Filter
         if (!m_toggleError)
         {
-            if (messageType == MESSAGE_TYPE_ERROR)
+            if (messageType == Lint::Message::MESSAGE_TYPE_ERROR)
             {
                 continue;
             }
@@ -598,7 +600,7 @@ void MainWindow::displayLintTable()
 
         if (!m_toggleWarning)
         {
-            if (messageType == MESSAGE_TYPE_WARNING)
+            if (messageType == Lint::Message::MESSAGE_TYPE_WARNING)
             {
                 continue;
             }
@@ -606,7 +608,7 @@ void MainWindow::displayLintTable()
 
         if (!m_toggleInfo)
         {
-            if (messageType == MESSAGE_TYPE_INFORMATION || messageType == MESSAGE_TYPE_SUPPLEMENTAL)
+            if (messageType == Lint::Message::MESSAGE_TYPE_INFORMATION || messageType == Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL)
             {
                 continue;
             }
@@ -635,11 +637,11 @@ void MainWindow::displayLintTable()
         QImage icon;
         switch (messageType)
         {
-            case MESSAGE_TYPE_ERROR: icon.load(":/images/error.png");  break;
-            case MESSAGE_TYPE_WARNING: icon.load(":/images/warning.png"); break;
-            case MESSAGE_TYPE_INFORMATION: icon.load(":/images/info.png"); break;
+            case Lint::Message::MESSAGE_TYPE_ERROR: icon.load(":/images/error.png");  break;
+            case Lint::Message::MESSAGE_TYPE_WARNING: icon.load(":/images/warning.png"); break;
+            case Lint::Message::MESSAGE_TYPE_INFORMATION: icon.load(":/images/info.png"); break;
             // TODO: Get an icon for supplemental
-            case MESSAGE_TYPE_SUPPLEMENTAL: icon.load(":/images/info.png"); break;
+            case Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL: icon.load(":/images/info.png"); break;
             default: Q_ASSERT(false); break;
         }
 
@@ -668,23 +670,23 @@ void MainWindow::displayLintTable()
 
 
     // Display any outstanding messages
-    if (m_linterStatus & LINTER_PARTIAL_COMPLETE)
+    if (m_linterStatus & Lint::Status::LINTER_PARTIAL_COMPLETE)
     {
         QMessageBox::information(this, "Information", "Not all files were successfully linted as errors were generated in the lint output.");
     }
-    else if (m_linterStatus & LINTER_UNSUPPORTED_VERSION)
+    else if (m_linterStatus & Lint::Status::LINTER_UNSUPPORTED_VERSION)
     {
         QMessageBox::critical(this, "Error", "Failed to start lint because of unknown PC-Lint/PC-Lint Plus version.");
     }
-    else if (m_linterStatus & LINTER_LICENSE_ERROR)
+    else if (m_linterStatus & Lint::Status::LINTER_LICENSE_ERROR)
     {
         QMessageBox::critical(this, "Error", "Failed to start lint because of license error. Check your PC-Lint/PC-Lint Plus license");
     }
-    else if (m_linterStatus & LINTER_PROCESS_ERROR)
+    else if (m_linterStatus & Lint::Status::LINTER_PROCESS_ERROR)
     {
         QMessageBox::critical(this, "Error", "Failed to complete lint because of an internal error");
     }
-    else if (m_linterStatus & LINTER_PROCESS_TIMEOUT)
+    else if (m_linterStatus & Lint::Status::LINTER_PROCESS_TIMEOUT)
     {
         QMessageBox::critical(this, "Error", "Failed to complete lint because process became stuck");
     }
