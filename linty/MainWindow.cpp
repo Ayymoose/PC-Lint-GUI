@@ -546,12 +546,20 @@ void MainWindow::displayLintTable()
         QString type = message.type;
         QString description = message.description;
 
-
-        // Check if the file is actually a file and not some random junk
+        // Check if the file exists (absolute path given)
+        // Check if it exists in the project file's directory
         if (!QFile(file).exists())
         {
-            DEBUG_LOG("[Error] Unknown file in linter messages: " + file);
-            file = "";
+            QString relativeFile = QFileInfo(m_linter.getLinterFile()).canonicalPath() + QDir::separator() + file;
+            if (!QFile(relativeFile).exists())
+            {
+                DEBUG_LOG("[Error] Unknown file in linter messages: " + file);
+                file = "";
+            }
+            else
+            {
+                file = relativeFile;
+            }
         }
 
         MESSAGE_TYPE messageType;

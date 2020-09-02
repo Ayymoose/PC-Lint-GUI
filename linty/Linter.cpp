@@ -642,3 +642,8 @@ void Linter::resetLinter() noexcept
     m_numberOfWarnings = 0;
     m_numberOfInfo = 0;
 }
+
+QString Linter::getLinterFile() const noexcept
+{
+    return m_lintFile;
+}

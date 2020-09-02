@@ -120,6 +120,9 @@ public:
     // Lint a directory or some files
     LINTER_STATUS lint() noexcept;
 
+    // Return path to the lint file used (.lnt)
+    QString getLinterFile() const noexcept;
+
 public slots:
     void slotStartLint() noexcept;
     void slotGetLinterData(const LintData& lintData) noexcept;
