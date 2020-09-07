@@ -1,8 +1,7 @@
 TEMPLATE = app
 TARGET = linty
 
-qtHaveModule(printsupport): QT += printsupport xml
-requires(qtConfig(fontdialog))
+QT += xml widgets
 
 SOURCES += \
     CodeEditor.cpp \
@@ -38,10 +37,3 @@ FORMS += \
 
 RESOURCES += \
     linty.qrc \
-
-# install
-target.path = $$[QT_INSTALL_EXAMPLES]/widgets/tutorials/notepad
-INSTALLS += target
-
-DISTFILES +=
-

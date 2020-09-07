@@ -15,9 +15,6 @@ public:
 class AtmelStudio7ProjectSolution : public ProjectSolution
 {
 public:
-
-     AtmelStudio7ProjectSolution() = default;
-     ~AtmelStudio7ProjectSolution() = default;
      void setDirectory(const QString&) override {}
      QSet<QString> buildSourceFiles(const QString& projectFileName) override;
 };
@@ -26,9 +23,6 @@ public:
 class VisualStudioProject : public ProjectSolution
 {
 public:
-
-     VisualStudioProject() = default;
-     ~VisualStudioProject() = default;
      void setDirectory(const QString&) override {}
      QSet<QString> buildSourceFiles(const QString& projectFileName) override;
 };
@@ -38,8 +32,6 @@ class VisualStudioProjectSolution : public ProjectSolution
 {
 public:
 
-     VisualStudioProjectSolution() = default;
-     ~VisualStudioProjectSolution() = default;
      void setDirectory(const QString&) override;
      QSet<QString> buildSourceFiles(const QString& projectFileName) override;
 private:
