@@ -177,7 +177,8 @@ MainWindow::~MainWindow()
     // Stop all threads
     m_modifiedFileWorker->requestInterruption();
     m_modifiedFileWorker->quit();
-    m_modifiedFileWorker->wait();
+    auto waitComplete = m_modifiedFileWorker->wait();
+    Q_ASSERT(waitComplete);
 }
 
 void MainWindow::save()
@@ -509,7 +510,7 @@ void MainWindow::displayLintTable()
         if (groupMessage.size() == 1)
         {
             auto* detailsItemTop = new QTreeWidgetItem(fileDetailsItemTop);
-            detailsItemTop->setText(0, messageTop.type);
+            detailsItemTop->setText(0, QFileInfo(messageTop.file).fileName());
             detailsItemTop->setText(1, messageTop.number);
             detailsItemTop->setText(2, messageTop.description);
             detailsItemTop->setText(3, messageTop.line);
@@ -521,10 +522,17 @@ void MainWindow::displayLintTable()
         // Create the top-level item again
         auto* fileDetailsItem = new QTreeWidgetItem(fileDetailsItemTop);
         fileDetailsItem->setText(0, QFileInfo(messageTop.file).fileName());
+        fileDetailsItem->setText(1, messageTop.number);
+        fileDetailsItem->setText(2, messageTop.description);
+        fileDetailsItem->setText(3, messageTop.line);
+
+        Q_ASSERT(groupMessage.size() > 1);
 
         // Otherwise grab the rest of the group
-        for (const auto& message : groupMessage)
+        for (auto cit = groupMessage.cbegin()+1; cit != groupMessage.cend(); cit++)
         {
+            auto const message = *cit;
+
             const auto number = message.number;
             auto file = message.file;
             const auto line = message.line;
@@ -598,7 +606,7 @@ void MainWindow::displayLintTable()
 
             // The sticky details
             auto* detailsItem = new QTreeWidgetItem(fileDetailsItem);
-            detailsItem->setText(0, message.type);
+            detailsItem->setText(0, QFileInfo(message.file).fileName());
             detailsItem->setText(1, message.number);
             detailsItem->setText(2, message.description);
             detailsItem->setText(3, message.line);
