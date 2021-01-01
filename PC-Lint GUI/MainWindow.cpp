@@ -516,8 +516,6 @@ void MainWindow::displayLintTable()
                 }
             }
 
-
-
 /*
             // Filter
             if (!m_toggleError)

@@ -27,6 +27,8 @@
 #include <chrono>
 #include <QThread>
 #include <vector>
+#include <algorithm>
+#include <QDir>
 
 Linter::Linter() : m_numberOfErrors(0), m_numberOfWarnings(0), m_numberOfInfo(0)
 {
@@ -524,6 +526,10 @@ Lint::Status Linter::lint() noexcept
             if(lintXML.name() == Lint::Xml::XML_ELEMENT_FILE)
             {
                 message.file = lintXML.readElementText();
+                // Why does PC-Lint Plus mess with the directory separator?
+                // It spits out '/' and '\' in the same path
+                message.file = QDir::toNativeSeparators(message.file);
+
                 //Q_ASSERT(message.file.length() > 0);
             }
 
@@ -561,30 +567,34 @@ Lint::Status Linter::lint() noexcept
         {
             // Lint can spit out duplicates for some reason
             // Just add it for now
-            lintMessages.push_back(message);
 
-            // Ascertain type
-            if (!QString::compare(message.type, Lint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
+            auto contains = std::find(lintMessages.begin(), lintMessages.end(), message);
+            if (contains == lintMessages.end())
             {
-                m_numberOfErrors++;
-            }
-            else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
-            {
-                m_numberOfWarnings++;
-            }
-            else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
-            {
-                m_numberOfInfo++;
-            }
-            else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
-            {
-                // TODO: Fix for supplemental messages
-                //m_numberOfSupplemental++;
-            }
-            else
-            {
-                // Unknown types are treated as informational messages with '?' icon
-                DEBUG_LOG("[Warning] Unknown message type received: " + message.type);
+                lintMessages.emplace_back(message);
+
+                // Ascertain type
+                if (!QString::compare(message.type, Lint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
+                {
+                    m_numberOfErrors++;
+                }
+                else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
+                {
+                    m_numberOfWarnings++;
+                }
+                else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
+                {
+                    m_numberOfInfo++;
+                }
+                else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
+                {
+                    // Don't care about number of supplementals
+                }
+                else
+                {
+                    // Unknown types are treated as informational messages with '?' icon
+                    DEBUG_LOG("[Warning] Unknown message type received: " + message.type);
+                }
             }
 
             message = {};
