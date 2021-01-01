@@ -382,62 +382,6 @@ void MainWindow::startLint(bool lintProject)
 
 }
 
-void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
-{
-    // Get the file
-    // Column 3 is just the file name
-    /*auto* item = m_ui->lintTable->item(row,3);
-    Q_ASSERT(item);
-    QString fileToLoad = item->data(Qt::UserRole).value<QString>();
-
-
-    if (!fileToLoad.isEmpty())
-    {
-        // TODO:
-        // If the file doesn't exist and we wanted to keep it in the editor, create it by saving the current loaded file
-        // But check that the current loaded file is the one we are saving otherwise
-        // How do save files that don't exist anymore?
-        //if (!QFile(fileToLoad).exists())
-        //{
-        //    save();
-        //}
-
-        // Load the file into the code editor
-        if (m_ui->codeEditor->loadedFile() != fileToLoad)
-        {
-            if (m_ui->codeEditor->loadFile(fileToLoad))
-            {
-                DEBUG_LOG("Loading file: " + fileToLoad);
-
-                // Select the line number
-                item = m_ui->lintTable->item(row,4);
-                uint32_t lineNumber = item->text().toUInt();
-                m_ui->codeEditor->selectLine(lineNumber);
-
-                // Update the status bar
-                m_ui->statusBar->showMessage("Loaded " + fileToLoad + " at " + QDateTime::currentDateTime().toString());
-            }
-            else
-            {
-                // TODO: Reason for failure
-                QMessageBox::critical(this, "Error", "Unable to open file: " + fileToLoad);
-            }
-        }
-        else
-        {
-            // Select the line number
-            item = m_ui->lintTable->item(row,4);
-            uint32_t lineNumber = item->text().toUInt();
-            m_ui->codeEditor->selectLine(lineNumber);
-            qDebug() << fileToLoad << " already loaded";
-        }
-
-
-
-    }*/
-
-}
-
 void MainWindow::on_actionLint_triggered()
 {
     startLint(false);
@@ -504,16 +448,19 @@ void MainWindow::displayLintTable()
         const auto messageTop = groupMessage.front();
 
         auto* fileDetailsItemTop = new QTreeWidgetItem(m_ui->lintTable);
-        fileDetailsItemTop->setText(0, QFileInfo(messageTop.file).fileName());
+        fileDetailsItemTop->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(messageTop.file).fileName());
+        fileDetailsItemTop->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
 
         // If it's just a single entry
         if (groupMessage.size() == 1)
         {
             auto* detailsItemTop = new QTreeWidgetItem(fileDetailsItemTop);
-            detailsItemTop->setText(0, QFileInfo(messageTop.file).fileName());
-            detailsItemTop->setText(1, messageTop.number);
-            detailsItemTop->setText(2, messageTop.description);
-            detailsItemTop->setText(3, messageTop.line);
+            detailsItemTop->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(messageTop.file).fileName());
+            detailsItemTop->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
+            detailsItemTop->setText(LINT_TABLE_NUMBER_COLUMN, messageTop.number);
+            detailsItemTop->setText(LINT_TABLE_DESCRIPTION_COLUMN, messageTop.description);
+            detailsItemTop->setText(LINT_TABLE_LINE_COLUMN, messageTop.line);
+
 
             // Skip next
             continue;
@@ -521,10 +468,11 @@ void MainWindow::displayLintTable()
 
         // Create the top-level item again
         auto* fileDetailsItem = new QTreeWidgetItem(fileDetailsItemTop);
-        fileDetailsItem->setText(0, QFileInfo(messageTop.file).fileName());
-        fileDetailsItem->setText(1, messageTop.number);
-        fileDetailsItem->setText(2, messageTop.description);
-        fileDetailsItem->setText(3, messageTop.line);
+        fileDetailsItem->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(messageTop.file).fileName());
+        fileDetailsItem->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
+        fileDetailsItem->setText(LINT_TABLE_NUMBER_COLUMN, messageTop.number);
+        fileDetailsItem->setText(LINT_TABLE_DESCRIPTION_COLUMN, messageTop.description);
+        fileDetailsItem->setText(LINT_TABLE_LINE_COLUMN, messageTop.line);
 
         Q_ASSERT(groupMessage.size() > 1);
 
@@ -606,10 +554,11 @@ void MainWindow::displayLintTable()
 
             // The sticky details
             auto* detailsItem = new QTreeWidgetItem(fileDetailsItem);
-            detailsItem->setText(0, QFileInfo(message.file).fileName());
-            detailsItem->setText(1, message.number);
-            detailsItem->setText(2, message.description);
-            detailsItem->setText(3, message.line);
+            detailsItem->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(message.file).fileName());
+            detailsItem->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, message.file);
+            detailsItem->setText(LINT_TABLE_NUMBER_COLUMN, message.number);
+            detailsItem->setText(LINT_TABLE_DESCRIPTION_COLUMN, message.description);
+            detailsItem->setText(LINT_TABLE_LINE_COLUMN, message.line);
 
 
             // Insert row
@@ -924,4 +873,56 @@ QSet<QString> MainWindow::recursiveBuildSourceFileSet(const QString& directory)
 void MainWindow::on_actionLintProject_triggered()
 {
     startLint(true);
+}
+
+void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
+{
+    // Get the file to load
+    QString fileToLoad = item->data(LINT_TABLE_FILE_COLUMN,Qt::UserRole).value<QString>();
+
+    if (!fileToLoad.isEmpty())
+    {
+        // TODO:
+        // If the file doesn't exist and we wanted to keep it in the editor, create it by saving the current loaded file
+        // But check that the current loaded file is the one we are saving otherwise
+        // How do save files that don't exist anymore?
+        //if (!QFile(fileToLoad).exists())
+        //{
+        //    save();
+        //}
+
+        // Load the file into the code editor
+        if (m_ui->codeEditor->loadedFile() != fileToLoad)
+        {
+            if (m_ui->codeEditor->loadFile(fileToLoad))
+            {
+                DEBUG_LOG("Loading file: " + fileToLoad);
+
+                // Select the line number
+                QString lineNumber = item->data(LINT_TABLE_LINE_COLUMN, Qt::DisplayRole).value<QString>();
+                if (!lineNumber.isEmpty())
+                {
+                    m_ui->codeEditor->selectLine(lineNumber.toUInt());
+
+                    // Update the status bar
+                    m_ui->statusBar->showMessage("Loaded " + fileToLoad + " at " + QDateTime::currentDateTime().toString());
+                }
+            }
+            else
+            {
+                // TODO: Reason for failure
+                QMessageBox::critical(this, "Error", "Unable to open file: " + fileToLoad);
+            }
+        }
+        else
+        {
+            // Select the line number
+            QString lineNumber = item->data(LINT_TABLE_LINE_COLUMN, Qt::DisplayRole).value<QString>();
+            qDebug() << "Line1 is " << lineNumber.isEmpty();
+            if (!lineNumber.isEmpty())
+            {
+                m_ui->codeEditor->selectLine(lineNumber.toUInt());
+            }
+        }
+    }
 }

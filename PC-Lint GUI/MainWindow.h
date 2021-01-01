@@ -23,6 +23,7 @@
 #include <QAction>
 #include <QMenu>
 #include <QMap>
+#include <QTreeWidgetItem>
 #include <memory>
 
 #include "ProgressWindow.h"
@@ -41,6 +42,14 @@ namespace Ui
 class MainWindow;
 }
 QT_END_NAMESPACE
+
+namespace
+{
+    constexpr int LINT_TABLE_FILE_COLUMN = 0;
+    constexpr int LINT_TABLE_NUMBER_COLUMN = 1;
+    constexpr int LINT_TABLE_DESCRIPTION_COLUMN = 2;
+    constexpr int LINT_TABLE_LINE_COLUMN = 3;
+}
 
 class MainWindow : public QMainWindow
 {
@@ -83,7 +92,7 @@ private slots:
     void on_actionLintProject_triggered();
     void on_actionPreferences_triggered();
     void on_actionLint_triggered();
-    void on_lintTable_cellDoubleClicked(int row, int column);
+    void on_lintTable_itemClicked(QTreeWidgetItem *item, int column);
 
 public:
     void startLint(bool lintProject);
