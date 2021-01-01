@@ -419,19 +419,15 @@ void MainWindow::displayLintTable()
     auto const groupedMessages = m_linter.groupLinterMessages();
 
     // Clear all entries
-    auto treeWidget = m_ui->lintTable;
-    while (treeWidget->topLevelItemCount())
+    while (m_ui->lintTable->topLevelItemCount())
     {
-        QTreeWidgetItemIterator treeItr(treeWidget, QTreeWidgetItemIterator::NoChildren);
+        QTreeWidgetItemIterator treeItr(m_ui->lintTable, QTreeWidgetItemIterator::NoChildren);
         while (*treeItr)
         {
             delete (*treeItr);
             treeItr++;
         }
     }
-
-    //lintTable->clearContents();
-    //lintTable->setRowCount(0);
 
     // Group messages together
     for (const auto& groupMessage : groupedMessages)
@@ -442,9 +438,26 @@ void MainWindow::displayLintTable()
         // Create the top-level item
         const auto messageTop = groupMessage.front();
 
-        auto* fileDetailsItemTop = new QTreeWidgetItem(m_ui->lintTable);
-        fileDetailsItemTop->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(messageTop.file).fileName());
-        fileDetailsItemTop->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
+        // Group together items under the same file
+        //m_ui->lintTable
+        auto const treeList = m_ui->lintTable->findItems(QFileInfo(messageTop.file).fileName(),Qt::MatchExactly, LINT_TABLE_FILE_COLUMN);
+
+        QTreeWidgetItem* fileDetailsItemTop = nullptr;
+
+        if (treeList.size())
+        {
+            // Should only ever be 1 file name, unless there are mutiple files with the same name but different path?
+            // Already exists, use this one
+            Q_ASSERT(treeList.size() == 1);
+            fileDetailsItemTop = treeList.first();
+        }
+        else
+        {
+            // New file entry
+            fileDetailsItemTop = new QTreeWidgetItem(m_ui->lintTable);
+            fileDetailsItemTop->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(messageTop.file).fileName());
+            fileDetailsItemTop->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
+        }
 
         // If it's just a single entry
         if (groupMessage.size() == 1)
@@ -554,7 +567,7 @@ void MainWindow::displayLintTable()
     }
    //m_ui->lintTable->setSortingEnabled(true);
 
-    m_ui->lintTable->expandAll();
+    m_ui->lintTable->collapseAll();
 
     // Show message if there are no lint problems
     if (m_linter.numberOfErrors() == 0 && m_linter.numberOfWarnings() == 0 && m_linter.numberOfInfo() == 0)
