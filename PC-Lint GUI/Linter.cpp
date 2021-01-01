@@ -15,23 +15,24 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "Linter.h"
+#include "Log.h"
+
 #include <QDebug>
 #include <QProcess>
 #include <QXmlStreamReader>
-#include "Log.h"
 #include <QFileInfo>
 #include <QMessageBox>
 #include <windows.h>
 #include <QRegularExpression>
 #include <chrono>
 #include <QThread>
-#include <QMutexLocker>
+#include <vector>
 
 Linter::Linter() : m_numberOfErrors(0), m_numberOfWarnings(0), m_numberOfInfo(0)
 {
 }
 
-QSet<LintMessage> Linter::getLinterMessages() const noexcept
+std::vector<LintMessage> Linter::getLinterMessages() const noexcept
 {
     return m_linterMessages;
 }
@@ -74,7 +75,7 @@ void Linter::slotGetLinterData(const LintData& lintData) noexcept
     setLinterExecutable(lintData.linterExecutable);
 }
 
-void Linter::setLinterMessages(const QSet<LintMessage>& lintMessages) noexcept
+void Linter::setLinterMessages(const std::vector<LintMessage>& lintMessages) noexcept
 {
     m_linterMessages = lintMessages;
 }
@@ -131,7 +132,6 @@ Lint::Status Linter::lint() noexcept
 
     // stderr has the module (file lint) progress
     // sttout has the actual data
-    QMutex processMutex;
     QByteArray lintData;
 
 
@@ -481,18 +481,21 @@ Lint::Status Linter::lint() noexcept
     qDebug() << "[" << QThread::currentThreadId() << "]" << "XML data size: " << lintData.size();
 
     // TODO: Temporary debug information
-    QFile file2("D:\\Users\\Ayman\\Desktop\\Linty\\test\\cmdline.xml");
+    QFile file2("D:\\Users\\Ayman\\Desktop\\PC-Lint GUI\\test\\cmdline.xml");
     file2.open(QIODevice::WriteOnly);
     file2.write(cmdString.toLocal8Bit());
     file2.close();
 
-    QFile lintXMLOutputFile("D:\\Users\\Ayman\\Desktop\\Linty\\test\\xmldata.xml");
+    QFile lintXMLOutputFile("D:\\Users\\Ayman\\Desktop\\PC-Lint GUI\\test\\xmldata.xml");
     lintXMLOutputFile.open(QIODevice::WriteOnly);
     lintXMLOutputFile.write(lintData);
     lintXMLOutputFile.close();
     //
 
-    QSet<LintMessage> lintMessages;
+    // Ordering of messages is now important (was QSet)
+    // To group supplemental messages together (PC-Lint Plus)
+    std::vector<LintMessage> lintMessages;
+
     QXmlStreamReader lintXML(lintData);
     LintMessage message;
 
@@ -511,31 +514,41 @@ Lint::Status Linter::lint() noexcept
         //If token is StartElement - read it
         if(token == QXmlStreamReader::StartElement)
         {
+            // <doc> or <m> tag
             if(lintXML.name() == Lint::Xml::XML_ELEMENT_DOC || lintXML.name() == Lint::Xml::XML_ELEMENT_MESSAGE)
             {
                 continue;
             }
 
+            // <f> tag
             if(lintXML.name() == Lint::Xml::XML_ELEMENT_FILE)
             {
                 message.file = lintXML.readElementText();
                 //Q_ASSERT(message.file.length() > 0);
             }
+
+            // <l> tag
             if(lintXML.name() == Lint::Xml::XML_ELEMENT_LINE)
             {
                 message.line = lintXML.readElementText();
                 Q_ASSERT(message.line.length() > 0);
             }
+
+            // <t> tag
             if(lintXML.name() == Lint::Xml::XML_ELEMENT_MESSAGE_TYPE)
             {
                 message.type = lintXML.readElementText();
                 Q_ASSERT(message.type.length() > 0);
             }
+
+            // <n> tag
             if(lintXML.name() == Lint::Xml::XML_ELEMENT_MESSAGE_NUMBER)
             {
                 message.number = lintXML.readElementText();
                 Q_ASSERT(message.number.length() > 0);
             }
+
+            // <d> tag
             if(lintXML.name() == Lint::Xml::XML_ELEMENT_DESCRIPTION)
             {
                 message.description = lintXML.readElementText();
@@ -547,35 +560,33 @@ Lint::Status Linter::lint() noexcept
         if((token == QXmlStreamReader::EndElement) && (lintXML.name() == Lint::Xml::XML_ELEMENT_MESSAGE))
         {
             // Lint can spit out duplicates for some reason
-            // This is a quick way to check if it was inserted or not
-            int size = lintMessages.size();
-            lintMessages.insert(message);
-            if (lintMessages.size() > size)
+            // Just add it for now
+            lintMessages.push_back(message);
+
+            // Ascertain type
+            if (!QString::compare(message.type, Lint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
             {
-                // Ascertain type
-                if (!QString::compare(message.type, Lint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
-                {
-                    m_numberOfErrors++;
-                }
-                else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
-                {
-                    m_numberOfWarnings++;
-                }
-                else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
-                {
-                    m_numberOfInfo++;
-                }
-                else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
-                {
-                    // TODO: Fix for supplemental messages
-                    //m_numberOfSupplemental++;
-                }
-                else
-                {
-                    // Unknown types are treated as informational messages with '?' icon
-                    DEBUG_LOG("[Warning] Unknown message type received: " + message.type);
-                }
+                m_numberOfErrors++;
             }
+            else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
+            {
+                m_numberOfWarnings++;
+            }
+            else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
+            {
+                m_numberOfInfo++;
+            }
+            else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
+            {
+                // TODO: Fix for supplemental messages
+                //m_numberOfSupplemental++;
+            }
+            else
+            {
+                // Unknown types are treated as informational messages with '?' icon
+                DEBUG_LOG("[Warning] Unknown message type received: " + message.type);
+            }
+
             message = {};
         }
     }
@@ -604,7 +615,7 @@ Lint::Status Linter::lint() noexcept
 void Linter::removeAssociatedMessages(const QString& file) noexcept
 {
     // Find the LintMessage who has the same file part
-    QSet<LintMessage>::iterator it = m_linterMessages.begin();
+    auto it = m_linterMessages.begin();
     while (it != m_linterMessages.end())
     {
         if ((*it).file == file)
@@ -622,7 +633,7 @@ void Linter::removeAssociatedMessages(const QString& file) noexcept
 void Linter::removeMessagesWithNumber(const QString& number) noexcept
 {
     // Find the LintMessage who has the same code part
-    QSet<LintMessage>::iterator it = m_linterMessages.begin();
+    auto it = m_linterMessages.begin();
     while (it != m_linterMessages.end())
     {
         if ((*it).number == number)
@@ -637,11 +648,11 @@ void Linter::removeMessagesWithNumber(const QString& number) noexcept
     }
 }
 
-void Linter::appendLinterMessages(const QSet<LintMessage>& lintMessages) noexcept
+void Linter::appendLinterMessages(const std::vector<LintMessage>& lintMessages) noexcept
 {
     for (const auto& message : lintMessages)
     {
-        m_linterMessages.insert(message);
+        m_linterMessages.emplace_back(message);
     }
 }
 

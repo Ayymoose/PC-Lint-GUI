@@ -45,7 +45,7 @@ private:
         QRegularExpression pattern;
         QTextCharFormat format;
     };
-    QVector<HighlightingRule> m_highlightingRules;
+    std::vector<HighlightingRule> m_highlightingRules;
 
     QRegularExpression m_commentStartExpression;
     QRegularExpression m_commentEndExpression;
