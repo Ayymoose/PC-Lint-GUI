@@ -73,15 +73,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Configure the lint table
     // Icon column width
-    m_ui->lintTable->setColumnWidth(0,24);
-
-    // Code width
-    m_ui->lintTable->setColumnWidth(1,40);
-
-    // Message width
-    m_ui->lintTable->setColumnWidth(2,800);
-
-    m_ui->lintTable->setColumnWidth(3,200);
+    m_ui->lintTable->setColumnWidth(LINT_TABLE_FILE_COLUMN,256);
+    m_ui->lintTable->setColumnWidth(LINT_TABLE_NUMBER_COLUMN,80);
+    m_ui->lintTable->setColumnWidth(LINT_TABLE_DESCRIPTION_COLUMN,800);
+    m_ui->lintTable->setColumnWidth(LINT_TABLE_LINE_COLUMN,80);
 
     // Configure the code editor
     m_ui->codeEditor->setLineNumberAreaColour(LINE_NUMBER_AREA_COLOUR);
@@ -461,6 +456,8 @@ void MainWindow::displayLintTable()
             detailsItemTop->setText(LINT_TABLE_DESCRIPTION_COLUMN, messageTop.description);
             detailsItemTop->setText(LINT_TABLE_LINE_COLUMN, messageTop.line);
 
+            auto const icon = Linter::associateMessageTypeWithIcon(messageTop.type);
+            detailsItemTop->setData(LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
 
             // Skip next
             continue;
@@ -473,6 +470,9 @@ void MainWindow::displayLintTable()
         fileDetailsItem->setText(LINT_TABLE_NUMBER_COLUMN, messageTop.number);
         fileDetailsItem->setText(LINT_TABLE_DESCRIPTION_COLUMN, messageTop.description);
         fileDetailsItem->setText(LINT_TABLE_LINE_COLUMN, messageTop.line);
+
+        auto const icon = Linter::associateMessageTypeWithIcon(messageTop.type);
+        fileDetailsItem->setData(LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
 
         Q_ASSERT(groupMessage.size() > 1);
 
@@ -503,30 +503,9 @@ void MainWindow::displayLintTable()
                 }
             }
 
-            Lint::Message messageType;
 
-            // Determine type
-            if (!QString::compare(type, Lint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
-            {
-                messageType = Lint::Message::MESSAGE_TYPE_ERROR;
-            }
-            else if (!QString::compare(type, Lint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
-            {
-                messageType = Lint::Message::MESSAGE_TYPE_WARNING;
-            }
-            else if (!QString::compare(type, Lint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
-            {
-                messageType = Lint::Message::MESSAGE_TYPE_INFORMATION;
-            }
-            else if (!QString::compare(type, Lint::Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
-            {
-                messageType = Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL;
-            }
-            else
-            {
-                messageType = Lint::Message::MESSAGE_TYPE_UNKNOWN;
-            }
 
+/*
             // Filter
             if (!m_toggleError)
             {
@@ -550,7 +529,7 @@ void MainWindow::displayLintTable()
                 {
                     continue;
                 }
-            }
+            }*/
 
             // The sticky details
             auto* detailsItem = new QTreeWidgetItem(fileDetailsItem);
@@ -560,45 +539,15 @@ void MainWindow::displayLintTable()
             detailsItem->setText(LINT_TABLE_DESCRIPTION_COLUMN, message.description);
             detailsItem->setText(LINT_TABLE_LINE_COLUMN, message.line);
 
+            auto const icon = Linter::associateMessageTypeWithIcon(message.type);
+            detailsItem->setData(LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
 
-            // Insert row
-            //lintTable->insertRow(lintTable->rowCount());
-
-            // Set item data
-           /* auto* typeWidget = new QTableWidgetItem;
-            auto* codeWidget = new QTableWidgetItem;
-            auto* lineWidget = new QTableWidgetItem;
-            auto* fileWidget = new QTableWidgetItem;
-
-            codeWidget->setData(Qt::DisplayRole,number.toUInt());
-            lineWidget->setData(Qt::DisplayRole,line.toUInt());
-            fileWidget->setData(Qt::DisplayRole, QFileInfo(file).fileName());
-            fileWidget->setData(Qt::UserRole, file);
-    */
             // Add to set of modified files
             ModifiedFile modifiedFile;
            /* modifiedFile.lastModified = QFileInfo(file).lastModified();
             modifiedFile.keepFile = true;
             modifiedFiles[fileWidget->data(Qt::UserRole).value<QString>()] = modifiedFile;
-    */
-            QImage icon;
-            switch (messageType)
-            {
-                case Lint::Message::MESSAGE_TYPE_ERROR: icon.load(":/images/error.png");  break;
-                case Lint::Message::MESSAGE_TYPE_WARNING: icon.load(":/images/warning.png"); break;
-                case Lint::Message::MESSAGE_TYPE_INFORMATION: icon.load(":/images/info.png"); break;
-                // TODO: Get an icon for supplemental
-                case Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL: icon.load(":/images/info.png"); break;
-                default: Q_ASSERT(false); break;
-            }
-
-            //typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(icon));
-
-            //lintTable->setItem( lintTable->rowCount()-1, 0, typeWidget);
-            //lintTable->setItem( lintTable->rowCount()-1, 1, codeWidget);
-            //lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem(description));
-            //lintTable->setItem( lintTable->rowCount()-1, 3, fileWidget);
-            //lintTable->setItem( lintTable->rowCount()-1, 4, lineWidget);
+            */
 
         }
 

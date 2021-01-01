@@ -163,6 +163,8 @@ public:
     // Return path to the lint file used (.lnt)
     QString getLinterFile() const noexcept;
 
+    static QImage associateMessageTypeWithIcon(const QString& message) noexcept;
+
 public slots:
     void slotStartLint() noexcept;
     void slotGetLinterData(const LintData& lintData) noexcept;

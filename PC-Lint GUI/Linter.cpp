@@ -726,3 +726,42 @@ LintMessageGroup Linter::groupLinterMessages() noexcept
 
     return messageGroup;
 }
+
+QImage Linter::associateMessageTypeWithIcon(const QString& type) noexcept
+{
+    Lint::Message messageType;
+
+    // Determine type
+    if (!QString::compare(type, Lint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
+    {
+        messageType = Lint::Message::MESSAGE_TYPE_ERROR;
+    }
+    else if (!QString::compare(type, Lint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
+    {
+        messageType = Lint::Message::MESSAGE_TYPE_WARNING;
+    }
+    else if (!QString::compare(type, Lint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
+    {
+        messageType = Lint::Message::MESSAGE_TYPE_INFORMATION;
+    }
+    else if (!QString::compare(type, Lint::Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
+    {
+        messageType = Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL;
+    }
+    else
+    {
+        messageType = Lint::Message::MESSAGE_TYPE_UNKNOWN;
+    }
+
+    QImage icon;
+    switch (messageType)
+    {
+        case Lint::Message::MESSAGE_TYPE_ERROR: icon.load(":/images/error.png");  break;
+        case Lint::Message::MESSAGE_TYPE_WARNING: icon.load(":/images/warning.png"); break;
+        case Lint::Message::MESSAGE_TYPE_INFORMATION: icon.load(":/images/info.png");
+        case Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL: icon.load(":/images/info.png"); break;
+        default: Q_ASSERT(false); break;
+    }
+
+    return icon;
+}
