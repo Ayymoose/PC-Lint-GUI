@@ -1,6 +1,8 @@
 TEMPLATE = app
 TARGET = 'PC-Lint GUI'
 
+CONFIG += c++17
+
 QT += xml widgets
 
 SOURCES += \

@@ -480,8 +480,12 @@ void MainWindow::displayLintTable()
     int rowCount = lintTable->rowCount();
     int colCount = lintTable->columnCount();
 
+    // Get ALL lint messages (combination from all threads)
     auto linterMessages = m_linter.getLinterMessages();
 
+    auto const groupedMessages = m_linter.groupLinterMessages();
+
+    // Clear existing table
     for (int row=0; row < rowCount; row++)
     {
         for (int col=0; col < colCount; col++)
@@ -682,6 +686,7 @@ void MainWindow::startLintThread(QString title)
     progressWindow.exec();
 }
 
+// TODO: Move to About.cpp
 void MainWindow::on_aboutLinty_triggered()
 {
     QMessageBox versionMessageBox(this);

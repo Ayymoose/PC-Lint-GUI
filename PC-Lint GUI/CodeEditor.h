@@ -19,6 +19,7 @@
 #include <QPlainTextEdit>
 #include <QColor>
 #include <QLabel>
+#include <memory>
 
 
 #define LINE_NUMBER_AREA_COLOUR QColor(240,240,240)

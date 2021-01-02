@@ -18,11 +18,12 @@
 
 #include <QString>
 #include <QMetaType>
-#include <QSet>
 #include <QObject>
+#include <QSet>
 #include <QProcess>
 #include <memory>
 #include <vector>
+#include <set>
 
 namespace Lint
 {
@@ -51,7 +52,7 @@ namespace Lint
         const QString LINT_TYPE_ERROR = "Error";
         const QString LINT_TYPE_INFO = "Info";
         const QString LINT_TYPE_WARNING = "Warning";
-        const QString LINT_TYPE_SUPPLEMENTAL = "Supplemental";
+        const QString LINT_TYPE_SUPPLEMENTAL = "supplemental"; // PC-Lint Plus only
     };
 
 
@@ -113,10 +114,7 @@ typedef struct
     QString errorMessage;
 } LintResponse;
 
-typedef struct
-{
-    std::vector<LintMessage> message;
-} LintMessageGroup;
+using LintMessageGroup = std::vector<std::vector<LintMessage>>;
 
 class Linter : public QObject
 {
@@ -130,6 +128,10 @@ public:
     // Gets the set of lintMessage returned after a lint
     std::vector<LintMessage> getLinterMessages() const noexcept;
     void setLinterMessages(const std::vector<LintMessage>& lintMessages) noexcept;
+
+    // Group together lint messages (PC-Lint Plus only)
+    // So that supplemental messages are tied together with error/info/warnings
+    LintMessageGroup groupLinterMessages() noexcept;
 
     // Remove all associated messages with the given file
     void removeAssociatedMessages(const QString& file) noexcept;
@@ -148,6 +150,7 @@ public:
     void setNumberOfWarnings(int numberOfWarnings) noexcept;
     void setNumberOfInfo(int numberOfInfo) noexcept;
     void setErrorMessage(const QString& errorMessage) noexcept;
+
 
     void appendLinterMessages(const std::vector<LintMessage>& lintMessages) noexcept;
     void appendLinterErrors(int numberOfErrors) noexcept;

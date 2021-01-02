@@ -683,3 +683,46 @@ QString Linter::getLinterFile() const noexcept
 {
     return m_lintFile;
 }
+
+// Group together lint messages (PC-Lint Plus only)
+// So that supplemental messages are tied together with error/info/warnings
+LintMessageGroup Linter::groupLinterMessages() noexcept
+{
+    // Spit out a LintMessageGroup
+    LintMessageGroup messageGroup;
+
+    auto firstPtr = m_linterMessages.cbegin();
+    auto secondPtr = firstPtr+1;
+
+    // Use two pointers to find groups
+    // Point first one to a message
+    // Point second to message+1
+    // While second pointer points to a supplemental message type, increment and add
+    // Point first one to second pointer+1
+    // Repeat until end
+
+    while (firstPtr != m_linterMessages.cend() && secondPtr != m_linterMessages.cend())
+    {
+        // First message type should never be "Supplemental"
+        Q_ASSERT(firstPtr->type != Lint::Type::LINT_TYPE_SUPPLEMENTAL);
+
+        // Add first message
+        std::vector<LintMessage> message;
+        message.emplace_back(*firstPtr);
+
+        // Associate supplemental messages
+        while (secondPtr != m_linterMessages.cend() && secondPtr->type == Lint::Type::LINT_TYPE_SUPPLEMENTAL)
+        {
+            message.emplace_back(*secondPtr);
+            secondPtr++;
+        }
+
+        // Add this group
+        messageGroup.emplace_back(message);
+
+        // Advance pointers
+        firstPtr = secondPtr++;
+    }
+
+    return messageGroup;
+}
