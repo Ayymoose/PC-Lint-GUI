@@ -58,7 +58,9 @@ Preferences::Preferences(QWidget *parent) :
     // Load settings
     QSettings settings(SETTINGS_APPLICATION_NAME,QSettings::IniFormat);
     settings.beginGroup(SETTINGS_GROUP_NAME);
-    m_ui->lintUsingThreadsComboBox->setCurrentIndex(settings.value(SETTINGS_MAX_THREADS).toInt()-1);
+    // Set default threads to 1 if not selected
+    auto const lintThreads = std::max(settings.value(SETTINGS_MAX_THREADS).toInt()-1,0);
+    m_ui->lintUsingThreadsComboBox->setCurrentIndex(lintThreads);
     m_ui->lintPathExeLineEdit->setText(settings.value(SETTINGS_LINT_EXECUTABLE_PATH).toString());
     m_ui->lintFileLineEdit->setText(settings.value(SETTINGS_LINT_FILE_PATH).toString());
     m_lastDirectory = settings.value(SETTINGS_LAST_DIRECTORY).toString();

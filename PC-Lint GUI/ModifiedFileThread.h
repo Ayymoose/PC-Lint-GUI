@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef MODIFIEDFILETHREAD_H
-#define MODIFIEDFILETHREAD_H
+#pragma once
 
 #include <QObject>
 #include <QMap>
@@ -52,5 +51,3 @@ private:
     QMap<QString, ModifiedFile> m_modifiedFiles;
     QMutex m_modifiedFileMutex;
 };
-
-#endif // MODIFIEDFILETHREAD_H

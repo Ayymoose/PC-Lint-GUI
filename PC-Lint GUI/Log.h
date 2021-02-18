@@ -26,7 +26,7 @@
 #define DEBUG_LOG(MESSAGE) qDebug() << (MESSAGE);/* Log::log(MESSAGE);*/
 
 // TODO: Date log this file with "PC-Lint GUI_dd-mm-yyyy"
-#define LOG_FILENAME "linty_log.txt"
+#define LOG_FILENAME "PC-Lint GUI_log.txt"
 
 class Log : public QObject
 {
