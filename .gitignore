@@ -1,5 +1,5 @@
-PC-Lint GUI/Debug/*
-PC-Lint GUI/Release/*
+PC-Lint GUI/Debug
+PC-Lint GUI/Release
 build
 build/*
 test
