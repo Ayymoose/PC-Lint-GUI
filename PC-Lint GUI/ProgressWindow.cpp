@@ -114,8 +114,10 @@ void ProgressWindow::slotLintFinished(const LintResponse& lintResponse) noexcept
 
 void ProgressWindow::slotLintComplete() noexcept
 {
-    emit signalLintComplete();
+    // Close this window first to prevent the main window
+    // from minimising on close for some reason
     close();
+    emit signalLintComplete();
 }
 
 ProgressWindow::~ProgressWindow()
