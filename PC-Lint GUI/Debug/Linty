@@ -1,0 +1,5 @@
+[Settings]
+MaxThreads=8
+LintExecutablePath=D:/pclp1.3.5/pclp64.exe
+LintFilePath=D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-4451 (Merlin Power Holdup Controller)/lint/std_pclp.lnt
+LastDirectory=D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-4451 (Merlin Power Holdup Controller)/lint

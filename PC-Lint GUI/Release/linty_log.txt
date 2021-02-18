@@ -1,0 +1,501 @@
+[29.03.2020 18:22:55] ---------- Starting linty application ----------
+[29.03.2020 18:23:48] Setting working directory to: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/lint
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Camera.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_commands.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_debug.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_flash.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_fpga.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_if.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_init.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_parameters.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_schedule.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_serdes.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_status.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_temperature.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_test.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_types.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_utilities.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Remote_update.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_cmd.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_parser.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sd.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sm.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_string.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_crc.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_sys.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_tem.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_z85.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_adc.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_cpu.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_ebi.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_eeprom.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_gpio.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_int.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_spi.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_timer.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_twi.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_usart.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Flash_SST26VF032B.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_DeviceSel.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Spi.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Twi.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/SerDe_DS92LV242X.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Temp_ADT7410.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Temp_TMP421.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/test_visible/test_boot.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/test_visible/test_flash.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/test_visible/test_sensor.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/test_visible/test_serdes.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/visible_camera_application/Cam_vis_command.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/visible_camera_application/Test_interface_Visible.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Utilities/Util_timing.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/ASF/common/boards/user_board/init.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/ASF/common/services/hugemem/avr8/avr8_hugemem.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/common_application_configuration/cmn_app_config.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/visible_camera_application/Cam_sensor_vis.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/visible_camera_application/Cam_sensor_vis_soc_comms.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/visible_camera_application/Cam_sensor_vis_gain.c
+[29.03.2020 18:23:48] D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/visible_camera_application/Cam_sensor_vis_dark_level_correction.c
+[29.03.2020 18:23:48] Lint path: D:/lint/lint-nt.exe
+[29.03.2020 18:23:48] Lint file: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/lint/std.lnt
+[29.03.2020 18:23:48] Lint arguments: -v-width(0)+xml(doc)-format=<message><file>%f</file><line>%l</line><type>%t</type><code>%n</code><description>%m</description></message>-format_specific= -hFs1-pragma(message)D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/lint/std.lntD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Camera.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_commands.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_debug.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_flash.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_fpga.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_if.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_init.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_parameters.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_schedule.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_serdes.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_status.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_temperature.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_test.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_types.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_utilities.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Remote_update.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_cmd.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_parser.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sd.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sm.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_string.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_crc.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_sys.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_tem.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_z85.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_adc.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_cpu.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_ebi.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_eeprom.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_gpio.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_int.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_spi.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_timer.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_twi.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_usart.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Flash_SST26VF032B.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_DeviceSel.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Spi.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Twi.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/SerDe_DS92LV242X.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Temp_ADT7410.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Temp_TMP421.cD:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/test_visible/test_boot.cD:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/test_visible/test_flash.cD:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/test_visible/test_sensor.cD:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/test_visible/test_serdes.cD:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/visible_camera_application/Cam_vis_command.cD:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/visible_camera_application/Test_interface_Visible.cD:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Utilities/Util_timing.cD:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/ASF/common/boards/user_board/init.cD:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/ASF/common/services/hugemem/avr8/avr8_hugemem.cD:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/common_application_configuration/cmn_app_config.cD:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/visible_camera_application/Cam_sensor_vis.cD:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/visible_camera_application/Cam_sensor_vis_soc_comms.cD:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/visible_camera_application/Cam_sensor_vis_gain.cD:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)/src/visible_camera_application/Cam_sensor_vis_dark_level_correction.c
+[29.03.2020 18:23:51] Lint version: PC-lint for C/C++ (NT) Vers. 9.00L, Copyright Gimpel Software 1985-2014
+[18.04.2020 14:57:41] ---------- Starting linty application ----------
+[18.04.2020 14:58:40] Setting working directory to: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/lintplus
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Flash_SST26VF032B.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Spi.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Utilities/Util_timing.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/src/bootloader/flash.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/src/bootloader/generic_hw_config.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/src/bootloader/init.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/src/bootloader/lbc_commands.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/src/bootloader/main.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_cmd.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_parser.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sd.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sm.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_string.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_crc.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_sys.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_tem.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_z85.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_adc.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_cpu.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_ebi.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_eeprom.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_gpio.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_int.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_spi.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_timer.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_twi.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_usart.c
+[18.04.2020 14:58:40] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/src/ccxm/source/RemoteUpdate/RemoteUpdate.c
+[18.04.2020 14:58:40] Lint path: D:/lint/lint-nt.exe
+[18.04.2020 14:58:40] Lint file: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/lintplus/std.lnt
+[18.04.2020 14:58:40] Lint argument: -v
+[18.04.2020 14:58:40] Lint argument: -width(0)
+[18.04.2020 14:58:40] Lint argument: +xml(doc)
+[18.04.2020 14:58:40] Lint argument: -format=<message><file>%f</file><line>%l</line><type>%t</type><code>%n</code><description>%m</description></message>
+[18.04.2020 14:58:40] Lint argument: -format_specific= 
+[18.04.2020 14:58:40] Lint argument: -hFs1
+[18.04.2020 14:58:40] Lint argument: -pragma(message)
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/lintplus/std.lnt
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Flash_SST26VF032B.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Spi.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Utilities/Util_timing.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/src/bootloader/flash.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/src/bootloader/generic_hw_config.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/src/bootloader/init.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/src/bootloader/lbc_commands.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/src/bootloader/main.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_cmd.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_parser.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sd.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sm.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_string.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_crc.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_sys.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_tem.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_z85.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_adc.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_cpu.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_ebi.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_eeprom.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_gpio.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_int.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_spi.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_timer.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_twi.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_usart.c
+[18.04.2020 14:58:40] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5601 (ATXmega boot code Merlin)/src/ccxm/source/RemoteUpdate/RemoteUpdate.c
+[18.04.2020 14:58:41] Lint version: PC-lint for C/C++ (NT) Vers. 9.00L, Copyright Gimpel Software 1985-2014
+[18.04.2020 15:00:05] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\CommonCodeMerlin\include\cmn_inc_api.h
+[18.04.2020 15:00:15] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\Devices\Flash_SST26VF032B.c
+[18.04.2020 15:00:18] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\Devices\Interfaces\Ifc_Spi.c
+[18.04.2020 15:00:51] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\CA20-5601 (ATXmega boot code Merlin)\src\bootloader\flash.c
+[18.04.2020 15:01:05] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\Devices\Flash_SST26VF032B.c
+[18.04.2020 15:01:24] Loading file: c:\program files (x86)\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\..\lib\gcc\avr\5.4.0\..\..\..\..\avr\include\avr\fuse.h
+[18.04.2020 15:01:30] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\Utilities\Util_timing.c
+[18.04.2020 15:01:43] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\CA20-5601 (ATXmega boot code Merlin)\src\bootloader\flash.c
+[18.04.2020 15:01:57] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\Devices\Interfaces\Ifc_Spi.c
+[18.04.2020 15:02:00] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\CA20-5601 (ATXmega boot code Merlin)\src\bootloader\flash.c
+[18.04.2020 15:02:08] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\Devices\Flash_SST26VF032B.c
+[18.04.2020 15:02:53] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\Utilities\Util_timing.c
+[18.04.2020 15:03:09] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\Devices\Flash_SST26VF032B.c
+[18.04.2020 15:03:16] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\CommonCodeMerlin\include\cmn_inc_api.h
+[23.05.2020 16:45:38] ---------- Starting linty application ----------
+[27.05.2020 20:33:09] ---------- Starting linty application ----------
+[27.05.2020 20:34:12] Setting working directory to: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/lint
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Camera.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_commands.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_debug.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_flash.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_fpga.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_if.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_init.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_parameters.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_schedule.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_serdes.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_status.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_temperature.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_test.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_types.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_utilities.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Remote_update.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_cmd.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_parser.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sd.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sm.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_string.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_crc.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_sys.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_tem.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_z85.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_adc.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_cpu.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_ebi.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_eeprom.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_gpio.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_int.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_spi.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_timer.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_twi.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_usart.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Afe_AD9840A.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Flash_SST26VF032B.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_BitwiseSdi.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_DeviceSel.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Spi.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Twi.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/SerDe_DS92LV242X.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Temp_ADT7410.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Utilities/Util_timing.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/ASF/common/boards/user_board/init.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/ASF/common/services/hugemem/avr8/avr8_hugemem.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_ir_command.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Ir_Afes.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_ir_dark_level_correction.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_sensor_ir.c
+[27.05.2020 20:34:12] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/common_application_configuration/cmn_app_config.c
+[27.05.2020 20:34:12] Lint path: D:/lint/lint-nt.exe
+[27.05.2020 20:34:12] Lint file: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/lint/std.lnt
+[27.05.2020 20:34:12] Lint argument: -v
+[27.05.2020 20:34:12] Lint argument: -width(0)
+[27.05.2020 20:34:12] Lint argument: +xml(doc)
+[27.05.2020 20:34:12] Lint argument: -format=<message><file>%f</file><line>%l</line><type>%t</type><code>%n</code><description>%m</description></message>
+[27.05.2020 20:34:12] Lint argument: -format_specific= 
+[27.05.2020 20:34:12] Lint argument: -hFs1
+[27.05.2020 20:34:12] Lint argument: -pragma(message)
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/lint/std.lnt
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Camera.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_commands.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_debug.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_flash.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_fpga.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_if.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_init.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_parameters.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_schedule.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_serdes.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_status.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_temperature.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_test.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_types.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_utilities.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Remote_update.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_cmd.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_parser.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sd.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sm.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_string.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_crc.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_sys.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_tem.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_z85.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_adc.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_cpu.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_ebi.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_eeprom.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_gpio.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_int.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_spi.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_timer.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_twi.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_usart.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Afe_AD9840A.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Flash_SST26VF032B.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_BitwiseSdi.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_DeviceSel.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Spi.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Twi.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/SerDe_DS92LV242X.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Temp_ADT7410.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Utilities/Util_timing.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/ASF/common/boards/user_board/init.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/ASF/common/services/hugemem/avr8/avr8_hugemem.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_ir_command.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Ir_Afes.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_ir_dark_level_correction.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_sensor_ir.c
+[27.05.2020 20:34:12] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/common_application_configuration/cmn_app_config.c
+[27.05.2020 20:34:15] Lint version: PC-lint for C/C++ (NT) Vers. 9.00L, Copyright Gimpel Software 1985-2014
+[27.05.2020 20:40:52] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\CommonCodeMerlin\source\macro\cmn_mac_std.h
+[27.05.2020 20:40:53] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\CommonCodeMerlin\source\macro\cmn_mac_std.h
+[27.05.2020 21:09:44] ---------- Starting linty application ----------
+[27.05.2020 21:09:56] Setting working directory to: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/lint
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Camera.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_commands.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_debug.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_flash.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_fpga.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_if.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_init.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_parameters.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_schedule.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_serdes.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_status.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_temperature.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_test.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_types.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_utilities.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Remote_update.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_cmd.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_parser.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sd.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sm.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_string.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_crc.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_sys.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_tem.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_z85.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_adc.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_cpu.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_ebi.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_eeprom.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_gpio.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_int.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_spi.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_timer.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_twi.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_usart.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Afe_AD9840A.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Flash_SST26VF032B.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_BitwiseSdi.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_DeviceSel.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Spi.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Twi.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/SerDe_DS92LV242X.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Temp_ADT7410.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Utilities/Util_timing.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/ASF/common/boards/user_board/init.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/ASF/common/services/hugemem/avr8/avr8_hugemem.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_ir_command.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Ir_Afes.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_ir_dark_level_correction.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_sensor_ir.c
+[27.05.2020 21:09:56] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/common_application_configuration/cmn_app_config.c
+[27.05.2020 21:09:56] Lint path: D:/lint/lint-nt.exe
+[27.05.2020 21:09:56] Lint file: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/lint/std.lnt
+[27.05.2020 21:09:56] Lint argument: -v
+[27.05.2020 21:09:56] Lint argument: -width(0)
+[27.05.2020 21:09:56] Lint argument: +xml(doc)
+[27.05.2020 21:09:56] Lint argument: -format=<message><file>%f</file><line>%l</line><type>%t</type><code>%n</code><description>%m</description></message>
+[27.05.2020 21:09:56] Lint argument: -format_specific= 
+[27.05.2020 21:09:56] Lint argument: -hFs1
+[27.05.2020 21:09:56] Lint argument: -pragma(message)
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/lint/std.lnt
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Camera.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_commands.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_debug.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_flash.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_fpga.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_if.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_init.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_parameters.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_schedule.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_serdes.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_status.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_temperature.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_test.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_types.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_utilities.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Remote_update.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_cmd.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_parser.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sd.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sm.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_string.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_crc.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_sys.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_tem.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_z85.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_adc.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_cpu.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_ebi.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_eeprom.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_gpio.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_int.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_spi.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_timer.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_twi.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_usart.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Afe_AD9840A.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Flash_SST26VF032B.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_BitwiseSdi.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_DeviceSel.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Spi.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Twi.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/SerDe_DS92LV242X.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Temp_ADT7410.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Utilities/Util_timing.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/ASF/common/boards/user_board/init.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/ASF/common/services/hugemem/avr8/avr8_hugemem.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_ir_command.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Ir_Afes.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_ir_dark_level_correction.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_sensor_ir.c
+[27.05.2020 21:09:56] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/common_application_configuration/cmn_app_config.c
+[27.05.2020 21:09:58] Lint version: PC-lint for C/C++ (NT) Vers. 9.00L, Copyright Gimpel Software 1985-2014
+[27.05.2020 21:10:06] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\CommonCodeMerlin\include\cmn_inc_int.h
+[27.05.2020 21:10:06] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\Camera\Cam_types.c
+[27.05.2020 21:10:08] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\CommonCodeMerlin\source\mcu\cmn_mcu_adc.h
+[27.05.2020 21:10:09] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\CommonCodeMerlin\source\mcu\cmn_mcu_adc.h
+[27.05.2020 21:10:19] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\Camera\Cam_fpga.h
+[27.05.2020 21:10:20] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\CommonCodeMerlin\source\mcu\cmn_mcu_adc.h
+[27.05.2020 21:16:37] ---------- Starting linty application ----------
+[27.05.2020 21:16:48] Setting working directory to: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/lint
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Camera.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_commands.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_debug.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_flash.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_fpga.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_if.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_init.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_parameters.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_schedule.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_serdes.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_status.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_temperature.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_test.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_types.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_utilities.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Remote_update.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_cmd.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_parser.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sd.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sm.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_string.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_crc.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_sys.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_tem.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_z85.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_adc.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_cpu.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_ebi.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_eeprom.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_gpio.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_int.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_spi.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_timer.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_twi.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_usart.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Afe_AD9840A.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Flash_SST26VF032B.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_BitwiseSdi.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_DeviceSel.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Spi.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Twi.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/SerDe_DS92LV242X.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Temp_ADT7410.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Utilities/Util_timing.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/ASF/common/boards/user_board/init.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/ASF/common/services/hugemem/avr8/avr8_hugemem.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_ir_command.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Ir_Afes.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_ir_dark_level_correction.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_sensor_ir.c
+[27.05.2020 21:16:48] Adding file to lint: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/common_application_configuration/cmn_app_config.c
+[27.05.2020 21:16:48] Lint path: D:/lint/lint-nt.exe
+[27.05.2020 21:16:48] Lint file: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/lint/std.lnt
+[27.05.2020 21:16:48] Lint argument: -v
+[27.05.2020 21:16:48] Lint argument: -width(0)
+[27.05.2020 21:16:48] Lint argument: +xml(doc)
+[27.05.2020 21:16:48] Lint argument: -format=<message><file>%f</file><line>%l</line><type>%t</type><code>%n</code><description>%m</description></message>
+[27.05.2020 21:16:48] Lint argument: -format_specific= 
+[27.05.2020 21:16:48] Lint argument: -hFs1
+[27.05.2020 21:16:48] Lint argument: -pragma(message)
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/lint/std.lnt
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Camera.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_commands.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_debug.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_flash.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_fpga.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_if.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_init.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_parameters.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_schedule.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_serdes.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_status.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_temperature.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_test.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_types.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Cam_utilities.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Camera/Remote_update.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_cmd.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_parser.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sd.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_sm.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/comms/cmn_com_string.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_crc.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_sys.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_tem.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/drivers/cmn_drv_z85.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_adc.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_cpu.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_ebi.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_eeprom.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_gpio.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_int.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_spi.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_timer.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_twi.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/CommonCodeMerlin/source/mcu/cmn_mcu_usart.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Afe_AD9840A.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Flash_SST26VF032B.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_BitwiseSdi.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_DeviceSel.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Spi.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Interfaces/Ifc_Twi.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/SerDe_DS92LV242X.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Devices/Temp_ADT7410.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/Buhler Sortex Shared Code/ATxmega/Utilities/Util_timing.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/ASF/common/boards/user_board/init.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/ASF/common/services/hugemem/avr8/avr8_hugemem.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_ir_command.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Ir_Afes.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_ir_dark_level_correction.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/bichro_ir_application/Cam_sensor_ir.c
+[27.05.2020 21:16:48] Lint argument: D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/src/common_application_configuration/cmn_app_config.c
+[27.05.2020 21:16:50] Lint version: PC-lint for C/C++ (NT) Vers. 9.00L, Copyright Gimpel Software 1985-2014
+[27.05.2020 21:17:06] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\CommonCodeMerlin\source\macro\cmn_mac_std.h
+[27.05.2020 21:17:06] Loading file: D:\Users\Ayman\Desktop\MerlinEmbedded\Buhler Sortex Shared Code\ATxmega\CommonCodeMerlin\source\macro\cmn_mac_std.h

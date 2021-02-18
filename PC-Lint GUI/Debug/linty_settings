@@ -1,0 +1,6 @@
+[LINT_OPTIONS]
+LINT_COMMANDS=
+LINT_EXE=D:/pclp1.3.5/pclp64.exe
+LINT_FILE=D:/Users/Ayman/Desktop/MerlinEmbedded_NEW/CA20-5501 (Merlin Compatible 4-line Visible Camera)/lint/std_pclp.lnt
+LINT_SOURCE=D:/Users/Ayman/Downloads/pokemon_dp_VER20060816/pokemon_dp
+LINT_LAST_DIRECTORY=D:/Users/Ayman/Desktop/MerlinEmbedded_NEW/CA20-5501 (Merlin Compatible 4-line Visible Camera)/lint

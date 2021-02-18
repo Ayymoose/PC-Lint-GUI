@@ -1,0 +1,29 @@
+3. Bug: A big project creates too many threads for linting which slows down PC. User should be able to specify how many threads to use.
+6. Feature: Add/Edit/View lint surpressions
+7. Feature: Syntax highlighting
+9. Feature: Support for more project solutions (Qt, Green Hills)
+11. Feature: Show lint help messages on a particular lint code
+12. Feature: Re-lint only modified files  
+14. Bug: Progress window doesn't understand multiple passes
+15. Bug: Clicking on entry in lint output doesn't select the correct line sometimes depending on the window size
+16. Bug: Can't sort on icon column
+18. Bug: ETA gets stuck with PC-Lint Plus sometimes 
+20. Feature: New way of linting projects/files by select project and lint file. If the project changes then ask for a new lint file other use the same
+21. Feature: Multiple tabs for viewing files
+22. Bug: Lint got stuck on linting a particular file. Probably with an invalid configuration or PC-Lint bug. The lint should abort after 1 minute if no progress has been made (Assuming it takes no more than 1 minute to lint a given file)
+24. Feature: Automated test support for regressions
+26. Bug: Zoom % not correct
+27. Bug: Progress Window freezes on completion
+29. Bug: PC-Lint Plus shows supplemental messages but these are only useful when tied to a warning/error/information.
+30. Feature: Show lint file used
+31: Bug: Existing lint options could affect output. Must filter through lint options
+32. Bug: PC-Lint Plus has multithreaded support, so we don't need to create multiple threads in the GUI for it but specify on command line
+33. Feature: Allow user to select word wrap or not
+34. Bug: If a message is about a pointer out of bounds, there can be multiple places on a line where the index is accessed but the user has no idea which one to look at as there is no ^ arrow to show them.
+35. Bug: PC-Lint Plus sometimes produces messages without a file association. There is no way to see where they came from when displayed in the lint table.
+36. Bug: About window doesn't show Qt version used
+38. Feature: 32 and 64-bit release. Currently only supporting 32-bit release
+39. Feature: Taskbar progress shown
+40. Bug: License information in all files need to be added/changed
+41. Feature: Automatically append lint output to lint table when received not at the end of the pass.
+42. Bug: Re-linting using the refresh button shows ETA as 0

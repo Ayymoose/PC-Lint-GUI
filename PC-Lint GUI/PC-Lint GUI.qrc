@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/open.png</file>
+        <file>images/paste.png</file>
+        <file>images/pencil.png</file>
+        <file>images/save.png</file>
+        <file>images/exit.png</file>
+        <file>images/copy.png</file>
+        <file>images/create.png</file>
+        <file>images/cut.png</file>
+        <file>images/error.png</file>
+        <file>images/warning.png</file>
+        <file>images/info.png</file>
+        <file>images/unknown.png</file>
+        <file>images/lint.png</file>
+        <file>images/refresh.png</file>
+        <file>images/correct.png</file>
+    </qresource>
+</RCC>
