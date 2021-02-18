@@ -1,6 +1,9 @@
-linty/Debug/*
-linty/Release/*
+PC-Lint GUI/Debug/*
+PC-Lint GUI/Release/*
 build
+build/*
+test
+test/*
 *.rar
 *.7z
 *.dll
