@@ -27,7 +27,7 @@ QString Preferences::m_lastDirectory = "";
 
 namespace
 {
-    const QString SETTINGS_APPLICATION_NAME = "Linty";
+    const QString SETTINGS_APPLICATION_NAME = "PC-Lint GUI";
     const QString SETTINGS_GROUP_NAME = "Settings";
     const QString SETTINGS_MAX_THREADS = "MaxThreads";
     const QString SETTINGS_LINT_EXECUTABLE_PATH = "LintExecutablePath";
@@ -56,15 +56,7 @@ Preferences::Preferences(QWidget *parent) :
     m_ui->preferencesTree->setColumnCount(1);
 
     // Load settings
-    QSettings settings(SETTINGS_APPLICATION_NAME,QSettings::IniFormat);
-    settings.beginGroup(SETTINGS_GROUP_NAME);
-    // Set default threads to 1 if not selected
-    auto const lintThreads = std::max(settings.value(SETTINGS_MAX_THREADS).toInt()-1,0);
-    m_ui->lintUsingThreadsComboBox->setCurrentIndex(lintThreads);
-    m_ui->lintPathExeLineEdit->setText(settings.value(SETTINGS_LINT_EXECUTABLE_PATH).toString());
-    m_ui->lintFileLineEdit->setText(settings.value(SETTINGS_LINT_FILE_PATH).toString());
-    m_lastDirectory = settings.value(SETTINGS_LAST_DIRECTORY).toString();
-    settings.endGroup();
+    loadSettings();
 
     // If the last directory opened is nothing then set it to the first available drive
     if (m_lastDirectory.isEmpty())
@@ -130,8 +122,22 @@ void Preferences::on_buttonSave_clicked()
     close();
 }
 
+void Preferences::loadSettings() noexcept
+{
+    QSettings settings(SETTINGS_APPLICATION_NAME,QSettings::IniFormat);
+    settings.beginGroup(SETTINGS_GROUP_NAME);
+    // Set default threads to 1 if not selected
+    auto const lintThreads = std::max(settings.value(SETTINGS_MAX_THREADS).toInt()-1,0);
+    m_ui->lintUsingThreadsComboBox->setCurrentIndex(lintThreads);
+    m_ui->lintPathExeLineEdit->setText(settings.value(SETTINGS_LINT_EXECUTABLE_PATH).toString());
+    m_ui->lintFileLineEdit->setText(settings.value(SETTINGS_LINT_FILE_PATH).toString());
+    m_lastDirectory = settings.value(SETTINGS_LAST_DIRECTORY).toString();
+    settings.endGroup();
+}
+
 // Cancel clicked
 void Preferences::on_buttonCancel_clicked()
 {
     close();
+    loadSettings();
 }

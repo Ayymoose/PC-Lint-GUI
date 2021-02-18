@@ -44,4 +44,5 @@ private slots:
 
 private:
     Ui::Preferences* m_ui;
+    void loadSettings() noexcept;
 };
