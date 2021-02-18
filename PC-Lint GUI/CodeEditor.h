@@ -88,5 +88,5 @@ protected:
     }
 
 private:
-    CodeEditor *m_codeEditor;
+    CodeEditor* m_codeEditor;
 };

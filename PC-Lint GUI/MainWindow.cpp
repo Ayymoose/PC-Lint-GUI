@@ -39,7 +39,23 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    m_ui(new Ui::MainWindow)
+    m_ui(new Ui::MainWindow),
+    m_lowerToolbar(std::make_unique<QToolBar>()),
+    m_buttonErrors(std::make_unique<QToolButton>()),
+    m_buttonWarnings(std::make_unique<QToolButton>()),
+    m_buttonInfo(std::make_unique<QToolButton>()),
+    m_actionError(std::make_unique<QAction>()),
+    m_actionWarning(std::make_unique<QAction>()),
+    m_actionInfo(std::make_unique<QAction>()),
+    // Toggled on (show messages only of this type)
+    // Toggle off (hide messages only of this type)
+    m_toggleError(true),
+    m_toggleWarning(true),
+    m_toggleInfo(true),
+    m_preferences(std::make_unique<Preferences>(this)),
+    m_lintTableMenu(std::make_unique<QMenu>(this)),
+    m_linterStatus(0),
+    m_modifiedFileWorker(std::make_unique<ModifiedFileThread>(this))
 { 
     qRegisterMetaType<Lint::Status>("Lint::Status");
     qRegisterMetaType<QSet<LintMessage>>("QSet<LintMessage>");
@@ -50,15 +66,22 @@ MainWindow::MainWindow(QWidget *parent) :
     // Turn UI into actual objects
     m_ui->setupUi(this);
 
-    connect(m_ui->actionSave, &QAction::triggered, this, &MainWindow::save);
-    connect(m_ui->actionExit, &QAction::triggered, this, &MainWindow::exit);
-    connect(m_ui->actionCopy, &QAction::triggered, this, &MainWindow::copy);
-    connect(m_ui->actionCut, &QAction::triggered, this, &MainWindow::cut);
-
-    m_preferences = std::make_unique<Preferences>(this);
+    QObject::connect(m_ui->actionSave, &QAction::triggered, this, &MainWindow::save);
+    QObject::connect(m_ui->actionExit, &QAction::triggered, this, &MainWindow::exit);
+    QObject::connect(m_ui->actionCopy, &QAction::triggered, this, &MainWindow::copy);
+    QObject::connect(m_ui->actionCut, &QAction::triggered, this, &MainWindow::cut);
 
     // Configure the lint table
-    configureLintTable();
+    // Icon column width
+    m_ui->lintTable->setColumnWidth(0,24);
+
+    // Code width
+    m_ui->lintTable->setColumnWidth(1,40);
+
+    // Message width
+    m_ui->lintTable->setColumnWidth(2,800);
+
+    m_ui->lintTable->setColumnWidth(3,200);
 
     // Configure the code editor
     m_ui->codeEditor->setLineNumberAreaColour(LINE_NUMBER_AREA_COLOUR);
@@ -67,8 +90,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // Set the splitter size
     m_ui->splitter->setSizes(QList<int>() << 400 << 200);
 
-    // With syntax highlighting
-    m_highlighter = std::make_unique<Highlighter>(m_ui->codeEditor->document());
 
     // Status bar labels
     m_ui->statusBar->addPermanentWidget(m_ui->label);
@@ -76,20 +97,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // | Errors: 0 Warnings: 0 Info: 0 |
 
-    // Toggled on (show messages only of this type)
-    // Toggle off (hide messages only of this type)
-    m_toggleError = true;
-    m_toggleInfo = true;
-    m_toggleWarning = true;
-
-    m_lowerToolbar = std::make_unique<QToolBar>();
-    m_buttonErrors = std::make_unique<QToolButton>();
-    m_buttonWarnings = std::make_unique<QToolButton>();
-    m_buttonInfo = std::make_unique<QToolButton>();
-
     m_buttonErrors->setCheckable(true);
     m_buttonErrors->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    m_actionError = std::make_unique<QAction>();
     m_actionError->setIcon(QIcon(":/images/error.png"));
     m_actionError->setText("Errors: 0");
     m_buttonErrors->setDefaultAction(m_actionError.get());
@@ -97,7 +106,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_actionError->setChecked(m_toggleError);
 
     m_buttonWarnings->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    m_actionWarning = std::make_unique<QAction>();
     m_actionWarning->setIcon(QIcon(":/images/warning.png"));
     m_actionWarning->setText("Warnings: 0");
     m_buttonWarnings->setDefaultAction(m_actionWarning.get());
@@ -106,7 +114,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_buttonInfo->setCheckable(true);
     m_buttonInfo->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    m_actionInfo = std::make_unique<QAction>();
     m_actionInfo->setIcon(QIcon(":/images/info.png"));
     m_actionInfo->setText("Information: 0");
     m_buttonInfo->setDefaultAction(m_actionInfo.get());
@@ -121,27 +128,25 @@ MainWindow::MainWindow(QWidget *parent) :
     m_lowerToolbar->addWidget(m_buttonInfo.get());
     m_lowerToolbar->addSeparator();
 
-    m_linterStatus = 0;
-
-    connect(m_actionError.get(), &QAction::triggered, this, [this](bool checked)
+    QObject::connect(m_actionError.get(), &QAction::triggered, this, [this](bool checked)
     {
         m_toggleError = checked;
         displayLintTable();
     });
 
-    connect(m_actionInfo.get(), &QAction::triggered, this, [this](bool checked)
+    QObject::connect(m_actionInfo.get(), &QAction::triggered, this, [this](bool checked)
     {
         m_toggleInfo = checked;
         displayLintTable();
     });
 
-    connect(m_actionWarning.get(), &QAction::triggered, this, [this](bool checked)
+    QObject::connect(m_actionWarning.get(), &QAction::triggered, this, [this](bool checked)
     {
         m_toggleWarning = checked;
         displayLintTable();
     });
 
-    connect(this, &MainWindow::signalUpdateTypes, this, [this](int errors, int warnings, int info)
+    QObject::connect(this, &MainWindow::signalUpdateTypes, this, [this](int errors, int warnings, int info)
     {
         m_actionError->setText("Errors: " + QString::number(errors));
         m_actionWarning->setText("Warnings: " + QString::number(warnings));
@@ -149,36 +154,18 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     m_ui->lintTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_ui->lintTable, &QTableWidget::customContextMenuRequested, this, &MainWindow::handleContextMenu);
+    QObject::connect(m_ui->lintTable, &QTableWidget::customContextMenuRequested, this, &MainWindow::handleContextMenu);
 
-
-    m_lintTableMenu = std::make_unique<QMenu>(this);
+    // With syntax highlighting
+    m_highlighter = std::make_unique<Highlighter>(m_ui->codeEditor->document());
 
     // Start the modified file thread
-    m_modifiedFileWorker = std::make_unique<ModifiedFileThread>(this);
-    connect(this, &MainWindow::signalSetModifiedFile, m_modifiedFileWorker.get(), &ModifiedFileThread::slotSetModifiedFile);
-    connect(this, &MainWindow::signalSetModifiedFiles, m_modifiedFileWorker.get(), &ModifiedFileThread::slotSetModifiedFiles);
-    connect(this, &MainWindow::signalKeepFile, m_modifiedFileWorker.get(), &ModifiedFileThread::slotKeepFile);
-    connect(m_modifiedFileWorker.get(), &ModifiedFileThread::signalFileDoesntExist, this, &MainWindow::slotFileDoesntExist);
-    connect(m_modifiedFileWorker.get(), &ModifiedFileThread::signalFileModified, this, &MainWindow::slotFileModified);
+    QObject::connect(this, &MainWindow::signalSetModifiedFile, m_modifiedFileWorker.get(), &ModifiedFileThread::slotSetModifiedFile);
+    QObject::connect(this, &MainWindow::signalSetModifiedFiles, m_modifiedFileWorker.get(), &ModifiedFileThread::slotSetModifiedFiles);
+    QObject::connect(this, &MainWindow::signalKeepFile, m_modifiedFileWorker.get(), &ModifiedFileThread::slotKeepFile);
+    QObject::connect(m_modifiedFileWorker.get(), &ModifiedFileThread::signalFileDoesntExist, this, &MainWindow::slotFileDoesntExist);
+    QObject::connect(m_modifiedFileWorker.get(), &ModifiedFileThread::signalFileModified, this, &MainWindow::slotFileModified);
     m_modifiedFileWorker->start();
-}
-
-
-void MainWindow::configureLintTable()
-{
-
-    // Icon column width
-    m_ui->lintTable->setColumnWidth(0,24);
-
-    // Code width
-    m_ui->lintTable->setColumnWidth(1,40);
-
-    // Message width
-    m_ui->lintTable->setColumnWidth(2,800);
-
-    m_ui->lintTable->setColumnWidth(3,200);
-
 }
 
 MainWindow::~MainWindow()
@@ -700,7 +687,7 @@ void MainWindow::on_aboutLinty_triggered()
     versionMessageBox.setIcon(QMessageBox::Information);
     versionMessageBox.addButton("Copy to clipboard", QMessageBox::AcceptRole);
     versionMessageBox.setWindowTitle("Information");
-    char buildCompiler[23];
+    char buildCompiler[64];
 
     // Compiler name + Compiler version + 32/64-bit version
     sprintf(buildCompiler,"%s %s 32-bit\n", COMPILER_NAME, COMPILER_VERSION);
@@ -834,21 +821,21 @@ void MainWindow::handleContextMenu(const QPoint& pos)
         QAction* actionHideMessages = m_lintTableMenu->addAction("Hide messages of this type");
         // QAction* actionSurpressMessages = m_lintTableMenu->addAction("Surpress this message in lint file");
 
-        connect(actionRemoveFile, &QAction::triggered, this, [=]()
+        QObject::connect(actionRemoveFile, &QAction::triggered, this, [=]()
         {
             QString file = fileWidget->data(Qt::UserRole).value<QString>();
             m_linter.removeAssociatedMessages(file);
             displayLintTable();
         });
 
-        connect(actionHideMessages, &QAction::triggered, this, [=]()
+        QObject::connect(actionHideMessages, &QAction::triggered, this, [=]()
         {
             QString code = codeWidget->data(Qt::DisplayRole).value<QString>();
             m_linter.removeMessagesWithNumber(code);
             displayLintTable();
         });
 
-        /*connect(actionSurpressMessages, &QAction::triggered, this, [=]()
+        /*QObject::connect(actionSurpressMessages, &QAction::triggered, this, [=]()
         {
             // TODO: Write to lint file the surpression
             //auto s = fileWidget->data(Qt::DisplayRole).value<QString>();

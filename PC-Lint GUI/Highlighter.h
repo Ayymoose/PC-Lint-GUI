@@ -20,6 +20,7 @@
 #include <QTextCharFormat>
 #include <QRegularExpression>
 
+// TODO: Namespacify
 #define BRUSH_HALF_GREEN QBrush(QColor(0,128,0))
 #define BRUSH_BLUE QBrush(QColor(0,0,255))
 #define BRUSH_GREY QBrush(QColor(128,128,128))
@@ -33,7 +34,7 @@ class Highlighter : public QSyntaxHighlighter
     Q_OBJECT
 
 public:
-    Highlighter(QTextDocument *parent = 0);
+    Highlighter(QTextDocument *parent = nullptr);
 
 protected:
     void highlightBlock(const QString &text) noexcept override;

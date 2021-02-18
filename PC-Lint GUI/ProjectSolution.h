@@ -23,7 +23,7 @@ class ProjectSolution
 {
 public:
     ProjectSolution() = default;
-    ~ProjectSolution() = default;
+    virtual ~ProjectSolution() = default;
     virtual QSet<QString> buildSourceFiles(const QString& projectFileName) = 0;
     virtual void setDirectory(const QString&) = 0;
 };

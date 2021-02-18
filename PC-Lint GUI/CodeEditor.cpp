@@ -24,20 +24,20 @@
 #include <QScrollBar>
 #include "Log.h"
 
-CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
+CodeEditor::CodeEditor(QWidget *parent) :
+    QPlainTextEdit(parent),
+    m_lineNumberArea(std::make_unique<LineNumberArea>(this)),
+    m_lineNumberAreaColour(LINE_NUMBER_AREA_COLOUR),
+    m_lineNumberBackgroundColour(LINE_CURRENT_BACKGROUND_COLOUR),
+    m_zoomLabel(nullptr),
+    m_highlightError(false)
 {
     // Line number area
-    m_lineNumberArea = std::make_unique<LineNumberArea>(this);
-    m_lineNumberAreaColour = LINE_NUMBER_AREA_COLOUR;
-    m_lineNumberBackgroundColour = LINE_CURRENT_BACKGROUND_COLOUR;
-    m_zoomLabel = nullptr;
-
-    m_highlightError = false;
     this->setFont(QFont("Consolas",14));
 
-    connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
-    connect(this, &CodeEditor::updateRequest, this, &CodeEditor::updateLineNumberArea);
-    connect(this, &CodeEditor::cursorPositionChanged, this, &CodeEditor::highlightCurrentLine);
+    QObject::connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
+    QObject::connect(this, &CodeEditor::updateRequest, this, &CodeEditor::updateLineNumberArea);
+    QObject::connect(this, &CodeEditor::cursorPositionChanged, this, &CodeEditor::highlightCurrentLine);
 
     setReadOnly(true);
 

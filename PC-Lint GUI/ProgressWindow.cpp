@@ -25,42 +25,41 @@
 
 ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
     QDialog(parent),
-    ui(new Ui::ProgressWindow)
+    ui(new Ui::ProgressWindow),
+    m_elapsedTime(0),
+    m_eta(5),
+    m_progressMax(0),
+    m_currentProgress(0),
+    m_fileProgressMax(0),
+    m_currentFileProgress(0),
+    m_aborted(false),
+    m_timer(std::make_unique<QTimer>()),
+    m_windowTitle(title),
+    m_lintThreadManager(std::make_unique<LintThreadManager>(this)),
+    m_workerThread(std::make_unique<QThread>(this)),
+    m_parent(dynamic_cast<MainWindow*>(parent))
 {
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
-    m_elapsedTime = 0;
-    m_eta = 5;
     ui->setupUi(this);
     ui->lintProgressBar->setValue(0);
     ui->lintProgressBar->setMaximum(0);
-    m_timer = std::make_unique<QTimer>();
 
-    connect(m_timer.get(), &QTimer::timeout, this, &ProgressWindow::slotUpdateTime);
+    QObject::connect(m_timer.get(), &QTimer::timeout, this, &ProgressWindow::slotUpdateTime);
     m_timer->start(1000);
-    m_windowTitle = title;
-    m_progressMax = 0;
-    m_currentProgress = 0;
-    m_fileProgressMax = 0;
-    m_currentFileProgress = 0;
-    m_parent = dynamic_cast<MainWindow*>(parent);
-    m_aborted = false;
-    m_lintThreadManager = std::make_unique<LintThreadManager>(this);
-
-    m_workerThread = std::make_unique<QThread>(this);
     m_lintThreadManager->moveToThread(m_workerThread.get());
     m_workerThread->start();
 
     // Signal lint thread manager to start linting
-    connect(this, &ProgressWindow::signalStartLintManager, m_lintThreadManager.get(), &LintThreadManager::slotStartLintManager);
+    QObject::connect(this, &ProgressWindow::signalStartLintManager, m_lintThreadManager.get(), &LintThreadManager::slotStartLintManager);
     // Get linter data from MainWindow
-    connect(m_lintThreadManager.get(), &LintThreadManager::signalGetLinterData, m_parent, &MainWindow::slotGetLinterData);
+    QObject::connect(m_lintThreadManager.get(), &LintThreadManager::signalGetLinterData, m_parent, &MainWindow::slotGetLinterData);
     // Send linter data to Lint thread manager
-    connect(m_parent, &MainWindow::signalSetLinterData, m_lintThreadManager.get(), &LintThreadManager::slotSetLinterData);
+    QObject::connect(m_parent, &MainWindow::signalSetLinterData, m_lintThreadManager.get(), &LintThreadManager::slotSetLinterData);
     // Tell MainWindow we are done
-    connect(this, &ProgressWindow::signalLintFinished, m_parent, &MainWindow::slotLintFinished);
+    QObject::connect(this, &ProgressWindow::signalLintFinished, m_parent, &MainWindow::slotLintFinished);
 
-    connect(this, &ProgressWindow::signalLintComplete, m_parent, &MainWindow::slotLintComplete);
+    QObject::connect(this, &ProgressWindow::signalLintComplete, m_parent, &MainWindow::slotLintComplete);
 
     ui->lintGroupBox->setTitle(title);
 

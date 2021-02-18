@@ -27,11 +27,8 @@
 #include <QThread>
 #include <QMutexLocker>
 
-Linter::Linter()
+Linter::Linter() : m_numberOfErrors(0), m_numberOfWarnings(0), m_numberOfInfo(0)
 {
-    m_numberOfErrors = 0;
-    m_numberOfInfo = 0;
-    m_numberOfWarnings = 0;
 }
 
 QSet<LintMessage> Linter::getLinterMessages() const noexcept
@@ -129,7 +126,7 @@ Lint::Status Linter::lint() noexcept
 
     QString cmdString = m_linterExecutable;
 
-    connect(&lintProcess, &QProcess::errorOccurred, this, [&](const QProcess::ProcessError& error)
+    QObject::connect(&lintProcess, &QProcess::errorOccurred, this, [&](const QProcess::ProcessError& error)
     {
         if (status != Lint::LINTER_CANCEL && status != Lint::LINTER_UNSUPPORTED_VERSION)
         {
@@ -138,7 +135,7 @@ Lint::Status Linter::lint() noexcept
         }
     });
 
-    connect(&lintProcess, &QProcess::readyReadStandardOutput, this, [&]()
+    QObject::connect(&lintProcess, &QProcess::readyReadStandardOutput, this, [&]()
     {
         if (QThread::currentThread()->isInterruptionRequested())
         {
@@ -162,12 +159,12 @@ Lint::Status Linter::lint() noexcept
     float processingTimeTotal = 0;
 
 
-    connect(&lintProcess, &QProcess::started, this, [&]()
+    QObject::connect(&lintProcess, &QProcess::started, this, [&]()
     {
         lintStartTime = std::chrono::steady_clock::now();
     });
 
-    connect(&lintProcess, &QProcess::readyReadStandardError, this,[&,this]()
+    QObject::connect(&lintProcess, &QProcess::readyReadStandardError, this,[&,this]()
     {
         if (QThread::currentThread()->isInterruptionRequested())
         {

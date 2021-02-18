@@ -20,15 +20,11 @@
 #include "ProgressWindow.h"
 #include "Linter.h"
 
-LintThreadManager::LintThreadManager(QObject *parent)
+LintThreadManager::LintThreadManager(QObject *parent): m_completedLints(0), m_parent(parent)
 {
-    m_parent = parent;
-    m_completedLints = 0;
-
-    connect(this, &LintThreadManager::signalLintFinished, dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotLintFinished);
-    connect(this, &LintThreadManager::signalLintComplete, dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotLintComplete);
-    connect(dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::signalAbortLint,this, &LintThreadManager::slotAbortLint);
-
+    QObject::connect(this, &LintThreadManager::signalLintFinished, dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotLintFinished);
+    QObject::connect(this, &LintThreadManager::signalLintComplete, dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotLintComplete);
+    QObject::connect(dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::signalAbortLint,this, &LintThreadManager::slotAbortLint);
 }
 
 void LintThreadManager::joinAll() const noexcept
@@ -123,15 +119,15 @@ void LintThreadManager::startLint() noexcept
         LintData perLintData = m_lintData;
         perLintData.lintFiles = lintFileList;
 
-        connect(this, &LintThreadManager::signalSetLinterData, linter.get(), &Linter::slotGetLinterData);
-        connect(this, &LintThreadManager::signalStartLint, linter.get(), &Linter::slotStartLint);
-        connect(linter.get(), &Linter::signalLintFinished, this, &LintThreadManager::slotLintFinished);
+        QObject::connect(this, &LintThreadManager::signalSetLinterData, linter.get(), &Linter::slotGetLinterData);
+        QObject::connect(this, &LintThreadManager::signalStartLint, linter.get(), &Linter::slotStartLint);
+        QObject::connect(linter.get(), &Linter::signalLintFinished, this, &LintThreadManager::slotLintFinished);
 
 
-        connect(linter.get(), &Linter::signalUpdateProgress, dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProgress);
-        connect(linter.get(), &Linter::signalUpdateProgressMax, dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProgressMax);
-        connect(linter.get(), &Linter::signalUpdateProcessedFiles, dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProcessedFiles);
-        connect(linter.get(), &Linter::signalUpdateETA, dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateETA);
+        QObject::connect(linter.get(), &Linter::signalUpdateProgress, dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProgress);
+        QObject::connect(linter.get(), &Linter::signalUpdateProgressMax, dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProgressMax);
+        QObject::connect(linter.get(), &Linter::signalUpdateProcessedFiles, dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProcessedFiles);
+        QObject::connect(linter.get(), &Linter::signalUpdateETA, dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateETA);
 
         // Now move to thread
         linter->moveToThread(lintThread.get());

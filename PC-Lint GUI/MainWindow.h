@@ -79,19 +79,16 @@ private slots:
     void on_actionLint_project_triggered();
     void on_aboutLinty_triggered();
     void on_actionRefresh_triggered();
-
     void slotFileModified(QString modifiedFile);
     void slotFileDoesntExist(const QString& deletedFile);
-
     void on_actionLog_triggered();
 
 public:
-    Ui::MainWindow *m_ui;
-    void configureLintTable();
     void startLint(bool lintProject);
     void startLintThread(QString title);
 
 private:
+    Ui::MainWindow* m_ui;
     std::unique_ptr<QToolBar> m_lowerToolbar;
     std::unique_ptr<QToolButton> m_buttonErrors;
     std::unique_ptr<QToolButton> m_buttonWarnings;
@@ -107,7 +104,6 @@ private:
     std::unique_ptr<Preferences> m_preferences;
     Linter m_linter;
     std::unique_ptr<Highlighter> m_highlighter;
-    bool verifyLint();
 
     std::unique_ptr<QMenu> m_lintTableMenu;
     QMap<QString, QString> m_projectLintMap;
@@ -117,7 +113,7 @@ private:
     std::unique_ptr<ModifiedFileThread> m_modifiedFileWorker;
 
     void displayLintTable();
-
+    bool verifyLint();
     QSet<QString> recursiveBuildSourceFileSet(const QString& directory);
 
 };
