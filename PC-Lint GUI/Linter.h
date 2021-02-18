@@ -109,6 +109,7 @@ typedef struct
     int numberOfErrors;
     int numberOfWarnings;
     int numberOfInfo;
+    QString errorMessage;
 } LintResponse;
 
 class Linter : public QObject
@@ -135,10 +136,12 @@ public:
     int numberOfErrors() const noexcept;
     int numberOfWarnings() const noexcept;
     int numberOfInfo() const noexcept;
+    QString errorMessage() const noexcept;
 
     void setNumberOfErrors(int numberOfErrors) noexcept;
     void setNumberOfWarnings(int numberOfWarnings) noexcept;
     void setNumberOfInfo(int numberOfInfo) noexcept;
+    void setErrorMessage(const QString& errorMessage) noexcept;
 
     void appendLinterMessages(const QSet<LintMessage>& lintMessages) noexcept;
     void appendLinterErrors(int numberOfErrors) noexcept;
@@ -174,11 +177,16 @@ private:
     int m_numberOfErrors;
     int m_numberOfWarnings;
     int m_numberOfInfo;
+    QString m_linterErrorMessage;
 };
 
 inline bool operator==(const LintMessage &e1, const LintMessage &e2)
 {
-    return (e1.number == e2.number) && (e1.file == e2.file) && (e1.line == e2.line) && (e1.type == e2.type) && (e1.description == e2.description);
+    return (e1.number == e2.number) &&
+            (e1.file == e2.file) &&
+            (e1.line == e2.line) &&
+            (e1.type == e2.type) &&
+            (e1.description == e2.description);
 }
 
 inline uint qHash(const LintMessage &key, uint seed)

@@ -461,6 +461,7 @@ void MainWindow::slotLintFinished(const LintResponse& lintResponse)
     else
     {
         qDebug() << "[Error] Linter error " << lintResponse.status << "occurred so not appending any data";
+        m_linter.setErrorMessage(lintResponse.errorMessage);
     }
 
     // Save status
@@ -616,7 +617,7 @@ void MainWindow::displayLintTable()
         auto type = new QTableWidgetItem;
         //type->setData(Qt::DecorationRole, QPixmap::fromImage(*m_icons[ICON_CORRECT]));
         lintTable->setItem( lintTable->rowCount()-1, 0, type);
-        lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem("No errors were detected :)"));
+        lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem("No errors were detected"));
     }
 
     emit signalUpdateTypes(m_linter.numberOfErrors(), m_linter.numberOfWarnings(), m_linter.numberOfInfo());
@@ -633,7 +634,7 @@ void MainWindow::displayLintTable()
     }
     else if (m_linterStatus & Lint::Status::LINTER_LICENSE_ERROR)
     {
-        QMessageBox::critical(this, "Error", "Failed to start lint because of license error. Check your PC-Lint/PC-Lint Plus license");
+        QMessageBox::critical(this, "Error", m_linter.errorMessage());
     }
     else if (m_linterStatus & Lint::Status::LINTER_PROCESS_ERROR)
     {

@@ -29,6 +29,8 @@ void Log::createLogFile(const QString &file) noexcept
     }
 }
 
+// TODO: Find out why logging has stopped working i.e stopped logging to file
+
 void Log::log(const QString &value) noexcept
 {
     QString text = value;

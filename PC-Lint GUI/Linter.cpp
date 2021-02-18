@@ -102,7 +102,18 @@ void Linter::slotStartLint() noexcept
     lintResponse.numberOfErrors = m_numberOfErrors;
     lintResponse.numberOfWarnings = m_numberOfWarnings;
     lintResponse.numberOfInfo = m_numberOfInfo;
+    lintResponse.errorMessage = m_linterErrorMessage;
     emit signalLintFinished(lintResponse);
+}
+
+void Linter::setErrorMessage(const QString& errorMessage) noexcept
+{
+    m_linterErrorMessage = errorMessage;
+}
+
+QString Linter::errorMessage() const noexcept
+{
+    return m_linterErrorMessage;
 }
 
 Lint::Status Linter::lint() noexcept
@@ -199,6 +210,7 @@ Lint::Status Linter::lint() noexcept
                 lintProcess.closeReadChannel(QProcess::StandardOutput);
                 lintProcess.closeReadChannel(QProcess::StandardError);
                 DEBUG_LOG("[Error] Failed to start lint because of license error");
+                m_linterErrorMessage = readStdErr;
                 lintProcess.close();
                 return;
             }
