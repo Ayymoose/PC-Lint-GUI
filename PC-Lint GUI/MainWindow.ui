@@ -177,7 +177,7 @@ selection-color: rgb(0, 0, 0);</string>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="linty.qrc">
+    <iconset resource="PC-Lint GUI.qrc">
      <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
    </property>
    <property name="text">
@@ -192,7 +192,7 @@ selection-color: rgb(0, 0, 0);</string>
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset resource="linty.qrc">
+    <iconset resource="PC-Lint GUI.qrc">
      <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
    </property>
    <property name="text">
@@ -207,7 +207,7 @@ selection-color: rgb(0, 0, 0);</string>
   </action>
   <action name="actionExit">
    <property name="icon">
-    <iconset theme="exit.png" resource="linty.qrc">
+    <iconset theme="exit.png" resource="PC-Lint GUI.qrc">
      <normaloff>:/images/exit.png</normaloff>:/images/exit.png</iconset>
    </property>
    <property name="text">
@@ -219,7 +219,7 @@ selection-color: rgb(0, 0, 0);</string>
   </action>
   <action name="actionCopy">
    <property name="icon">
-    <iconset resource="linty.qrc">
+    <iconset resource="PC-Lint GUI.qrc">
      <normaloff>:/images/copy.png</normaloff>:/images/copy.png</iconset>
    </property>
    <property name="text">
@@ -231,7 +231,7 @@ selection-color: rgb(0, 0, 0);</string>
   </action>
   <action name="actionCut">
    <property name="icon">
-    <iconset resource="linty.qrc">
+    <iconset resource="PC-Lint GUI.qrc">
      <normaloff>:/images/cut.png</normaloff>:/images/cut.png</iconset>
    </property>
    <property name="text">
@@ -243,7 +243,7 @@ selection-color: rgb(0, 0, 0);</string>
   </action>
   <action name="actionRefresh">
    <property name="icon">
-    <iconset resource="linty.qrc">
+    <iconset resource="PC-Lint GUI.qrc">
      <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
    </property>
    <property name="text">
@@ -255,7 +255,7 @@ selection-color: rgb(0, 0, 0);</string>
   </action>
   <action name="aboutLinty">
    <property name="icon">
-    <iconset resource="linty.qrc">
+    <iconset resource="PC-Lint GUI.qrc">
      <normaloff>:/images/info.png</normaloff>:/images/info.png</iconset>
    </property>
    <property name="text">
@@ -298,7 +298,7 @@ selection-color: rgb(0, 0, 0);</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="linty.qrc"/>
+  <include location="PC-Lint GUI.qrc"/>
  </resources>
  <connections/>
 </ui>
