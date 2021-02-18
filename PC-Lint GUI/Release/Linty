@@ -1,5 +1,0 @@
-[Settings]
-MaxThreads=8
-LintExecutablePath=D:/Users/Ayman/Desktop/IDA PRO/pclp-1.3.5-windows-eval/windows/pclp64_debug.exe
-LintFilePath=D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-6901 (Merlin Compatible Lighting Control)/std_pclp.lnt
-LastDirectory=D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-6901 (Merlin Compatible Lighting Control)

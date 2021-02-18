@@ -1,6 +1,0 @@
-[LINT_OPTIONS]
-LINT_COMMANDS=
-LINT_EXE=D:/lint/lint-nt.exe
-LINT_FILE=D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/lint/std.lnt
-LINT_LAST_DIRECTORY=D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5401 (Merlin Compatible IR Camera)/lint
-LINT_SOURCE=D:/Users/Ayman/Desktop/MerlinEmbedded/CA20-5501 (Merlin Compatible 4-line Visible Camera)
