@@ -35,7 +35,8 @@ void LintThreadManager::joinAll() const noexcept
      }
      std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[](auto const& thread)
      {
-         Q_ASSERT(thread->wait());
+         auto waitComplete = thread->wait();
+         Q_ASSERT(waitComplete);
      });
 }
 
@@ -178,7 +179,8 @@ void LintThreadManager::slotAbortLint() noexcept
     });
     std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[this,&threads](const auto& thread)
     {
-        Q_ASSERT(thread->wait());
+        auto waitComplete = thread->wait();
+        Q_ASSERT(waitComplete);
         qDebug() << threads++ << "/" << m_lintThreads.size() << " finished";
     });
     qDebug() << "Lint aborted!";

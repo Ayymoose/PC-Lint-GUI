@@ -77,13 +77,13 @@ public:
 
     }
 
-    QSize sizeHint() const override
+    QSize sizeHint() const noexcept override
     {
         return QSize(m_codeEditor->lineNumberAreaWidth(), 0);
     }
 
 protected:
-    void paintEvent(QPaintEvent *event) override
+    void paintEvent(QPaintEvent *event) noexcept override
     {
         m_codeEditor->lineNumberAreaPaintEvent(event);
     }

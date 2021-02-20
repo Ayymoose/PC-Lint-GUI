@@ -83,9 +83,9 @@ namespace Lint
         MESSAGE_TYPE_UNKNOWN,
     };
 
-    const int MAX_PROCESS_CHARACTERS = 8192;
-    const int MAX_LINT_TIME = 10*60*1000;
-    const int MAX_LINT_PATH = 512;
+    constexpr int MAX_PROCESS_CHARACTERS = 8192;
+    constexpr int MAX_LINT_TIME = 10*60*1000;
+    constexpr int MAX_LINT_PATH = 512;
 };
 
 typedef struct
@@ -189,7 +189,7 @@ private:
     QString m_linterErrorMessage;
 };
 
-inline bool operator==(const LintMessage &e1, const LintMessage &e2)
+inline bool operator==(const LintMessage &e1, const LintMessage &e2) noexcept
 {
     return (e1.number == e2.number) &&
             (e1.file == e2.file) &&
@@ -198,7 +198,7 @@ inline bool operator==(const LintMessage &e1, const LintMessage &e2)
             (e1.description == e2.description);
 }
 
-inline uint qHash(const LintMessage &key, uint seed)
+inline uint qHash(const LintMessage &key, uint seed) noexcept
 {
     return qHash(key.number + key.line, seed) ^ qHash(key.file + key.type + key.description, seed);
 }

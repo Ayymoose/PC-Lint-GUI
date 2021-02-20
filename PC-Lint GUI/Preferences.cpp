@@ -141,3 +141,12 @@ void Preferences::on_buttonCancel_clicked()
     close();
     loadSettings();
 }
+
+// TODO: Reload events on X, doesn't close dialog if reject() overriden for some reason
+// X clicked
+/*void Preferences::reject()
+{
+    close();
+    loadSettings();
+}
+*/

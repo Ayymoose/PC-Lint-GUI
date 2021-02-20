@@ -73,15 +73,17 @@ private slots:
     void exit();
     void copy();
     void cut();
-    void on_actionLint_options_triggered();
-    void on_actionLint_triggered();
-    void on_lintTable_cellDoubleClicked(int row, int column);
-    void on_actionLint_project_triggered();
-    void on_aboutLinty_triggered();
-    void on_actionRefresh_triggered();
+
     void slotFileModified(QString modifiedFile);
     void slotFileDoesntExist(const QString& deletedFile);
+
+    void on_aboutLinty_triggered();
+    void on_actionRefresh_triggered();
     void on_actionLog_triggered();
+    void on_actionLintProject_triggered();
+    void on_actionPreferences_triggered();
+    void on_actionLint_triggered();
+    void on_lintTable_cellDoubleClicked(int row, int column);
 
 public:
     void startLint(bool lintProject);

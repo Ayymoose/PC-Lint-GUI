@@ -27,7 +27,7 @@
        <enum>Qt::Vertical</enum>
       </property>
       <widget class="CodeEditor" name="codeEditor"/>
-      <widget class="QTableWidget" name="lintTable">
+      <widget class="QTreeWidget" name="lintTable">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -59,36 +59,9 @@ selection-color: rgb(0, 0, 0);</string>
        <property name="selectionBehavior">
         <enum>QAbstractItemView::SelectRows</enum>
        </property>
-       <property name="sortingEnabled">
-        <bool>true</bool>
-       </property>
-       <attribute name="horizontalHeaderVisible">
-        <bool>true</bool>
-       </attribute>
-       <attribute name="horizontalHeaderMinimumSectionSize">
-        <number>20</number>
-       </attribute>
-       <attribute name="horizontalHeaderHighlightSections">
-        <bool>false</bool>
-       </attribute>
-       <attribute name="horizontalHeaderStretchLastSection">
-        <bool>false</bool>
-       </attribute>
-       <attribute name="verticalHeaderVisible">
-        <bool>true</bool>
-       </attribute>
-       <attribute name="verticalHeaderDefaultSectionSize">
-        <number>27</number>
-       </attribute>
-       <attribute name="verticalHeaderHighlightSections">
-        <bool>true</bool>
-       </attribute>
-       <attribute name="verticalHeaderStretchLastSection">
-        <bool>false</bool>
-       </attribute>
        <column>
         <property name="text">
-         <string/>
+         <string>File</string>
         </property>
        </column>
        <column>
@@ -98,12 +71,7 @@ selection-color: rgb(0, 0, 0);</string>
        </column>
        <column>
         <property name="text">
-         <string>Message</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>File</string>
+         <string>Description</string>
         </property>
        </column>
        <column>
@@ -141,8 +109,8 @@ selection-color: rgb(0, 0, 0);</string>
     </property>
     <addaction name="separator"/>
     <addaction name="actionLint"/>
-    <addaction name="actionLint_project"/>
-    <addaction name="actionLint_options"/>
+    <addaction name="actionLintProject"/>
+    <addaction name="actionPreferences"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -273,12 +241,12 @@ selection-color: rgb(0, 0, 0);</string>
     <string>Lint directory</string>
    </property>
   </action>
-  <action name="actionLint_options">
+  <action name="actionPreferences">
    <property name="text">
     <string>Preferences</string>
    </property>
   </action>
-  <action name="actionLint_project">
+  <action name="actionLintProject">
    <property name="text">
     <string>Lint project</string>
    </property>

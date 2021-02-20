@@ -131,7 +131,8 @@ ProgressWindow::~ProgressWindow()
     }
     delete ui;
     m_workerThread->quit();
-    Q_ASSERT(m_workerThread->wait());
+    auto waitComplete = m_workerThread->wait();
+    Q_ASSERT(waitComplete);
     qDebug() << "ProgressWindow destroyed";
 }
 

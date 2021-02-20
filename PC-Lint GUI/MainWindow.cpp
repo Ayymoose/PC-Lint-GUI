@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
 { 
     qRegisterMetaType<Lint::Status>("Lint::Status");
     qRegisterMetaType<QSet<LintMessage>>("QSet<LintMessage>");
-    qRegisterMetaType<QMap<QString,QDateTime>>("QMap<QString,QDateTime>");
+    //qRegisterMetaType<QMap<QString,QDateTime>>("QMap<QString,QDateTime>");
     qRegisterMetaType<LintData>("LintData");
     qRegisterMetaType<LintResponse>("LintResponse");
 
@@ -154,7 +154,7 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     m_ui->lintTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    QObject::connect(m_ui->lintTable, &QTableWidget::customContextMenuRequested, this, &MainWindow::handleContextMenu);
+    //QObject::connect(m_ui->lintTable, &QTableWidget::customContextMenuRequested, this, &MainWindow::handleContextMenu);
 
     // With syntax highlighting
     m_highlighter = std::make_unique<Highlighter>(m_ui->codeEditor->document());
@@ -166,6 +166,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_modifiedFileWorker.get(), &ModifiedFileThread::signalFileDoesntExist, this, &MainWindow::slotFileDoesntExist);
     QObject::connect(m_modifiedFileWorker.get(), &ModifiedFileThread::signalFileModified, this, &MainWindow::slotFileModified);
     m_modifiedFileWorker->start();
+
+    // TreeWidget font set to 12
+    m_ui->lintTable->setStyleSheet("QTreeWidget { font-size: 12pt; }");
 }
 
 MainWindow::~MainWindow()
@@ -218,7 +221,7 @@ void MainWindow::cut()
 }
 
 // Open preferences
-void MainWindow::on_actionLint_options_triggered()
+void MainWindow::on_actionPreferences_triggered()
 {
     m_preferences->setModal(true);
     m_preferences->exec();
@@ -382,7 +385,7 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
 {
     // Get the file
     // Column 3 is just the file name
-    QTableWidgetItem* item = m_ui->lintTable->item(row,3);
+    /*auto* item = m_ui->lintTable->item(row,3);
     Q_ASSERT(item);
     QString fileToLoad = item->data(Qt::UserRole).value<QString>();
 
@@ -393,10 +396,10 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
         // If the file doesn't exist and we wanted to keep it in the editor, create it by saving the current loaded file
         // But check that the current loaded file is the one we are saving otherwise
         // How do save files that don't exist anymore?
-        /*if (!QFile(fileToLoad).exists())
-        {
-            save();
-        }*/
+        //if (!QFile(fileToLoad).exists())
+        //{
+        //    save();
+        //}
 
         // Load the file into the code editor
         if (m_ui->codeEditor->loadedFile() != fileToLoad)
@@ -430,13 +433,8 @@ void MainWindow::on_lintTable_cellDoubleClicked(int row, int)
 
 
 
-    }
+    }*/
 
-}
-
-void MainWindow::on_actionLint_project_triggered()
-{
-    startLint(true);
 }
 
 void MainWindow::on_actionLint_triggered()
@@ -475,153 +473,192 @@ void MainWindow::displayLintTable()
 
     QMap<QString, ModifiedFile> modifiedFiles;
 
-    QTableWidget* lintTable = m_ui->lintTable;
-    lintTable->setSortingEnabled(false);
-    int rowCount = lintTable->rowCount();
-    int colCount = lintTable->columnCount();
+    //m_ui->lintTable->setSortingEnabled(false);
 
     // Get ALL lint messages (combination from all threads)
-    auto linterMessages = m_linter.getLinterMessages();
-
     auto const groupedMessages = m_linter.groupLinterMessages();
 
-    // Clear existing table
-    for (int row=0; row < rowCount; row++)
+    // Clear all entries
+    auto treeWidget = m_ui->lintTable;
+    while (treeWidget->topLevelItemCount())
     {
-        for (int col=0; col < colCount; col++)
+        QTreeWidgetItemIterator treeItr(treeWidget, QTreeWidgetItemIterator::NoChildren);
+        while (*treeItr)
         {
-            QTableWidgetItem* item = lintTable->item(row,col);
-            delete item;
+            delete (*treeItr);
+            treeItr++;
         }
     }
 
-    lintTable->clearContents();
-    lintTable->setRowCount(0);
+    //lintTable->clearContents();
+    //lintTable->setRowCount(0);
 
-    for (const LintMessage& message : linterMessages)
+    // Group messages together
+    for (const auto& groupMessage : groupedMessages)
     {
-        QString number = message.number;
-        QString file = message.file;
-        QString line = message.line;
-        QString type = message.type;
-        QString description = message.description;
+        // Every vector must be at least 1 otherwise something went wrong in groupLinterMessages()
+        Q_ASSERT(groupMessage.size() >= 1);
 
-        // Check if the file exists (absolute path given)
-        // Check if it exists in the project file's directory
-        if (!QFile(file).exists())
+        // Create the top-level item
+        const auto messageTop = groupMessage.front();
+
+        auto* fileDetailsItemTop = new QTreeWidgetItem(m_ui->lintTable);
+        fileDetailsItemTop->setText(0, QFileInfo(messageTop.file).fileName());
+
+        // If it's just a single entry
+        if (groupMessage.size() == 1)
         {
-            QString relativeFile = QFileInfo(m_linter.getLinterFile()).canonicalPath() + QDir::separator() + file;
-            if (!QFile(relativeFile).exists())
+            auto* detailsItemTop = new QTreeWidgetItem(fileDetailsItemTop);
+            detailsItemTop->setText(0, messageTop.type);
+            detailsItemTop->setText(1, messageTop.number);
+            detailsItemTop->setText(2, messageTop.description);
+            detailsItemTop->setText(3, messageTop.line);
+
+            // Skip next
+            continue;
+        }
+
+        // Create the top-level item again
+        auto* fileDetailsItem = new QTreeWidgetItem(fileDetailsItemTop);
+        fileDetailsItem->setText(0, QFileInfo(messageTop.file).fileName());
+
+        // Otherwise grab the rest of the group
+        for (const auto& message : groupMessage)
+        {
+            const auto number = message.number;
+            auto file = message.file;
+            const auto line = message.line;
+            const auto type = message.type;
+            const auto description = message.description;
+
+            // Check if the file exists (absolute path given)
+            // Check if it exists in the project file's directory
+            if (!QFile(file).exists())
             {
-                DEBUG_LOG("[Error] Unknown file in linter messages: " + file);
-                file = "";
+                const auto relativeFile = QFileInfo(m_linter.getLinterFile()).canonicalPath() + QDir::separator() + file;
+                if (!QFile(relativeFile).exists())
+                {
+                    DEBUG_LOG("[Error] Unknown file in linter messages: " + file);
+                    file = "";
+                }
+                else
+                {
+                    file = relativeFile;
+                }
+            }
+
+            Lint::Message messageType;
+
+            // Determine type
+            if (!QString::compare(type, Lint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
+            {
+                messageType = Lint::Message::MESSAGE_TYPE_ERROR;
+            }
+            else if (!QString::compare(type, Lint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
+            {
+                messageType = Lint::Message::MESSAGE_TYPE_WARNING;
+            }
+            else if (!QString::compare(type, Lint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
+            {
+                messageType = Lint::Message::MESSAGE_TYPE_INFORMATION;
+            }
+            else if (!QString::compare(type, Lint::Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
+            {
+                messageType = Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL;
             }
             else
             {
-                file = relativeFile;
+                messageType = Lint::Message::MESSAGE_TYPE_UNKNOWN;
             }
-        }
 
-        Lint::Message messageType;
-
-        // Determine type
-        if (!QString::compare(type, Lint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
-        {
-            messageType = Lint::Message::MESSAGE_TYPE_ERROR;
-        }
-        else if (!QString::compare(type, Lint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
-        {
-            messageType = Lint::Message::MESSAGE_TYPE_WARNING;
-        }
-        else if (!QString::compare(type, Lint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
-        {
-            messageType = Lint::Message::MESSAGE_TYPE_INFORMATION;
-        }
-        else if (!QString::compare(type, Lint::Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
-        {
-            messageType = Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL;
-        }
-        else
-        {
-            messageType = Lint::Message::MESSAGE_TYPE_UNKNOWN;
-        }
-
-
-        // Filter
-        if (!m_toggleError)
-        {
-            if (messageType == Lint::Message::MESSAGE_TYPE_ERROR)
+            // Filter
+            if (!m_toggleError)
             {
-                continue;
+                if (messageType == Lint::Message::MESSAGE_TYPE_ERROR)
+                {
+                    continue;
+                }
             }
-        }
 
-        if (!m_toggleWarning)
-        {
-            if (messageType == Lint::Message::MESSAGE_TYPE_WARNING)
+            if (!m_toggleWarning)
             {
-                continue;
+                if (messageType == Lint::Message::MESSAGE_TYPE_WARNING)
+                {
+                    continue;
+                }
             }
-        }
 
-        if (!m_toggleInfo)
-        {
-            if (messageType == Lint::Message::MESSAGE_TYPE_INFORMATION || messageType == Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL)
+            if (!m_toggleInfo)
             {
-                continue;
+                if (messageType == Lint::Message::MESSAGE_TYPE_INFORMATION || messageType == Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL)
+                {
+                    continue;
+                }
             }
+
+            // The sticky details
+            auto* detailsItem = new QTreeWidgetItem(fileDetailsItem);
+            detailsItem->setText(0, message.type);
+            detailsItem->setText(1, message.number);
+            detailsItem->setText(2, message.description);
+            detailsItem->setText(3, message.line);
+
+
+            // Insert row
+            //lintTable->insertRow(lintTable->rowCount());
+
+            // Set item data
+           /* auto* typeWidget = new QTableWidgetItem;
+            auto* codeWidget = new QTableWidgetItem;
+            auto* lineWidget = new QTableWidgetItem;
+            auto* fileWidget = new QTableWidgetItem;
+
+            codeWidget->setData(Qt::DisplayRole,number.toUInt());
+            lineWidget->setData(Qt::DisplayRole,line.toUInt());
+            fileWidget->setData(Qt::DisplayRole, QFileInfo(file).fileName());
+            fileWidget->setData(Qt::UserRole, file);
+    */
+            // Add to set of modified files
+            ModifiedFile modifiedFile;
+           /* modifiedFile.lastModified = QFileInfo(file).lastModified();
+            modifiedFile.keepFile = true;
+            modifiedFiles[fileWidget->data(Qt::UserRole).value<QString>()] = modifiedFile;
+    */
+            QImage icon;
+            switch (messageType)
+            {
+                case Lint::Message::MESSAGE_TYPE_ERROR: icon.load(":/images/error.png");  break;
+                case Lint::Message::MESSAGE_TYPE_WARNING: icon.load(":/images/warning.png"); break;
+                case Lint::Message::MESSAGE_TYPE_INFORMATION: icon.load(":/images/info.png"); break;
+                // TODO: Get an icon for supplemental
+                case Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL: icon.load(":/images/info.png"); break;
+                default: Q_ASSERT(false); break;
+            }
+
+            //typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(icon));
+
+            //lintTable->setItem( lintTable->rowCount()-1, 0, typeWidget);
+            //lintTable->setItem( lintTable->rowCount()-1, 1, codeWidget);
+            //lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem(description));
+            //lintTable->setItem( lintTable->rowCount()-1, 3, fileWidget);
+            //lintTable->setItem( lintTable->rowCount()-1, 4, lineWidget);
+
         }
 
-        // Insert row
-        lintTable->insertRow(lintTable->rowCount());
-
-        // Set item data
-        QTableWidgetItem* typeWidget = new QTableWidgetItem;
-        QTableWidgetItem* codeWidget = new QTableWidgetItem;
-        QTableWidgetItem* lineWidget = new QTableWidgetItem;
-        QTableWidgetItem* fileWidget = new QTableWidgetItem;
-
-        codeWidget->setData(Qt::DisplayRole,number.toUInt());
-        lineWidget->setData(Qt::DisplayRole,line.toUInt());
-        fileWidget->setData(Qt::DisplayRole, QFileInfo(file).fileName());
-        fileWidget->setData(Qt::UserRole, file);
-
-        // Add to set of modified files
-        ModifiedFile modifiedFile;
-        modifiedFile.lastModified = QFileInfo(file).lastModified();
-        modifiedFile.keepFile = true;
-        modifiedFiles[fileWidget->data(Qt::UserRole).value<QString>()] = modifiedFile;
-
-        QImage icon;
-        switch (messageType)
-        {
-            case Lint::Message::MESSAGE_TYPE_ERROR: icon.load(":/images/error.png");  break;
-            case Lint::Message::MESSAGE_TYPE_WARNING: icon.load(":/images/warning.png"); break;
-            case Lint::Message::MESSAGE_TYPE_INFORMATION: icon.load(":/images/info.png"); break;
-            // TODO: Get an icon for supplemental
-            case Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL: icon.load(":/images/info.png"); break;
-            default: Q_ASSERT(false); break;
-        }
-
-        typeWidget->setData(Qt::DecorationRole, QPixmap::fromImage(icon));
-
-        lintTable->setItem( lintTable->rowCount()-1, 0, typeWidget);
-        lintTable->setItem( lintTable->rowCount()-1, 1, codeWidget);
-        lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem(description));
-        lintTable->setItem( lintTable->rowCount()-1, 3, fileWidget);
-        lintTable->setItem( lintTable->rowCount()-1, 4, lineWidget);
     }
-    lintTable->setSortingEnabled(true);
+   //m_ui->lintTable->setSortingEnabled(true);
+
+    m_ui->lintTable->expandAll();
 
     // Show message if there are no lint problems
     if (m_linter.numberOfErrors() == 0 && m_linter.numberOfWarnings() == 0 && m_linter.numberOfInfo() == 0)
     {
         // Set item data
         // TODO: Fix memory leak
-        auto type = new QTableWidgetItem;
+        //auto type = new QTableWidgetItem;
         //type->setData(Qt::DecorationRole, QPixmap::fromImage(*m_icons[ICON_CORRECT]));
-        lintTable->setItem( lintTable->rowCount()-1, 0, type);
-        lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem("No errors were detected"));
+        //lintTable->setItem( lintTable->rowCount()-1, 0, type);
+        //lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem("No errors were detected"));
     }
 
     emit signalUpdateTypes(m_linter.numberOfErrors(), m_linter.numberOfWarnings(), m_linter.numberOfInfo());
@@ -812,13 +849,13 @@ void MainWindow::slotFileDoesntExist(const QString& deletedFile)
 
 void MainWindow::handleContextMenu(const QPoint& pos)
 {
-    QTableWidgetItem *item = m_ui->lintTable->itemAt(pos);
+  /*  auto *item = m_ui->lintTable->itemAt(pos);
 
     if (item)
     {
         // Get the associated widgets
-        QTableWidgetItem* codeWidget = m_ui->lintTable->item(item->row(), 1);
-        QTableWidgetItem* fileWidget = m_ui->lintTable->item(item->row(), 3);
+        auto* codeWidget = m_ui->lintTable->item(item->row(), 1);
+        auto* fileWidget = m_ui->lintTable->item(item->row(), 3);
 
         m_lintTableMenu->clear();
         m_lintTableMenu->popup(m_ui->lintTable->horizontalHeader()->viewport()->mapToGlobal(pos));
@@ -839,7 +876,7 @@ void MainWindow::handleContextMenu(const QPoint& pos)
             QString code = codeWidget->data(Qt::DisplayRole).value<QString>();
             m_linter.removeMessagesWithNumber(code);
             displayLintTable();
-        });
+        });*/
 
         /*QObject::connect(actionSurpressMessages, &QAction::triggered, this, [=]()
         {
@@ -847,7 +884,7 @@ void MainWindow::handleContextMenu(const QPoint& pos)
             //auto s = fileWidget->data(Qt::DisplayRole).value<QString>();
             //DEBUG_LOG("Surpressing messages: " + QString(s));
         });*/
-    }
+    //}
 }
 
 void MainWindow::on_actionLog_triggered()
@@ -874,4 +911,9 @@ QSet<QString> MainWindow::recursiveBuildSourceFileSet(const QString& directory)
     }
     qDebug() << "Total files scanned: " << directoryFiles.size();
     return directoryFiles;
+}
+
+void MainWindow::on_actionLintProject_triggered()
+{
+    startLint(true);
 }

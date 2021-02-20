@@ -35,6 +35,7 @@ public:
     QString getLinterLintFilePath() const noexcept;
     int getLinterHardwareThreads() const noexcept;
     static QString m_lastDirectory;
+    //void reject() override;
 
 private slots:
     void on_lintPathFileOpen_clicked();
