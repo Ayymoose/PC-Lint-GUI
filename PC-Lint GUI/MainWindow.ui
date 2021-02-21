@@ -112,7 +112,6 @@ selection-color: rgb(0, 0, 0);</string>
     <addaction name="actionLintProject"/>
     <addaction name="actionPreferences"/>
     <addaction name="separator"/>
-    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -130,34 +129,15 @@ selection-color: rgb(0, 0, 0);</string>
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="separator"/>
-   <addaction name="actionCopy"/>
-   <addaction name="actionCut"/>
    <addaction name="actionRefresh"/>
    <addaction name="separator"/>
    <addaction name="separator"/>
    <addaction name="aboutLinty"/>
    <addaction name="separator"/>
-   <addaction name="actionExit"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionOpen">
-   <property name="icon">
-    <iconset resource="PC-Lint GUI.qrc">
-     <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
-   </property>
-   <property name="text">
-    <string>Open</string>
-   </property>
-   <property name="toolTip">
-    <string>Open file</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+O</string>
-   </property>
-  </action>
   <action name="actionSave">
    <property name="icon">
     <iconset resource="PC-Lint GUI.qrc">
@@ -171,42 +151,6 @@ selection-color: rgb(0, 0, 0);</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
-   </property>
-  </action>
-  <action name="actionExit">
-   <property name="icon">
-    <iconset theme="exit.png" resource="PC-Lint GUI.qrc">
-     <normaloff>:/images/exit.png</normaloff>:/images/exit.png</iconset>
-   </property>
-   <property name="text">
-    <string>Exit</string>
-   </property>
-   <property name="toolTip">
-    <string>Exit PC-Lint GUI</string>
-   </property>
-  </action>
-  <action name="actionCopy">
-   <property name="icon">
-    <iconset resource="PC-Lint GUI.qrc">
-     <normaloff>:/images/copy.png</normaloff>:/images/copy.png</iconset>
-   </property>
-   <property name="text">
-    <string>Copy</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+C</string>
-   </property>
-  </action>
-  <action name="actionCut">
-   <property name="icon">
-    <iconset resource="PC-Lint GUI.qrc">
-     <normaloff>:/images/cut.png</normaloff>:/images/cut.png</iconset>
-   </property>
-   <property name="text">
-    <string>Cut</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+X</string>
    </property>
   </action>
   <action name="actionRefresh">

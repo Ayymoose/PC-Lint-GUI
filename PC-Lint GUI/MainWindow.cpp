@@ -28,6 +28,7 @@
 #include <QProcess>
 #include <QtGlobal>
 #include <QClipboard>
+#include <QTreeWidget>
 
 #include "Jenkins.h"
 #include "MainWindow.h"
@@ -59,7 +60,6 @@ MainWindow::MainWindow(QWidget *parent) :
 { 
     qRegisterMetaType<Lint::Status>("Lint::Status");
     qRegisterMetaType<QSet<LintMessage>>("QSet<LintMessage>");
-    //qRegisterMetaType<QMap<QString,QDateTime>>("QMap<QString,QDateTime>");
     qRegisterMetaType<LintData>("LintData");
     qRegisterMetaType<LintResponse>("LintResponse");
 
@@ -67,9 +67,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui->setupUi(this);
 
     QObject::connect(m_ui->actionSave, &QAction::triggered, this, &MainWindow::save);
-    QObject::connect(m_ui->actionExit, &QAction::triggered, this, &MainWindow::exit);
-    QObject::connect(m_ui->actionCopy, &QAction::triggered, this, &MainWindow::copy);
-    QObject::connect(m_ui->actionCut, &QAction::triggered, this, &MainWindow::cut);
 
     // Configure the lint table
     // Icon column width
@@ -149,7 +146,7 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     m_ui->lintTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    //QObject::connect(m_ui->lintTable, &QTableWidget::customContextMenuRequested, this, &MainWindow::handleContextMenu);
+    QObject::connect(m_ui->lintTable, &QTreeWidget::customContextMenuRequested, this, &MainWindow::handleContextMenu);
 
     // With syntax highlighting
     m_highlighter = std::make_unique<Highlighter>(m_ui->codeEditor->document());
@@ -199,21 +196,6 @@ void MainWindow::save()
 
         m_ui->statusBar->showMessage("Saved " + currentFile + " at " + QDateTime::currentDateTime().toString());
     }
-}
-
-void MainWindow::exit()
-{
-    QCoreApplication::quit();
-}
-
-void MainWindow::copy()
-{
-
-}
-
-void MainWindow::cut()
-{
-
 }
 
 // Open preferences
@@ -542,10 +524,9 @@ void MainWindow::displayLintTable()
 
             // Add to set of modified files
             ModifiedFile modifiedFile;
-           /* modifiedFile.lastModified = QFileInfo(file).lastModified();
+            modifiedFile.lastModified = QFileInfo(file).lastModified();
             modifiedFile.keepFile = true;
-            modifiedFiles[fileWidget->data(Qt::UserRole).value<QString>()] = modifiedFile;
-            */
+            modifiedFiles[message.file] = modifiedFile;
 
         }
 

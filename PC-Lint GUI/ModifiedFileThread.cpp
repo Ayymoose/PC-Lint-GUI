@@ -21,6 +21,9 @@
 #include <QThread>
 #include <QMutexLocker>
 
+
+// TODO: Change this to QFileSystemWatcher
+
 void ModifiedFileThread::run()
 {
     qDebug() << "Starting monitoring";

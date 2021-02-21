@@ -27,6 +27,7 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     const QString keywordPatterns[] =
     {
+        // TODO: Highlight C or C++ keywords only
         QStringLiteral("\\bchar\\b"), QStringLiteral("\\bclass\\b"), QStringLiteral("\\bconst\\b"),
         QStringLiteral("\\bdouble\\b"), QStringLiteral("\\benum\\b"), QStringLiteral("\\bexplicit\\b"),
         QStringLiteral("\\bfriend\\b"), QStringLiteral("\\binline\\b"), QStringLiteral("\\bint\\b"),
@@ -53,7 +54,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         m_highlightingRules.emplace_back(rule);
     }
 
-    // Preprocessor
+    // TODO: Preprocessor syntax highlighting
     m_preprocessorFormat.setFontWeight(QFont::Bold);
     m_preprocessorFormat.setForeground(BRUSH_GREY);
     rule.pattern = QRegularExpression(QStringLiteral("#[a-z]+"));
@@ -86,6 +87,9 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.pattern = QRegularExpression(QStringLiteral("\\b[A-Za-z0-9_]+(?=\\()"));
     rule.format = m_functionFormat;
     m_highlightingRules.emplace_back(rule);
+
+    // TODO: Numbers
+    // TODO: Operators
 
     m_commentStartExpression = QRegularExpression(QStringLiteral("/\\*"));
     m_commentEndExpression = QRegularExpression(QStringLiteral("\\*/"));

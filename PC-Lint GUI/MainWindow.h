@@ -79,13 +79,8 @@ public slots:
 private slots:
 
     void save();
-    void exit();
-    void copy();
-    void cut();
-
     void slotFileModified(QString modifiedFile);
     void slotFileDoesntExist(const QString& deletedFile);
-
     void on_aboutLinty_triggered();
     void on_actionRefresh_triggered();
     void on_actionLog_triggered();

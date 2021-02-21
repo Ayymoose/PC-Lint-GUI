@@ -123,7 +123,7 @@ Lint::Status Linter::lint() noexcept
 {
     Lint::Status status = Lint::LINTER_COMPLETE;
 
-    auto startLintTime = std::chrono::steady_clock::now();
+    /*auto startLintTime = std::chrono::steady_clock::now();
 
     Q_ASSERT(m_lintFile.length());
     qDebug() << "[" << QThread::currentThreadId() << "]" << "Setting working directory to: " << QFileInfo(m_lintFile).canonicalPath();
@@ -329,18 +329,15 @@ Lint::Status Linter::lint() noexcept
     // TODO: Support PC-Lint Plus
     // PC-Lint Plus argument
     //m_arguments << ("-max_threads=8");
-    /*
-     *
-     * warning -> supplemental
-     * info -> supplemental
-     *
-     */
+
+     // warning -> supplemental
+     // info -> supplemental
 
    // m_arguments << ("-passes(6)");
 
     cmdString += " \"" + m_lintFile + "\"";
 
-    for (const QString& str : m_arguments)
+    for (const auto& str : m_arguments)
     {
         cmdString += " \"" + str + "\"";
     }
@@ -350,7 +347,7 @@ Lint::Status Linter::lint() noexcept
 
     // Assert argument length + lint executable path < 512
     int totalLength = 0;
-    for (const QString& argument : m_arguments)
+    for (const auto& argument : m_arguments)
     {
         totalLength += argument.length();
     }
@@ -358,7 +355,7 @@ Lint::Status Linter::lint() noexcept
     Q_ASSERT(totalLength + m_linterExecutable.length() < 512);
 
     // Add all files to lint    
-    for (const QString& file : m_filesToLint)
+    for (const auto& file : m_filesToLint)
     {
        m_arguments << file;
        cmdString += " \"" + file + "\"";
@@ -447,6 +444,24 @@ Lint::Status Linter::lint() noexcept
     // For each line, if not <doc> </doc> or <f> then escape it
     // Append to string
 
+
+
+    qDebug() << "[" << QThread::currentThreadId() << "]" << "XML data size: " << lintData.size();
+
+    // TODO: Temporary debug information
+    QFile file2("D:\\Users\\Ayman\\Desktop\\PC-Lint GUI\\test\\cmdline.xml");
+    file2.open(QIODevice::WriteOnly);
+    file2.write(cmdString.toLocal8Bit());
+    file2.close();
+
+    QFile lintXMLOutputFile("D:\\Users\\Ayman\\Desktop\\PC-Lint GUI\\test\\xmldata.xml");
+    lintXMLOutputFile.open(QIODevice::WriteOnly);
+    lintXMLOutputFile.write(lintData);
+    lintXMLOutputFile.close();
+    //
+
+    */
+
     /*QList<QByteArray> lines = lintData.split('\n');
     // The error we need to insert
     QString errorToInsert;
@@ -480,19 +495,12 @@ Lint::Status Linter::lint() noexcept
 
     xmlStringNew += "</doc>";*/
 
-    qDebug() << "[" << QThread::currentThreadId() << "]" << "XML data size: " << lintData.size();
-
-    // TODO: Temporary debug information
-    QFile file2("D:\\Users\\Ayman\\Desktop\\PC-Lint GUI\\test\\cmdline.xml");
-    file2.open(QIODevice::WriteOnly);
-    file2.write(cmdString.toLocal8Bit());
-    file2.close();
-
+    QByteArray lintData;
     QFile lintXMLOutputFile("D:\\Users\\Ayman\\Desktop\\PC-Lint GUI\\test\\xmldata.xml");
-    lintXMLOutputFile.open(QIODevice::WriteOnly);
-    lintXMLOutputFile.write(lintData);
+    lintXMLOutputFile.open(QIODevice::ReadOnly);
+    Q_ASSERT(lintXMLOutputFile.isOpen());
+    lintData = lintXMLOutputFile.readAll();
     lintXMLOutputFile.close();
-    //
 
     // Ordering of messages is now important (was QSet)
     // To group supplemental messages together (PC-Lint Plus)
@@ -616,8 +624,8 @@ Lint::Status Linter::lint() noexcept
     m_linterMessages = lintMessages;
 
     auto endLintTime = std::chrono::steady_clock::now();
-    auto totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
-    qDebug() << "[" << QThread::currentThreadId() << "]" << "I took " << totalElapsedTime / 1000.f << "s" << "to complete";
+    //auto totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
+    //qDebug() << "[" << QThread::currentThreadId() << "]" << "I took " << totalElapsedTime / 1000.f << "s" << "to complete";
 
     return status;
 }
@@ -768,10 +776,14 @@ QImage Linter::associateMessageTypeWithIcon(const QString& type) noexcept
     {
         case Lint::Message::MESSAGE_TYPE_ERROR: icon.load(":/images/error.png");  break;
         case Lint::Message::MESSAGE_TYPE_WARNING: icon.load(":/images/warning.png"); break;
-        case Lint::Message::MESSAGE_TYPE_INFORMATION: icon.load(":/images/info.png");
+        case Lint::Message::MESSAGE_TYPE_INFORMATION:
         case Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL: icon.load(":/images/info.png"); break;
         default: Q_ASSERT(false); break;
     }
 
     return icon;
 }
+
+
+
+

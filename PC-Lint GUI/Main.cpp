@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
     Log::createLogFile(LOG_FILENAME);
     DEBUG_LOG("---------- Starting PC-Lint GUI ----------");
     DEBUG_LOG("PC-Lint GUI version: " BUILD_VERSION);
+    // TODO: 32-bit or 64-bit
 
     MainWindow mainWindow;
 
