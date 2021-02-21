@@ -97,6 +97,7 @@ private slots:
 public:
     void startLint(bool lintProject);
     void startLintThread(QString title);
+    bool filterMessageType(const QString& type) const noexcept;
 
 private:
     Ui::MainWindow* m_ui;

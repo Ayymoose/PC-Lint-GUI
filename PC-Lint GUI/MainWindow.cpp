@@ -329,7 +329,8 @@ void MainWindow::startLint(bool lintProject)
                     directoryFiles = project->buildSourceFiles(fileName);
                     m_lastProjectLoaded = fileName;
                     m_directoryFiles = directoryFiles;
-                } catch (const std::logic_error& e)
+                }
+                catch (const std::logic_error& e)
                 {
                     QMessageBox::critical(this,"Error", QString(e.what()));
                 }
@@ -424,8 +425,7 @@ void MainWindow::displayLintTable()
         QTreeWidgetItemIterator treeItr(m_ui->lintTable, QTreeWidgetItemIterator::NoChildren);
         while (*treeItr)
         {
-            delete (*treeItr);
-            treeItr++;
+            delete *treeItr;
         }
     }
 
@@ -459,6 +459,13 @@ void MainWindow::displayLintTable()
             fileDetailsItemTop->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
         }
 
+
+        // Filter
+        if (filterMessageType(messageTop.type))
+        {
+            continue;
+        }
+
         // If it's just a single entry
         if (groupMessage.size() == 1)
         {
@@ -476,7 +483,7 @@ void MainWindow::displayLintTable()
             continue;
         }
 
-        // Create the top-level item again
+        // Create a child level item
         auto* fileDetailsItem = new QTreeWidgetItem(fileDetailsItemTop);
         fileDetailsItem->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(messageTop.file).fileName());
         fileDetailsItem->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
@@ -493,11 +500,17 @@ void MainWindow::displayLintTable()
         for (auto cit = groupMessage.cbegin()+1; cit != groupMessage.cend(); cit++)
         {
             auto const message = *cit;
+            const auto type = message.type;
+
+            // Filter
+            if (filterMessageType(messageTop.type))
+            {
+                continue;
+            }
 
             const auto number = message.number;
             auto file = message.file;
             const auto line = message.line;
-            const auto type = message.type;
             const auto description = message.description;
 
             // Check if the file exists (absolute path given)
@@ -515,32 +528,6 @@ void MainWindow::displayLintTable()
                     file = relativeFile;
                 }
             }
-
-/*
-            // Filter
-            if (!m_toggleError)
-            {
-                if (messageType == Lint::Message::MESSAGE_TYPE_ERROR)
-                {
-                    continue;
-                }
-            }
-
-            if (!m_toggleWarning)
-            {
-                if (messageType == Lint::Message::MESSAGE_TYPE_WARNING)
-                {
-                    continue;
-                }
-            }
-
-            if (!m_toggleInfo)
-            {
-                if (messageType == Lint::Message::MESSAGE_TYPE_INFORMATION || messageType == Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL)
-                {
-                    continue;
-                }
-            }*/
 
             // The sticky details
             auto* detailsItem = new QTreeWidgetItem(fileDetailsItem);
@@ -565,7 +552,25 @@ void MainWindow::displayLintTable()
     }
    //m_ui->lintTable->setSortingEnabled(true);
 
-    m_ui->lintTable->collapseAll();
+    // Clear any orphaned nodes
+    QTreeWidgetItemIterator treeItr(m_ui->lintTable);
+    while (*treeItr)
+    {
+        if ((*treeItr)->parent() == nullptr && (*treeItr)->childCount() == 0)
+        {
+            delete *treeItr;
+        }
+        else
+        {
+            treeItr++;
+        }
+    }
+
+    // TODO: Error count is fluctuating from 1 to 2
+    // TODO: Automated tests for this
+    // TODO: Column sorting
+
+    //m_ui->lintTable->expandAll();
 
     // Show message if there are no lint problems
     if (m_linter.numberOfErrors() == 0 && m_linter.numberOfWarnings() == 0 && m_linter.numberOfInfo() == 0)
@@ -878,11 +883,40 @@ void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
         {
             // Select the line number
             QString lineNumber = item->data(LINT_TABLE_LINE_COLUMN, Qt::DisplayRole).value<QString>();
-            qDebug() << "Line1 is " << lineNumber.isEmpty();
             if (!lineNumber.isEmpty())
             {
                 m_ui->codeEditor->selectLine(lineNumber.toUInt());
             }
         }
     }
+}
+
+
+bool MainWindow::filterMessageType(const QString& type) const noexcept
+{
+    bool filter = false;
+    if (!m_toggleError)
+    {
+        if (!QString::compare(type, Lint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
+        {
+            filter = true;
+        }
+    }
+
+    if (!m_toggleWarning)
+    {
+        if (!QString::compare(type, Lint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
+        {
+            filter = true;
+        }
+    }
+
+    if (!m_toggleInfo)
+    {
+        if (!QString::compare(type, Lint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
+        {
+            filter = true;
+        }
+    }
+    return filter;
 }
