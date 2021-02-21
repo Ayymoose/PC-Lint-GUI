@@ -16,6 +16,9 @@
 
 #include "Highlighter.h"
 
+namespace Lint
+{
+
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
@@ -131,3 +134,5 @@ void Highlighter::highlightBlock(const QString &text) noexcept
         startIndex = text.indexOf(m_commentStartExpression, startIndex + commentLength);
     }
 }
+
+};

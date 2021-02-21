@@ -27,13 +27,13 @@ QString Preferences::m_lastDirectory = "";
 
 namespace
 {
-    const QString SETTINGS_APPLICATION_NAME = "PC-Lint GUI";
-    const QString SETTINGS_GROUP_NAME = "Settings";
-    const QString SETTINGS_MAX_THREADS = "MaxThreads";
-    const QString SETTINGS_LINT_EXECUTABLE_PATH = "LintExecutablePath";
-    const QString SETTINGS_LINT_FILE_PATH = "LintFilePath";
-    const QString SETTINGS_LAST_DIRECTORY = "LastDirectory";
-}
+const QString SETTINGS_APPLICATION_NAME = "PC-Lint GUI";
+const QString SETTINGS_GROUP_NAME = "Settings";
+const QString SETTINGS_MAX_THREADS = "MaxThreads";
+const QString SETTINGS_LINT_EXECUTABLE_PATH = "LintExecutablePath";
+const QString SETTINGS_LINT_FILE_PATH = "LintFilePath";
+const QString SETTINGS_LAST_DIRECTORY = "LastDirectory";
+};
 
 Preferences::Preferences(QWidget *parent) :
     QDialog(parent),

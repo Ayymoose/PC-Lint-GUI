@@ -56,12 +56,12 @@ MainWindow::MainWindow(QWidget *parent) :
     m_preferences(std::make_unique<Preferences>(this)),
     m_lintTableMenu(std::make_unique<QMenu>(this)),
     m_linterStatus(0),
-    m_modifiedFileWorker(std::make_unique<ModifiedFileThread>(this))
+    m_modifiedFileWorker(std::make_unique<Lint::ModifiedFileThread>(this))
 { 
     qRegisterMetaType<Lint::Status>("Lint::Status");
-    qRegisterMetaType<QSet<LintMessage>>("QSet<LintMessage>");
-    qRegisterMetaType<LintData>("LintData");
-    qRegisterMetaType<LintResponse>("LintResponse");
+    qRegisterMetaType<QSet<Lint::LintMessage>>("QSet<LintMessage>");
+    qRegisterMetaType<Lint::LintData>("LintData");
+    qRegisterMetaType<Lint::LintResponse>("LintResponse");
 
     // Turn UI into actual objects
     m_ui->setupUi(this);
@@ -149,14 +149,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_ui->lintTable, &QTreeWidget::customContextMenuRequested, this, &MainWindow::handleContextMenu);
 
     // With syntax highlighting
-    m_highlighter = std::make_unique<Highlighter>(m_ui->codeEditor->document());
+    m_highlighter = std::make_unique<Lint::Highlighter>(m_ui->codeEditor->document());
 
     // Start the modified file thread
-    QObject::connect(this, &MainWindow::signalSetModifiedFile, m_modifiedFileWorker.get(), &ModifiedFileThread::slotSetModifiedFile);
-    QObject::connect(this, &MainWindow::signalSetModifiedFiles, m_modifiedFileWorker.get(), &ModifiedFileThread::slotSetModifiedFiles);
-    QObject::connect(this, &MainWindow::signalKeepFile, m_modifiedFileWorker.get(), &ModifiedFileThread::slotKeepFile);
-    QObject::connect(m_modifiedFileWorker.get(), &ModifiedFileThread::signalFileDoesntExist, this, &MainWindow::slotFileDoesntExist);
-    QObject::connect(m_modifiedFileWorker.get(), &ModifiedFileThread::signalFileModified, this, &MainWindow::slotFileModified);
+    QObject::connect(this, &MainWindow::signalSetModifiedFile, m_modifiedFileWorker.get(), &Lint::ModifiedFileThread::slotSetModifiedFile);
+    QObject::connect(this, &MainWindow::signalSetModifiedFiles, m_modifiedFileWorker.get(), &Lint::ModifiedFileThread::slotSetModifiedFiles);
+    QObject::connect(this, &MainWindow::signalKeepFile, m_modifiedFileWorker.get(), &Lint::ModifiedFileThread::slotKeepFile);
+    QObject::connect(m_modifiedFileWorker.get(), &Lint::ModifiedFileThread::signalFileDoesntExist, this, &MainWindow::slotFileDoesntExist);
+    QObject::connect(m_modifiedFileWorker.get(), &Lint::ModifiedFileThread::signalFileModified, this, &MainWindow::slotFileModified);
     m_modifiedFileWorker->start();
 
     // TreeWidget font set to 12
@@ -279,12 +279,12 @@ void MainWindow::startLint(bool lintProject)
                 QString fileExtension = QFileInfo(fileName).completeSuffix();
                 Preferences::m_lastDirectory = QFileInfo(fileName).absolutePath();
 
-                ProjectSolution *project= nullptr;
+                Lint::ProjectSolution *project= nullptr;
 
                 // Possible solutions/projects
-                AtmelStudio7ProjectSolution as7ProjectSolution;
-                VisualStudioProject vsProject;
-                VisualStudioProjectSolution vsProjectSolution;
+                Lint::AtmelStudio7ProjectSolution as7ProjectSolution;
+                Lint::VisualStudioProject vsProject;
+                Lint::VisualStudioProjectSolution vsProjectSolution;
 
                 if (fileExtension == "cproj")
                 {
@@ -365,7 +365,7 @@ void MainWindow::on_actionLint_triggered()
     startLint(false);
 }
 
-void MainWindow::slotLintFinished(const LintResponse& lintResponse)
+void MainWindow::slotLintFinished(const Lint::LintResponse& lintResponse)
 {
     // Accumulate lint data here
     // Only when lint complete is sent then we populate lint table
@@ -394,7 +394,7 @@ void MainWindow::displayLintTable()
     // Populate the table view with all the lint messages
     // Clear all existing entries
 
-    QMap<QString, ModifiedFile> modifiedFiles;
+    QMap<QString, Lint::ModifiedFile> modifiedFiles;
 
     m_ui->lintTable->setSortingEnabled(false);
 
@@ -458,7 +458,7 @@ void MainWindow::displayLintTable()
             detailsItemTop->setText(LINT_TABLE_DESCRIPTION_COLUMN, messageTop.description);
             detailsItemTop->setText(LINT_TABLE_LINE_COLUMN, messageTop.line);
 
-            auto const icon = Linter::associateMessageTypeWithIcon(messageTop.type);
+            auto const icon = Lint::Linter::associateMessageTypeWithIcon(messageTop.type);
             detailsItemTop->setData(LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
 
             // Skip next
@@ -473,7 +473,7 @@ void MainWindow::displayLintTable()
         fileDetailsItem->setText(LINT_TABLE_DESCRIPTION_COLUMN, messageTop.description);
         fileDetailsItem->setText(LINT_TABLE_LINE_COLUMN, messageTop.line);
 
-        auto const icon = Linter::associateMessageTypeWithIcon(messageTop.type);
+        auto const icon = Lint::Linter::associateMessageTypeWithIcon(messageTop.type);
         fileDetailsItem->setData(LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
 
         Q_ASSERT(groupMessage.size() > 1);
@@ -519,11 +519,11 @@ void MainWindow::displayLintTable()
             detailsItem->setText(LINT_TABLE_DESCRIPTION_COLUMN, message.description);
             detailsItem->setText(LINT_TABLE_LINE_COLUMN, message.line);
 
-            auto const icon = Linter::associateMessageTypeWithIcon(message.type);
+            auto const icon = Lint::Linter::associateMessageTypeWithIcon(message.type);
             detailsItem->setData(LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
 
             // Add to set of modified files
-            ModifiedFile modifiedFile;
+            Lint::ModifiedFile modifiedFile;
             modifiedFile.lastModified = QFileInfo(file).lastModified();
             modifiedFile.keepFile = true;
             modifiedFiles[message.file] = modifiedFile;
@@ -599,7 +599,7 @@ void MainWindow::slotLintComplete()
 
 void MainWindow::slotGetLinterData()
 {
-    LintData lintData
+    Lint::LintData lintData
     {
        m_preferences->getLinterExecutablePath().trimmed(),
        m_preferences->getLinterLintFilePath().trimmed(),

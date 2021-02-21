@@ -28,6 +28,9 @@
 // TODO: Date log this file with "PC-Lint GUI_dd-mm-yyyy"
 #define LOG_FILENAME "PC-Lint GUI_log.txt"
 
+namespace Lint
+{
+
 class Log : public QObject
 {
     Q_OBJECT
@@ -37,4 +40,6 @@ public:
     Log() = delete;
 private:
     static std::unique_ptr<QFile> m_file;
+};
+
 };

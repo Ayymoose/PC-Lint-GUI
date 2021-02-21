@@ -17,6 +17,9 @@
 #include "Log.h"
 #include <QMessageBox>
 
+namespace Lint
+{
+
 std::unique_ptr<QFile> Log::m_file;
 
 void Log::createLogFile(const QString &file) noexcept
@@ -42,3 +45,5 @@ void Log::log(const QString &value) noexcept
         out << text;
     }
 }
+
+};

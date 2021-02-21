@@ -24,6 +24,9 @@
 
 // TODO: Change this to QFileSystemWatcher
 
+namespace Lint
+{
+
 void ModifiedFileThread::run()
 {
     qDebug() << "Starting monitoring";
@@ -102,3 +105,5 @@ void ModifiedFileThread::slotKeepFile(const QString& keepFile) noexcept
     // Record that we want to keep this file
     m_modifiedFiles[keepFile].keepFile = false;
 }
+
+};

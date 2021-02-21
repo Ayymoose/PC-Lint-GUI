@@ -29,6 +29,9 @@ QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
 
+namespace Lint
+{
+
 class Highlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
@@ -56,4 +59,6 @@ private:
     QTextCharFormat m_multiLineCommentFormat;
     QTextCharFormat m_quotationFormat;
     QTextCharFormat m_functionFormat;
+};
+
 };

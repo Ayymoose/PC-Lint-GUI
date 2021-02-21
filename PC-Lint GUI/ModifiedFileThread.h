@@ -24,6 +24,9 @@
 #include <QMutex>
 #include <QPair>
 
+namespace Lint
+{
+
 struct ModifiedFile
 {
     QDateTime lastModified;
@@ -50,4 +53,7 @@ signals:
 private:
     QMap<QString, ModifiedFile> m_modifiedFiles;
     QMutex m_modifiedFileMutex;
+};
+
+
 };

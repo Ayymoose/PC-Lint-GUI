@@ -70,7 +70,7 @@ bool CodeEditor::loadFile(const QString& filename) noexcept
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QFile::Text))
     {
-        Log::log("[Error] Cannot open file '" + filename + "' because of " + file.errorString());
+        //Log::log("[Error] Cannot open file '" + filename + "' because of " + file.errorString());
         return false;
     }
     else
@@ -257,4 +257,3 @@ void CodeEditor::setLabel(QLabel* label) noexcept
 {
     m_zoomLabel = label;
 }
-

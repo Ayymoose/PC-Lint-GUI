@@ -23,6 +23,9 @@
 #include "Log.h"
 #include <stdexcept>
 
+namespace Lint
+{
+
 QSet<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& projectFileName)
 {
     QSet<QString> sourceFiles;
@@ -251,3 +254,5 @@ QSet<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proje
 
     return sourceFiles;
 }
+
+};

@@ -20,6 +20,9 @@
 #include "ProgressWindow.h"
 #include "Linter.h"
 
+namespace Lint
+{
+
 LintThreadManager::LintThreadManager(QObject *parent): m_completedLints(0), m_parent(parent)
 {
     QObject::connect(this, &LintThreadManager::signalLintFinished, dynamic_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotLintFinished);
@@ -186,3 +189,5 @@ void LintThreadManager::slotAbortLint() noexcept
     qDebug() << "Lint aborted!";
     emit signalLintComplete();
 }
+
+};

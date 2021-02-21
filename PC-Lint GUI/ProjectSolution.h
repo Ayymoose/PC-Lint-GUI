@@ -19,6 +19,9 @@
 #include <QList>
 #include <QString>
 
+namespace Lint
+{
+
 class ProjectSolution
 {
 public:
@@ -52,4 +55,6 @@ public:
      QSet<QString> buildSourceFiles(const QString& projectFileName) override;
 private:
      QString m_directory;
+};
+
 };

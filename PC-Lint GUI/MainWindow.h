@@ -45,11 +45,11 @@ QT_END_NAMESPACE
 
 namespace
 {
-    constexpr int LINT_TABLE_FILE_COLUMN = 0;
-    constexpr int LINT_TABLE_NUMBER_COLUMN = 1;
-    constexpr int LINT_TABLE_DESCRIPTION_COLUMN = 2;
-    constexpr int LINT_TABLE_LINE_COLUMN = 3;
-}
+constexpr int LINT_TABLE_FILE_COLUMN = 0;
+constexpr int LINT_TABLE_NUMBER_COLUMN = 1;
+constexpr int LINT_TABLE_DESCRIPTION_COLUMN = 2;
+constexpr int LINT_TABLE_LINE_COLUMN = 3;
+};
 
 class MainWindow : public QMainWindow
 {
@@ -62,17 +62,17 @@ public:
 signals:
     void signalUpdateTypes(int errors, int warnings, int info);
 
-    void signalSetLinterData(const LintData& lintData);
+    void signalSetLinterData(const Lint::LintData& lintData);
 
     // Modified file signals
-    void signalSetModifiedFiles(QMap<QString, ModifiedFile> modifiedFiles);
+    void signalSetModifiedFiles(QMap<QString, Lint::ModifiedFile> modifiedFiles);
     void signalSetModifiedFile(const QString& modifiedFile, const QDateTime& dateTime);
     void signalStartMonitor();
     void signalRemoveFile(const QString& deletedFile);
     void signalKeepFile(const QString& keepFile);
 public slots:
     void handleContextMenu(const QPoint& pos);
-    void slotLintFinished(const LintResponse& lintResponse);
+    void slotLintFinished(const Lint::LintResponse& lintResponse);
     void slotGetLinterData();
     void slotLintComplete();
 
@@ -109,15 +109,15 @@ private:
     QString m_lastProjectLoaded;
     QSet<QString> m_directoryFiles;
     std::unique_ptr<Preferences> m_preferences;
-    Linter m_linter;
-    std::unique_ptr<Highlighter> m_highlighter;
+    Lint::Linter m_linter;
+    std::unique_ptr<Lint::Highlighter> m_highlighter;
 
     std::unique_ptr<QMenu> m_lintTableMenu;
     QMap<QString, QString> m_projectLintMap;
     int m_linterStatus;
 
     // ModifiedFileWorker thread
-    std::unique_ptr<ModifiedFileThread> m_modifiedFileWorker;
+    std::unique_ptr<Lint::ModifiedFileThread> m_modifiedFileWorker;
 
     void displayLintTable();
     bool verifyLint();

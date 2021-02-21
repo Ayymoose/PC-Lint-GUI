@@ -23,6 +23,9 @@
 #include <memory>
 #include "Linter.h"
 
+namespace Lint
+{
+
 class LintThreadManager : public QObject
 {
     Q_OBJECT
@@ -50,4 +53,6 @@ private:
     QObject* m_parent;
 
     void joinAll() const noexcept;
+};
+
 };

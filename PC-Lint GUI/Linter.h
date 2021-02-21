@@ -28,65 +28,65 @@
 namespace Lint
 {
 
-    namespace Xml
-    {
-        // XML tags
-        const QString XML_TAG_DOC_OPEN = "<doc>";
-        const QString XML_TAG_DOC_CLOSED = "</doc>";
-        const QString XML_TAG_MESSAGE_OPEN = "<m>";
-        const QString XML_TAG_DESCRIPTION_CLOSED = "</d>";
+namespace Xml
+{
+    // XML tags
+    const QString XML_TAG_DOC_OPEN = "<doc>";
+    const QString XML_TAG_DOC_CLOSED = "</doc>";
+    const QString XML_TAG_MESSAGE_OPEN = "<m>";
+    const QString XML_TAG_DESCRIPTION_CLOSED = "</d>";
 
-        // XML elements
-        const QString XML_ELEMENT_DOC = "doc";
-        const QString XML_ELEMENT_FILE = "f";
-        const QString XML_ELEMENT_LINE = "l";
-        const QString XML_ELEMENT_MESSAGE_TYPE = "t";
-        const QString XML_ELEMENT_MESSAGE_NUMBER = "n";
-        const QString XML_ELEMENT_MESSAGE = "m";
-        const QString XML_ELEMENT_DESCRIPTION = "d";
-    };
-
-    namespace Type
-    {
-        // PC-Lint types
-        const QString LINT_TYPE_ERROR = "Error";
-        const QString LINT_TYPE_INFO = "Info";
-        const QString LINT_TYPE_WARNING = "Warning";
-        const QString LINT_TYPE_SUPPLEMENTAL = "supplemental"; // PC-Lint Plus only
-    };
-
-
-    enum Status
-    {
-        // Lint completed successfully
-        LINTER_COMPLETE = 0,
-        // Lint partially completed but didn't lint all files
-        LINTER_PARTIAL_COMPLETE = 1,
-        // Lint version unknown
-        LINTER_UNSUPPORTED_VERSION = 2,
-        // Lint license error
-        LINTER_LICENSE_ERROR = 4,
-        // Lint process error
-        LINTER_PROCESS_ERROR = 8,
-        // Lint process timeout
-        LINTER_PROCESS_TIMEOUT = 16,
-        // Lint cancelled
-        LINTER_CANCEL = 32,
-    };
-
-    enum Message
-    {
-        MESSAGE_TYPE_ERROR = 0,
-        MESSAGE_TYPE_WARNING,
-        MESSAGE_TYPE_INFORMATION,
-        MESSAGE_TYPE_SUPPLEMENTAL,
-        MESSAGE_TYPE_UNKNOWN,
-    };
-
-    constexpr int MAX_PROCESS_CHARACTERS = 8192;
-    constexpr int MAX_LINT_TIME = 10*60*1000;
-    constexpr int MAX_LINT_PATH = 512;
+    // XML elements
+    const QString XML_ELEMENT_DOC = "doc";
+    const QString XML_ELEMENT_FILE = "f";
+    const QString XML_ELEMENT_LINE = "l";
+    const QString XML_ELEMENT_MESSAGE_TYPE = "t";
+    const QString XML_ELEMENT_MESSAGE_NUMBER = "n";
+    const QString XML_ELEMENT_MESSAGE = "m";
+    const QString XML_ELEMENT_DESCRIPTION = "d";
 };
+
+namespace Type
+{
+    // PC-Lint types
+    const QString LINT_TYPE_ERROR = "Error";
+    const QString LINT_TYPE_INFO = "Info";
+    const QString LINT_TYPE_WARNING = "Warning";
+    const QString LINT_TYPE_SUPPLEMENTAL = "supplemental"; // PC-Lint Plus only
+};
+
+
+enum Status
+{
+    // Lint completed successfully
+    LINTER_COMPLETE = 0,
+    // Lint partially completed but didn't lint all files
+    LINTER_PARTIAL_COMPLETE = 1,
+    // Lint version unknown
+    LINTER_UNSUPPORTED_VERSION = 2,
+    // Lint license error
+    LINTER_LICENSE_ERROR = 4,
+    // Lint process error
+    LINTER_PROCESS_ERROR = 8,
+    // Lint process timeout
+    LINTER_PROCESS_TIMEOUT = 16,
+    // Lint cancelled
+    LINTER_CANCEL = 32,
+};
+
+enum Message
+{
+    MESSAGE_TYPE_ERROR = 0,
+    MESSAGE_TYPE_WARNING,
+    MESSAGE_TYPE_INFORMATION,
+    MESSAGE_TYPE_SUPPLEMENTAL,
+    MESSAGE_TYPE_UNKNOWN,
+};
+
+constexpr int MAX_PROCESS_CHARACTERS = 8192;
+constexpr int MAX_LINT_TIME = 10*60*1000;
+constexpr int MAX_LINT_PATH = 512;
+
 
 typedef struct
 {
@@ -204,3 +204,5 @@ inline uint qHash(const LintMessage &key, uint seed) noexcept
 {
     return qHash(key.number + key.line, seed) ^ qHash(key.file + key.type + key.description, seed);
 }
+
+};

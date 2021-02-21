@@ -30,6 +30,9 @@
 #include <algorithm>
 #include <QDir>
 
+namespace Lint
+{
+
 Linter::Linter() : m_numberOfErrors(0), m_numberOfWarnings(0), m_numberOfInfo(0)
 {
 }
@@ -785,5 +788,5 @@ QImage Linter::associateMessageTypeWithIcon(const QString& type) noexcept
 }
 
 
-
+};
 
