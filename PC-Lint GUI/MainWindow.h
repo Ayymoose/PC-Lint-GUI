@@ -33,6 +33,7 @@
 #include "CodeEditor.h"
 #include "Highlighter.h"
 #include "ModifiedFileThread.h"
+#include "About.h"
 
 class ProgressWindow;
 
@@ -122,5 +123,6 @@ private:
     void displayLintTable();
     bool verifyLint();
     QSet<QString> recursiveBuildSourceFileSet(const QString& directory);
+    Lint::About m_about;
 
 };

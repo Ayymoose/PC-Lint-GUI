@@ -30,13 +30,12 @@
 #include <QClipboard>
 #include <QTreeWidget>
 
-#include "Jenkins.h"
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "Linter.h"
 #include "ProgressWindow.h"
 #include "ProjectSolution.h"
-#include "Compiler.h"
+#include "About.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -619,10 +618,10 @@ void MainWindow::startLintThread(QString title)
     progressWindow.exec();
 }
 
-// TODO: Move to About.cpp
 void MainWindow::on_aboutLinty_triggered()
 {
-    QMessageBox versionMessageBox(this);
+    m_about.display();
+    /*QMessageBox versionMessageBox(this);
     versionMessageBox.setIcon(QMessageBox::Information);
     versionMessageBox.addButton("Copy to clipboard", QMessageBox::AcceptRole);
     versionMessageBox.setWindowTitle("Information");
@@ -645,7 +644,7 @@ void MainWindow::on_aboutLinty_triggered()
         break;
     default:
         break;
-    }
+    }*/
 }
 
 void MainWindow::on_actionRefresh_triggered()

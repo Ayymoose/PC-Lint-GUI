@@ -6,6 +6,7 @@ CONFIG += c++17
 QT += xml widgets
 
 SOURCES += \
+    About.cpp \
     CodeEditor.cpp \
     Highlighter.cpp \
     LintThreadManager.cpp \
@@ -19,6 +20,7 @@ SOURCES += \
     Main.cpp
 
 HEADERS += \
+    About.h \
     CodeEditor.h \
     Compiler.h \
     Highlighter.h \

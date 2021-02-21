@@ -16,18 +16,16 @@
 
 #pragma once
 
-#if _WIN64
-    // 64 bit build
-    #define BUILD_ARCHITECTURE "64-bit"
-#else
-    #define BUILD_ARCHITECTURE "32-bit"
-#endif
+#include "Compiler.h"
+#include "Jenkins.h"
 
+namespace Lint
+{
 
-#ifdef __GNUC__
-    #define COMPILER_NAME "g++"
-    #define COMPILER_VERSION __VERSION__
-#else
-    #define COMPILER_NAME "Unknown compiler"
-    #define COMPILER_VERSION "Unknown compiler version"
-#endif
+class About
+{
+public:
+    void display(void) const noexcept;
+};
+
+};
