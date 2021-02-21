@@ -604,7 +604,7 @@ Lint::Status Linter::lint() noexcept
                 else
                 {
                     // Unknown types are treated as informational messages with '?' icon
-                    DEBUG_LOG("[Warning] Unknown message type received: " + message.type);
+                    qWarning() << "Unknown message type received: " << message.type;
                 }
             }
 
@@ -614,12 +614,12 @@ Lint::Status Linter::lint() noexcept
 
     if (lintXML.hasError())
     {
-        DEBUG_LOG("[Error] XML parser error");
-        DEBUG_LOG("Error Type:       " + QString(lintXML.error()));
-        DEBUG_LOG("Error String:     " + lintXML.errorString());
-        DEBUG_LOG("Line Number:      " + QString::number(lintXML.lineNumber()));
-        DEBUG_LOG("Column Number:    " + QString::number(lintXML.columnNumber()));
-        DEBUG_LOG("Character Offset: " + QString::number(lintXML.characterOffset()));
+        qCritical() << "XML parser error";
+        qCritical() << "Error Type:       " << QString(lintXML.error());
+        qCritical() << "Error String:     " << lintXML.errorString();
+        qCritical() << "Line Number:      " << QString::number(lintXML.lineNumber());
+        qCritical() << "Column Number:    " << QString::number(lintXML.columnNumber());
+        qCritical() << "Character Offset: " << QString::number(lintXML.characterOffset());
         return Lint::Status::LINTER_PROCESS_ERROR;
     }
 

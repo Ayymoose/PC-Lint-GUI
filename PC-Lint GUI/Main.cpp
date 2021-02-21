@@ -31,9 +31,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("PC-Lint GUI");
     QCoreApplication::setApplicationName("PC-Lint GUI");
 
-    //Log::createLogFile(LOG_FILENAME);
-    DEBUG_LOG("---------- Starting PC-Lint GUI ----------");
-    DEBUG_LOG("PC-Lint GUI version: " BUILD_VERSION);
+    qInstallMessageHandler(customMessageHandler);
+
+    qDebug() << "---------- Starting PC-Lint GUI ----------";
+    qDebug() << "PC-Lint GUI version: " BUILD_VERSION;
     // TODO: 32-bit or 64-bit
 
     MainWindow mainWindow;

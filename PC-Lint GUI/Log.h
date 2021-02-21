@@ -16,30 +16,13 @@
 
 #pragma once
 
-#include <QObject>
-#include <QFile>
-#include <QTextStream>
 #include <QDateTime>
-#include <memory>
+#include <QFile>
+#include <QMessageBox>
 #include <QtDebug>
-
-#define DEBUG_LOG(MESSAGE) qDebug() << (MESSAGE);/* Log::log(MESSAGE);*/
-
-// TODO: Date log this file with "PC-Lint GUI_dd-mm-yyyy"
-#define LOG_FILENAME "PC-Lint GUI_log.txt"
 
 namespace Lint
 {
-
-class Log : public QObject
-{
-    Q_OBJECT
-public:
-    static void createLogFile(const QString &file) noexcept;
-    static void log(const QString &message) noexcept;
-    Log() = delete;
-private:
-    static std::unique_ptr<QFile> m_file;
-};
-
-};
+    const QString LOG_FILENAME = "PC-Lint GUI.log";
+}
+void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);

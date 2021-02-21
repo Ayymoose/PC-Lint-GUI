@@ -69,7 +69,7 @@ QSet<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proje
                         QString sourceFile = QFileInfo(projectPath + "\\" + include).canonicalFilePath();
                         if (sourceFile.length() >= MAX_PATH)
                         {
-                            DEBUG_LOG("[Error] Source file name longer than " + QString(MAX_PATH) + " characters");
+                            qCritical() << "Source file name longer than " << QString(MAX_PATH) << " characters";
                         }
                         else
                         {
@@ -89,18 +89,18 @@ QSet<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proje
         projectFile.close();
         if(xmlReader.hasError())
         {
-            DEBUG_LOG("[Error] XML parser error in " + projectFileName);
-            DEBUG_LOG("Error Type:       " + QString(xmlReader.error()));
-            DEBUG_LOG("Error String:     " + xmlReader.errorString());
-            DEBUG_LOG("Line Number:      " + QString::number(xmlReader.lineNumber()));
-            DEBUG_LOG("Column Number:    " + QString::number(xmlReader.columnNumber()));
-            DEBUG_LOG("Character Offset: " + QString::number(xmlReader.characterOffset()));
+            qCritical() << "XML parser error in " << projectFileName;
+            qCritical() << "Error Type:       " << QString(xmlReader.error());
+            qCritical() << "Error String:     " << xmlReader.errorString();
+            qCritical() << "Line Number:      " << QString::number(xmlReader.lineNumber());
+            qCritical() << "Column Number:    " << QString::number(xmlReader.columnNumber());
+            qCritical() << "Character Offset: " << QString::number(xmlReader.characterOffset());
             throw std::logic_error("XML parser error!");
         }
     }
     else
     {
-        DEBUG_LOG("[Error] Unable to open file: " + projectFileName);
+        qCritical() << "Unable to open file: " << projectFileName;
         throw std::logic_error("Unable to open file: " + projectFileName.toStdString());
     }
 
@@ -149,7 +149,7 @@ QSet<QString> VisualStudioProject::buildSourceFiles(const QString& projectFileNa
                         QString sourceFile = QFileInfo(projectPath + "\\" + include).canonicalFilePath();
                         if (sourceFile.length() >= MAX_PATH)
                         {
-                            DEBUG_LOG("[Error] Source file name longer than " + QString(MAX_PATH) + " characters");
+                            qCritical() << "Source file name longer than " << QString(MAX_PATH) << " characters";
                         }
                         else
                         {
@@ -169,18 +169,18 @@ QSet<QString> VisualStudioProject::buildSourceFiles(const QString& projectFileNa
         projectFile.close();
         if(xmlReader.hasError())
         {
-            DEBUG_LOG("[Error] XML parser error in " + projectFileName);
-            DEBUG_LOG("Error Type:       " + QString(xmlReader.error()));
-            DEBUG_LOG("Error String:     " + xmlReader.errorString());
-            DEBUG_LOG("Line Number:      " + QString::number(xmlReader.lineNumber()));
-            DEBUG_LOG("Column Number:    " + QString::number(xmlReader.columnNumber()));
-            DEBUG_LOG("Character Offset: " + QString::number(xmlReader.characterOffset()));
+            qCritical() << "XML parser error in " << projectFileName;
+            qCritical() << "Error Type:       " << QString(xmlReader.error());
+            qCritical() << "Error String:     " << xmlReader.errorString();
+            qCritical() << "Line Number:      " << QString::number(xmlReader.lineNumber());
+            qCritical() << "Column Number:    " << QString::number(xmlReader.columnNumber());
+            qCritical() << "Character Offset: " << QString::number(xmlReader.characterOffset());
             throw std::logic_error("XML parser error!");
         }
     }
     else
     {
-        DEBUG_LOG("[Error] Unable to open file: " + projectFileName);
+        qCritical() << "Unable to open file: " << projectFileName;
         throw std::logic_error("Unable to open file: " + projectFileName.toStdString());
     }
 
@@ -236,7 +236,7 @@ QSet<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proje
                       }
                   } catch (const std::logic_error& e)
                   {
-                      DEBUG_LOG("[Error] " + QString(e.what()));
+                      qCritical() << QString(e.what());
                   }
 
 

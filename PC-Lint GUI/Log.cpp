@@ -15,35 +15,41 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "Log.h"
-#include <QMessageBox>
 
-namespace Lint
+void customMessageHandler(QtMsgType type, const QMessageLogContext&, const QString &msg)
 {
 
-std::unique_ptr<QFile> Log::m_file;
+   QString dt = QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss");
+   QString txt = QString("[%1]").arg(dt);
 
-void Log::createLogFile(const QString &file) noexcept
-{
-    m_file = std::make_unique<QFile>(new QFile);
-    m_file->setFileName(file);
-    if (!m_file->open(QIODevice::Append | QIODevice::Text))
-    {
-        QMessageBox::critical(nullptr, "Error", "Unable to create file for logging");
-    }
+   switch (type)
+   {
+       case QtInfoMsg:
+          txt += QString("[Info] %1").arg(msg);
+          break;
+      case QtDebugMsg:
+         txt += QString("[Debug] %1").arg(msg);
+         break;
+      case QtWarningMsg:
+         txt += QString("[Warning] %1").arg(msg);
+         break;
+      case QtCriticalMsg:
+         txt += QString("[Critical] %1").arg(msg);
+         break;
+      case QtFatalMsg:
+         txt += QString("[Fatal] %1").arg(msg);
+         break;
+   }
+
+   QFile outFile(Lint::LOG_FILENAME);
+   outFile.open(QIODevice::WriteOnly | QIODevice::Append);
+   if (!outFile.isOpen())
+   {
+       QMessageBox::critical(nullptr, "Error", "Could not create log file: " + outFile.errorString());
+       return;
+   }
+
+   QTextStream textStream(&outFile);
+   textStream << txt << endl;
 }
 
-// TODO: Find out why logging has stopped working i.e stopped logging to file
-
-void Log::log(const QString &value) noexcept
-{
-    QString text = value;
-    text = QDateTime::currentDateTime().toString("[dd.MM.yyyy hh:mm:ss] ") + text + "\n";
-    QTextStream out(m_file.get());
-    out.setCodec("UTF-8");
-    if (m_file != nullptr)
-    {
-        out << text;
-    }
-}
-
-};

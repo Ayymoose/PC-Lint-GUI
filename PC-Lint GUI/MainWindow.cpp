@@ -61,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :
     qRegisterMetaType<QSet<Lint::LintMessage>>("QSet<LintMessage>");
     qRegisterMetaType<Lint::LintData>("LintData");
     qRegisterMetaType<Lint::LintResponse>("LintResponse");
+    qRegisterMetaType<Lint::LintData>("Lint::LintData");
 
     // Turn UI into actual objects
     m_ui->setupUi(this);
@@ -501,7 +502,7 @@ void MainWindow::displayLintTable()
                 const auto relativeFile = QFileInfo(m_linter.getLinterFile()).canonicalPath() + QDir::separator() + file;
                 if (!QFile(relativeFile).exists())
                 {
-                    DEBUG_LOG("[Error] Unknown file in linter messages: " + file);
+                    qWarning() << "Unknown file in linter messages: " << file;
                     file = "";
                 }
                 else
@@ -680,7 +681,7 @@ void MainWindow::slotFileModified(QString modifiedFile)
                 if (m_ui->codeEditor->loadFile(modifiedFile))
                 {
                     // Reload
-                    DEBUG_LOG("Reloading file: " + modifiedFile);
+                    qDebug() << "Reloading file: " << modifiedFile;
 
                     // Update the status bar
                     m_ui->statusBar->showMessage("Reloaded " + modifiedFile + " at " + QDateTime::currentDateTime().toString());
@@ -714,7 +715,7 @@ void MainWindow::slotFileDoesntExist(const QString& deletedFile)
     if (msgBox.exec() == QMessageBox::No)
     {
         // Remove
-        DEBUG_LOG("Removing file: " + deletedFile);
+        qDebug() << "Removing file: " << deletedFile;
 
         // Remove this file from the code editor if it's the loaded one
         if (m_ui->codeEditor->loadedFile() == deletedFile)
@@ -786,7 +787,7 @@ void MainWindow::on_actionLog_triggered()
 {
     // Display the event log
     QProcess log;
-    log.startDetached("notepad.exe", QStringList() << LOG_FILENAME);
+    log.startDetached("notepad.exe", QStringList() << Lint::LOG_FILENAME);
 }
 
 QSet<QString> MainWindow::recursiveBuildSourceFileSet(const QString& directory)
@@ -834,7 +835,7 @@ void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
         {
             if (m_ui->codeEditor->loadFile(fileToLoad))
             {
-                DEBUG_LOG("Loading file: " + fileToLoad);
+                qInfo() << "Loading file: " << fileToLoad;
 
                 // Select the line number
                 QString lineNumber = item->data(LINT_TABLE_LINE_COLUMN, Qt::DisplayRole).value<QString>();
