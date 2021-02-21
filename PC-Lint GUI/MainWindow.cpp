@@ -414,7 +414,7 @@ void MainWindow::displayLintTable()
 
     QMap<QString, ModifiedFile> modifiedFiles;
 
-    //m_ui->lintTable->setSortingEnabled(false);
+    m_ui->lintTable->setSortingEnabled(false);
 
     // Get ALL lint messages (combination from all threads)
     auto const groupedMessages = m_linter.groupLinterMessages();
@@ -550,7 +550,8 @@ void MainWindow::displayLintTable()
         }
 
     }
-   //m_ui->lintTable->setSortingEnabled(true);
+
+    m_ui->lintTable->setSortingEnabled(true);
 
     // Clear any orphaned nodes
     QTreeWidgetItemIterator treeItr(m_ui->lintTable);
@@ -568,19 +569,11 @@ void MainWindow::displayLintTable()
 
     // TODO: Error count is fluctuating from 1 to 2
     // TODO: Automated tests for this
-    // TODO: Column sorting
-
-    //m_ui->lintTable->expandAll();
 
     // Show message if there are no lint problems
     if (m_linter.numberOfErrors() == 0 && m_linter.numberOfWarnings() == 0 && m_linter.numberOfInfo() == 0)
     {
-        // Set item data
-        // TODO: Fix memory leak
-        //auto type = new QTableWidgetItem;
-        //type->setData(Qt::DecorationRole, QPixmap::fromImage(*m_icons[ICON_CORRECT]));
-        //lintTable->setItem( lintTable->rowCount()-1, 0, type);
-        //lintTable->setItem( lintTable->rowCount()-1, 2, new QTableWidgetItem("No errors were detected"));
+        QMessageBox::information(this, "Information", "No errors detected in code");
     }
 
     emit signalUpdateTypes(m_linter.numberOfErrors(), m_linter.numberOfWarnings(), m_linter.numberOfInfo());
