@@ -126,7 +126,7 @@ Lint::Status Linter::lint() noexcept
 {
     Lint::Status status = Lint::LINTER_COMPLETE;
 
-    /*auto startLintTime = std::chrono::steady_clock::now();
+    auto startLintTime = std::chrono::steady_clock::now();
 
     Q_ASSERT(m_lintFile.length());
     qDebug() << "[" << QThread::currentThreadId() << "]" << "Setting working directory to: " << QFileInfo(m_lintFile).canonicalPath();
@@ -147,7 +147,7 @@ Lint::Status Linter::lint() noexcept
         if (status != Lint::LINTER_CANCEL && status != Lint::LINTER_UNSUPPORTED_VERSION)
         {
             status = Lint::LINTER_PROCESS_ERROR;
-            qDebug() << "## Process error: " << error;
+            qCritical() << "Process error: " << error;
         }
     });
 
@@ -214,7 +214,7 @@ Lint::Status Linter::lint() noexcept
                 status = Lint::LINTER_LICENSE_ERROR;
                 lintProcess.closeReadChannel(QProcess::StandardOutput);
                 lintProcess.closeReadChannel(QProcess::StandardError);
-                DEBUG_LOG("[Error] Failed to start lint because of license error");
+                qCritical() << "Failed to start lint because of license error";
                 m_linterErrorMessage = readStdErr;
                 lintProcess.close();
                 return;
@@ -225,7 +225,7 @@ Lint::Status Linter::lint() noexcept
                 status = Lint::LINTER_UNSUPPORTED_VERSION;
                 lintProcess.closeReadChannel(QProcess::StandardOutput);
                 lintProcess.closeReadChannel(QProcess::StandardError);
-                DEBUG_LOG("[Error] Failed to start lint because version unsupported: " + QString(pclintVersion));
+                qCritical() << "Failed to start lint because version unsupported: " << QString(pclintVersion);
                 lintProcess.close();
                 return;
             }
@@ -362,12 +362,12 @@ Lint::Status Linter::lint() noexcept
     {
        m_arguments << file;
        cmdString += " \"" + file + "\"";
-       DEBUG_LOG("Adding file to lint: " + file);
+       qInfo() << "Adding file to lint: " << file;
     }
 
     Q_ASSERT(m_linterExecutable.length());
-    DEBUG_LOG("Lint path: " + m_linterExecutable);
-    DEBUG_LOG("Lint file: " + m_lintFile);
+    qInfo() << "Lint path: " << m_linterExecutable;
+    qInfo() << "Lint file: " << m_lintFile;
 
     lintProcess.setProgram(m_linterExecutable);
     lintProcess.setArguments(m_arguments);
@@ -380,7 +380,7 @@ Lint::Status Linter::lint() noexcept
 
     if (!lintProcess.waitForStarted())
     {
-        DEBUG_LOG("[Error] " + lintProcess.errorString());
+        qCritical() << lintProcess.errorString();
         return Lint::LINTER_PROCESS_ERROR;
     }
 
@@ -402,7 +402,7 @@ Lint::Status Linter::lint() noexcept
     // TODO: Loop with a delay to check if lint process finished
     if (!lintProcess.waitForFinished(Lint::MAX_LINT_TIME))
     {
-        DEBUG_LOG("[Error] Lint process exited as it took too long (" + QString::number(Lint::MAX_LINT_TIME) + "ms) It's possible the lint executable became stuck on a particular file.");
+        qCritical() << "Lint process exited as it took too long (" << QString::number(Lint::MAX_LINT_TIME) << "ms) It's possible the lint executable became stuck on a particular file";
         lintProcess.close();
         return Lint::LINTER_PROCESS_TIMEOUT;
     }
@@ -463,8 +463,6 @@ Lint::Status Linter::lint() noexcept
     lintXMLOutputFile.close();
     //
 
-    */
-
     /*QList<QByteArray> lines = lintData.split('\n');
     // The error we need to insert
     QString errorToInsert;
@@ -498,12 +496,12 @@ Lint::Status Linter::lint() noexcept
 
     xmlStringNew += "</doc>";*/
 
-    QByteArray lintData;
+    /*QByteArray lintData;
     QFile lintXMLOutputFile("D:\\Users\\Ayman\\Desktop\\PC-Lint GUI\\test\\xmldata.xml");
     lintXMLOutputFile.open(QIODevice::ReadOnly);
     Q_ASSERT(lintXMLOutputFile.isOpen());
     lintData = lintXMLOutputFile.readAll();
-    lintXMLOutputFile.close();
+    lintXMLOutputFile.close();*/
 
     // Ordering of messages is now important (was QSet)
     // To group supplemental messages together (PC-Lint Plus)
@@ -540,8 +538,6 @@ Lint::Status Linter::lint() noexcept
                 // Why does PC-Lint Plus mess with the directory separator?
                 // It spits out '/' and '\' in the same path
                 message.file = QDir::toNativeSeparators(message.file);
-
-                //Q_ASSERT(message.file.length() > 0);
             }
 
             // <l> tag
@@ -627,8 +623,8 @@ Lint::Status Linter::lint() noexcept
     m_linterMessages = lintMessages;
 
     auto endLintTime = std::chrono::steady_clock::now();
-    //auto totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
-    //qDebug() << "[" << QThread::currentThreadId() << "]" << "I took " << totalElapsedTime / 1000.f << "s" << "to complete";
+    auto totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
+    qDebug() << "[" << QThread::currentThreadId() << "]" << "I took " << totalElapsedTime / 1000.f << "s" << "to complete";
 
     return status;
 }

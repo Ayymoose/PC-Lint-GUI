@@ -548,45 +548,48 @@ void MainWindow::displayLintTable()
         }
     }
 
-    // TODO: Error count is fluctuating from 1 to 2
+    // Error count fluctuating in output looks like a PCLP bug
     // TODO: Automated tests for this
 
     // Show message if there are no lint problems
-    if (m_linter.numberOfErrors() == 0 && m_linter.numberOfWarnings() == 0 && m_linter.numberOfInfo() == 0)
+    if (m_linterStatus == Lint::Status::LINTER_COMPLETE &&
+            m_linter.numberOfErrors() == 0 && m_linter.numberOfWarnings() == 0 && m_linter.numberOfInfo() == 0)
     {
         QMessageBox::information(this, "Information", "No errors detected in code");
     }
+    else
+    {
+        // Display any outstanding messages
+        if (m_linterStatus & Lint::Status::LINTER_PARTIAL_COMPLETE)
+        {
+            QMessageBox::information(this, "Information", "Not all files were successfully linted as errors were generated in the lint output.");
+        }
+        else if (m_linterStatus & Lint::Status::LINTER_UNSUPPORTED_VERSION)
+        {
+            QMessageBox::critical(this, "Error", "Failed to start lint because of unknown PC-Lint/PC-Lint Plus version.");
+        }
+        else if (m_linterStatus & Lint::Status::LINTER_LICENSE_ERROR)
+        {
+            QMessageBox::critical(this, "Error", m_linter.errorMessage());
+        }
+        else if (m_linterStatus & Lint::Status::LINTER_PROCESS_ERROR)
+        {
+            QMessageBox::critical(this, "Error", "Failed to complete lint because of an internal error");
+        }
+        else if (m_linterStatus & Lint::Status::LINTER_PROCESS_TIMEOUT)
+        {
+            QMessageBox::critical(this, "Error", "Failed to complete lint because process became stuck");
+        }
+    }
 
-    emit signalUpdateTypes(m_linter.numberOfErrors(), m_linter.numberOfWarnings(), m_linter.numberOfInfo());
-
-
-    // Display any outstanding messages
-    if (m_linterStatus & Lint::Status::LINTER_PARTIAL_COMPLETE)
-    {
-        QMessageBox::information(this, "Information", "Not all files were successfully linted as errors were generated in the lint output.");
-    }
-    else if (m_linterStatus & Lint::Status::LINTER_UNSUPPORTED_VERSION)
-    {
-        QMessageBox::critical(this, "Error", "Failed to start lint because of unknown PC-Lint/PC-Lint Plus version.");
-    }
-    else if (m_linterStatus & Lint::Status::LINTER_LICENSE_ERROR)
-    {
-        QMessageBox::critical(this, "Error", m_linter.errorMessage());
-    }
-    else if (m_linterStatus & Lint::Status::LINTER_PROCESS_ERROR)
-    {
-        QMessageBox::critical(this, "Error", "Failed to complete lint because of an internal error");
-    }
-    else if (m_linterStatus & Lint::Status::LINTER_PROCESS_TIMEOUT)
-    {
-        QMessageBox::critical(this, "Error", "Failed to complete lint because process became stuck");
-    }
-
+    // TODO: Change type to Lint::Status
     m_linterStatus = 0;
 
     // Start the file monitor thread
     emit signalSetModifiedFiles(modifiedFiles);
     emit signalStartMonitor();
+    emit signalUpdateTypes(m_linter.numberOfErrors(), m_linter.numberOfWarnings(), m_linter.numberOfInfo());
+
 }
 
 void MainWindow::slotLintComplete()
@@ -622,30 +625,6 @@ void MainWindow::startLintThread(QString title)
 void MainWindow::on_aboutLinty_triggered()
 {
     m_about.display();
-    /*QMessageBox versionMessageBox(this);
-    versionMessageBox.setIcon(QMessageBox::Information);
-    versionMessageBox.addButton("Copy to clipboard", QMessageBox::AcceptRole);
-    versionMessageBox.setWindowTitle("Information");
-    char buildCompiler[64];
-
-    // Compiler name + Compiler version + 32/64-bit version
-    sprintf(buildCompiler,"%s %s 32-bit\n", COMPILER_NAME, COMPILER_VERSION);
-
-    QString applicationInfo =
-            "Build Version: " BUILD_VERSION "\n"
-            "Build Date: " BUILD_DATE "\n"
-            "Build Commit: " BUILD_COMMIT "\n"
-            "Build Compiler: " + QString(buildCompiler) +"\n";
-
-    versionMessageBox.setText(applicationInfo);
-    switch (versionMessageBox.exec())
-    {
-    case QMessageBox::AcceptRole:
-        QApplication::clipboard()->setText(applicationInfo);
-        break;
-    default:
-        break;
-    }*/
 }
 
 void MainWindow::on_actionRefresh_triggered()
