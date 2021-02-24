@@ -18,6 +18,7 @@
 
 #include <QList>
 #include <QString>
+#include <QXmlStreamReader>
 
 namespace Lint
 {
@@ -38,6 +39,22 @@ public:
         };
         return extensions.contains(extension, Qt::CaseInsensitive);
     }
+
+    static void readerHasError(const QXmlStreamReader& xmlReader)
+    {
+        if(xmlReader.hasError())
+        {
+            qCritical() << "XML parser error in " << xmlReader.name();
+            qCritical() << "Error Type:       " << QString(xmlReader.error());
+            qCritical() << "Error String:     " << xmlReader.errorString();
+            qCritical() << "Line Number:      " << QString::number(xmlReader.lineNumber());
+            qCritical() << "Column Number:    " << QString::number(xmlReader.columnNumber());
+            qCritical() << "Character Offset: " << QString::number(xmlReader.characterOffset());
+            throw std::logic_error("XML parser error");
+        }
+    }
+
+
 };
 
 class AtmelStudio7ProjectSolution : public ProjectSolution

@@ -31,6 +31,10 @@ namespace
 {
     const QString XML_NODE_COMPILE = "Compile";
     const QString XML_ATTRIBUTE_INCLUDE = "Include";
+    const QString XML_NODE_CLCOMPILE = "ClCompile";
+
+    // Visual studio solution files
+    const QString SOLUTION_LINE_PROJECT = "Project";
 };
 
 QSet<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& projectFileName)
@@ -74,6 +78,7 @@ QSet<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proje
                     // Add recognised file extensions
                     auto const fileSuffix = QFileInfo(include).suffix();
                     Q_ASSERT(fileSuffix.length() > 0);
+
                     if (ProjectSolution::knownFileExtensions(fileSuffix))
                     {
                         // Append the project path so we can get the canonical file path
@@ -96,20 +101,11 @@ QSet<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proje
 
         }
         projectFile.close();
-        if(xmlReader.hasError())
-        {
-            qCritical() << "XML parser error in " << projectFileName;
-            qCritical() << "Error Type:       " << QString(xmlReader.error());
-            qCritical() << "Error String:     " << xmlReader.errorString();
-            qCritical() << "Line Number:      " << QString::number(xmlReader.lineNumber());
-            qCritical() << "Column Number:    " << QString::number(xmlReader.columnNumber());
-            qCritical() << "Character Offset: " << QString::number(xmlReader.characterOffset());
-            throw std::logic_error("XML parser error!");
-        }
+        ProjectSolution::readerHasError(xmlReader);
     }
     else
     {
-        auto const errorMessage = "File open error: " + projectFile.errorString();
+        auto const errorMessage = "Couldn't open " + projectFileName + " because " + projectFile.errorString();
         qCritical() << errorMessage;
         throw std::runtime_error(errorMessage.toStdString());
     }
@@ -146,17 +142,26 @@ QSet<QString> VisualStudioProject::buildSourceFiles(const QString& projectFileNa
             // If token is StartElement - read it
             if (token == QXmlStreamReader::StartElement)
             {
-                QStringRef name = xmlReader.name();
-                if (name == "ClCompile")
+                auto const name = xmlReader.name();
+                if (name == XML_NODE_CLCOMPILE)
                 {
                     QXmlStreamAttributes attrs = xmlReader.attributes();
-                    QString include = attrs.value("Include").toString();
+                    auto const include = attrs.value(XML_ATTRIBUTE_INCLUDE).toString();
 
-                    // Add only CPP files
-                    if (QFileInfo(include).suffix() == "cpp")
+                    // Does this tag have Include attributes?
+                    if (include.length() == 0)
+                    {
+                        continue;
+                    }
+
+                    // Add recognised suffices (Does VS accept only C++ files?)
+                    auto const fileSuffix = QFileInfo(include).suffix();
+                    Q_ASSERT(fileSuffix.length() > 0);
+
+                    if (ProjectSolution::knownFileExtensions(fileSuffix))
                     {
                         // Append the project path so we can get the canonical file path
-                        QString sourceFile = QFileInfo(projectPath + "\\" + include).canonicalFilePath();
+                        auto const sourceFile = QFileInfo(projectPath + R"(\)" + include).canonicalFilePath();
                         Q_ASSERT(sourceFile.length() > 0);
 
                         sourceFiles.insert(sourceFile);
@@ -172,21 +177,13 @@ QSet<QString> VisualStudioProject::buildSourceFiles(const QString& projectFileNa
 
         }
         projectFile.close();
-        if(xmlReader.hasError())
-        {
-            qCritical() << "XML parser error in " << projectFileName;
-            qCritical() << "Error Type:       " << QString(xmlReader.error());
-            qCritical() << "Error String:     " << xmlReader.errorString();
-            qCritical() << "Line Number:      " << QString::number(xmlReader.lineNumber());
-            qCritical() << "Column Number:    " << QString::number(xmlReader.columnNumber());
-            qCritical() << "Character Offset: " << QString::number(xmlReader.characterOffset());
-            throw std::logic_error("XML parser error!");
-        }
+        ProjectSolution::readerHasError(xmlReader);
     }
     else
     {
-        qCritical() << "Unable to open file: " << projectFileName;
-        throw std::logic_error("Unable to open file: " + projectFileName.toStdString());
+        auto const errorMessage = "Couldn't open " + projectFileName + " because " + projectFile.errorString();
+        qCritical() << errorMessage;
+        throw std::runtime_error(errorMessage.toStdString());
     }
 
     return sourceFiles;
@@ -201,6 +198,9 @@ QSet<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proje
 {
     QSet<QString> sourceFiles;
     VisualStudioProject vsProject;
+
+    // Directory must be set before calling this function
+    Q_ASSERT(m_directory.length());
 
     int maxProjects = 0;
 
@@ -219,19 +219,21 @@ QSet<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proje
           // Trim to give VC project file
 
           // E.g of data
-          // Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Address Manager", "Address manager\Project\Windows XP, win32 (1)\addressmanager.vcxproj", "{4FA38C84-2DC0-4A02-B31F-A02A4B36480C}"
+          // Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleApplication1", "ConsoleApplication1.vcxproj", "{188E5CAB-AA8D-4586-AE17-6BB964C21E48}"
 
-          if (line.startsWith("Project"))
+          if (line.startsWith(SOLUTION_LINE_PROJECT))
           {
-              QStringList split = line.split("\"");
+              QStringList split = line.split(R"(")");
+              Q_ASSERT(split.size() >= 5);
               QString  projectUnclean = split[5];
-              qDebug() << projectUnclean;
+              qInfo() << projectUnclean;
 
               //if (maxProjects < 10)
               {
                   try
                   {
-                      QSet<QString> solutionFiles =  vsProject.buildSourceFiles(m_directory + "/" + projectUnclean);
+                      // Assemble each solution in turn
+                      QSet<QString> solutionFiles =  vsProject.buildSourceFiles(m_directory + '/' + projectUnclean);
                       maxProjects++;
 
                       // TODO: Redo this inneficient way to appending QList together
@@ -239,7 +241,12 @@ QSet<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proje
                       {
                           sourceFiles.insert(file);
                       }
-                  } catch (const std::logic_error& e)
+                  }
+                  catch (const std::logic_error& e)
+                  {
+                      qCritical() << QString(e.what());
+                  }
+                  catch (const std::runtime_error& e)
                   {
                       qCritical() << QString(e.what());
                   }
@@ -254,7 +261,9 @@ QSet<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proje
     }
     else
     {
-        throw std::logic_error("Unable to open " + projectFileName.toStdString() + " for reading!");
+        auto const errorMessage = "Couldn't open " + projectFileName;
+        qCritical() << errorMessage;
+        throw std::runtime_error(errorMessage.toStdString());
     }
 
     return sourceFiles;

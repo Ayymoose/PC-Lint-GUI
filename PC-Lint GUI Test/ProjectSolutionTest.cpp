@@ -109,4 +109,36 @@ bool ProjectSolutionTest::atmelStudioCPPSolutionTest()
     }
 }
 
+bool ProjectSolutionTest::visualStudioCPPProjectTest()
+{
+    // Test a visual studio project with 1 source file
+    Lint::VisualStudioProject visualStudioProject;
+    try
+    {
+        auto const files = visualStudioProject.buildSourceFiles(visualStudioSolutionPath + R"(cpp_project\Project1.vcxproj)");
+        return Test::compare(1, files.size());
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
+bool ProjectSolutionTest::visualStudioCPPMultiProjectSolutionTest()
+{
+    // Test a visual studio project with 1 source file in 3 different projects
+    Lint::VisualStudioProjectSolution visualStudioProjectSolution;
+    try
+    {
+        auto const fileName = visualStudioSolutionPath + R"(cpp_solution\ConsoleApplication1\ConsoleApplication1.sln)";
+        visualStudioProjectSolution.setDirectory(QFileInfo(fileName).canonicalPath());
+        auto const files = visualStudioProjectSolution.buildSourceFiles(fileName);
+        return Test::compare(3, files.size());
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
 };
