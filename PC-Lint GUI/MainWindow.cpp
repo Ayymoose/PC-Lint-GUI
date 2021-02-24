@@ -316,8 +316,10 @@ void MainWindow::startLint(bool lintProject)
                 {
                     QMessageBox::critical(this,"Error", QString(e.what()));
                 }
-
-
+                catch (const std::runtime_error& e)
+                {
+                    QMessageBox::critical(this,"Error", QString(e.what()));
+                }
             }
         }
         else

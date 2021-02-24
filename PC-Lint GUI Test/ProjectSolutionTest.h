@@ -9,6 +9,7 @@ namespace Test
 const QString solutionPath = R"(..\PC-Lint GUI Test\data\solutions\)";
 const QString microchipStudioSolutionPath = solutionPath + R"(microchip studio\)";
 const QString visualStudioSolutionPath = solutionPath + R"(visual studio\)";
+const QString qtStudioSolutionPath = solutionPath + R"(qt\)";
 
 class ProjectSolutionTest
 {
@@ -27,9 +28,9 @@ private:
         {"atmelStudioEmptySolutionTest", &ProjectSolutionTest::atmelStudioEmptySolutionTest},
         {"atmelStudioCSolutionTest", &ProjectSolutionTest::atmelStudioCSolutionTest},
         {"atmelStudioCPPSolutionTest", &ProjectSolutionTest::atmelStudioCPPSolutionTest},
-
         {"visualStudioCPPProjectTest", &ProjectSolutionTest::visualStudioCPPProjectTest},
-        {"visualStudioCPPMultiProjectSolutionTest", &ProjectSolutionTest::visualStudioCPPMultiProjectSolutionTest}
+        {"visualStudioCPPMultiProjectSolutionTest", &ProjectSolutionTest::visualStudioCPPMultiProjectSolutionTest},
+        {"qtSolution", &ProjectSolutionTest::qtSolution}
     };
 
     bool atmelStudioGarbageSolutionNameTest();
@@ -38,7 +39,7 @@ private:
     bool atmelStudioCPPSolutionTest();
     bool visualStudioCPPProjectTest();
     bool visualStudioCPPMultiProjectSolutionTest();
-
+    bool qtSolution();
 
     int m_failedTests;
     int m_passedTests;

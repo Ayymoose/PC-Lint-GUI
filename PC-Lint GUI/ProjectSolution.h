@@ -57,10 +57,11 @@ public:
 
 };
 
+// .cproj .cppproj
 class AtmelStudio7ProjectSolution : public ProjectSolution
 {
 public:
-     void setDirectory(const QString&) override {}
+     void setDirectory(const QString&) noexcept override {}
      QSet<QString> buildSourceFiles(const QString& projectFileName) override;
 };
 
@@ -68,7 +69,7 @@ public:
 class VisualStudioProject : public ProjectSolution
 {
 public:
-     void setDirectory(const QString&) override {}
+     void setDirectory(const QString&) noexcept override {}
      QSet<QString> buildSourceFiles(const QString& projectFileName) override;
 };
 
@@ -77,10 +78,18 @@ class VisualStudioProjectSolution : public ProjectSolution
 {
 public:
 
-     void setDirectory(const QString&) override;
+     void setDirectory(const QString&) noexcept override;
      QSet<QString> buildSourceFiles(const QString& projectFileName) override;
 private:
      QString m_directory;
+};
+
+// .pro
+class QtSolution : public ProjectSolution
+{
+public:
+    void setDirectory(const QString&) noexcept override {};
+    QSet<QString> buildSourceFiles(const QString& projectFileName) override;
 };
 
 };

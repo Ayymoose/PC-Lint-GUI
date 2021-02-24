@@ -141,4 +141,20 @@ bool ProjectSolutionTest::visualStudioCPPMultiProjectSolutionTest()
     }
 }
 
+bool ProjectSolutionTest::qtSolution()
+{
+    // Test a qt project with some C++ files
+    Lint::QtSolution qtSolution;
+    try
+    {
+        auto const fileName = qtStudioSolutionPath + R"(cpp_project\PC-Lint GUI.pro)";
+        auto const files = qtSolution.buildSourceFiles(fileName);
+        return Test::compare(12, files.size());
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
 };

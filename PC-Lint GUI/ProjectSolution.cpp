@@ -189,7 +189,7 @@ QSet<QString> VisualStudioProject::buildSourceFiles(const QString& projectFileNa
     return sourceFiles;
 }
 
-void VisualStudioProjectSolution::setDirectory(const QString &directory)
+void VisualStudioProjectSolution::setDirectory(const QString &directory) noexcept
 {
     m_directory = directory;
 }
@@ -204,13 +204,13 @@ QSet<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proje
 
     int maxProjects = 0;
 
-    QFile inputFile(projectFileName);
-    if (inputFile.open(QIODevice::ReadOnly))
+    QFile projectFile(projectFileName);
+    if (projectFile.open(QIODevice::ReadOnly))
     {
-       QTextStream in(&inputFile);
+       QTextStream in(&projectFile);
        while (!in.atEnd())
        {
-          QString line = in.readLine();
+          auto const line = in.readLine();
 
           // Basic VS studio parsing
           // If line begins with "Project"
@@ -223,9 +223,9 @@ QSet<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proje
 
           if (line.startsWith(SOLUTION_LINE_PROJECT))
           {
-              QStringList split = line.split(R"(")");
+              auto const split = line.split(R"(")");
               Q_ASSERT(split.size() >= 5);
-              QString  projectUnclean = split[5];
+              auto const projectUnclean = split[5];
               qInfo() << projectUnclean;
 
               //if (maxProjects < 10)
@@ -233,7 +233,7 @@ QSet<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proje
                   try
                   {
                       // Assemble each solution in turn
-                      QSet<QString> solutionFiles =  vsProject.buildSourceFiles(m_directory + '/' + projectUnclean);
+                      auto const solutionFiles =  vsProject.buildSourceFiles(m_directory + '/' + projectUnclean);
                       maxProjects++;
 
                       // TODO: Redo this inneficient way to appending QList together
@@ -257,7 +257,7 @@ QSet<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proje
 
 
        }
-       inputFile.close();
+       projectFile.close();
     }
     else
     {
@@ -266,6 +266,35 @@ QSet<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proje
         throw std::runtime_error(errorMessage.toStdString());
     }
 
+    return sourceFiles;
+}
+
+QSet<QString> QtSolution::buildSourceFiles(const QString &projectFileName)
+{
+    QSet<QString> sourceFiles;
+    QFile projectFile(projectFileName);
+    if (projectFile.open(QIODevice::ReadOnly))
+    {
+       QTextStream in(&projectFile);
+       while (!in.atEnd())
+       {
+          auto const line = in.readLine();
+
+          // Look for C++ files
+          if (line.contains(".cpp"))
+          {
+              auto sourceFile = line.trimmed();
+              sourceFile = sourceFile.mid(0, sourceFile.indexOf(".cpp")+4);
+              sourceFiles.insert(sourceFile);
+          }
+       }
+    }
+    else
+    {
+        auto const errorMessage = "Couldn't open " + projectFileName;
+        qCritical() << errorMessage;
+        throw std::runtime_error(errorMessage.toStdString());
+    }
     return sourceFiles;
 }
 
