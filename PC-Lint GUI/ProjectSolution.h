@@ -29,6 +29,15 @@ public:
     virtual ~ProjectSolution() = default;
     virtual QSet<QString> buildSourceFiles(const QString& projectFileName) = 0;
     virtual void setDirectory(const QString&) = 0;
+
+    static bool knownFileExtensions(const QString& extension)
+    {
+        const QStringList extensions =
+        {
+            "c","cc","cpp","c++","cp","cxx"
+        };
+        return extensions.contains(extension, Qt::CaseInsensitive);
+    }
 };
 
 class AtmelStudio7ProjectSolution : public ProjectSolution

@@ -26,16 +26,26 @@
 namespace Lint
 {
 
+
+namespace
+{
+    const QString XML_NODE_COMPILE = "Compile";
+    const QString XML_ATTRIBUTE_INCLUDE = "Include";
+};
+
 QSet<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& projectFileName)
 {
     QSet<QString> sourceFiles;
 
     // Get the file path for the project
-    QString projectPath = QFileInfo(projectFileName).absolutePath();
+    auto const projectPath = QFileInfo(projectFileName).absolutePath();
+
+    // XML path to go:
 
     // Project
     // - ItemGroup
     // -- Compile Include
+
     QXmlStreamReader xmlReader;
     QFile projectFile(projectFileName);
     if (projectFile.open(QIODevice::ReadOnly))
@@ -55,26 +65,25 @@ QSet<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proje
             // If token is StartElement - read it
             if (token == QXmlStreamReader::StartElement)
             {
-                QStringRef name = xmlReader.name();
-                if (name == "Compile")
+                auto const name = xmlReader.name();
+                if (name == XML_NODE_COMPILE)
                 {
                     QXmlStreamAttributes attrs = xmlReader.attributes();
-                    QString include = attrs.value("Include").toString();
+                    auto const include = attrs.value(XML_ATTRIBUTE_INCLUDE).toString();
 
-                    // Add only C files
-                    // Can you build CPP projects with Atmel studio?
-                    if (QFileInfo(include).suffix() == "c")
+                    // Add recognised file extensions
+                    auto const fileSuffix = QFileInfo(include).suffix();
+                    Q_ASSERT(fileSuffix.length() > 0);
+                    if (ProjectSolution::knownFileExtensions(fileSuffix))
                     {
                         // Append the project path so we can get the canonical file path
-                        QString sourceFile = QFileInfo(projectPath + "\\" + include).canonicalFilePath();
-                        if (sourceFile.length() >= MAX_PATH)
-                        {
-                            qCritical() << "Source file name longer than " << QString(MAX_PATH) << " characters";
-                        }
-                        else
-                        {
-                            sourceFiles.insert(sourceFile);
-                        }
+                        auto const canonicalPath = projectPath + R"(\)" + include;
+                        auto const sourceFile = QFileInfo(canonicalPath).filePath();
+
+                        // The file must be relative to the solution
+                        Q_ASSERT(QFileInfo(sourceFile).exists());
+
+                        sourceFiles.insert(sourceFile);
                     }
 
                 }
@@ -100,8 +109,9 @@ QSet<QString> AtmelStudio7ProjectSolution::buildSourceFiles(const QString& proje
     }
     else
     {
-        qCritical() << "Unable to open file: " << projectFileName;
-        throw std::logic_error("Unable to open file: " + projectFileName.toStdString());
+        auto const errorMessage = "File open error: " + projectFile.errorString();
+        qCritical() << errorMessage;
+        throw std::runtime_error(errorMessage.toStdString());
     }
 
     return sourceFiles;
@@ -147,14 +157,9 @@ QSet<QString> VisualStudioProject::buildSourceFiles(const QString& projectFileNa
                     {
                         // Append the project path so we can get the canonical file path
                         QString sourceFile = QFileInfo(projectPath + "\\" + include).canonicalFilePath();
-                        if (sourceFile.length() >= MAX_PATH)
-                        {
-                            qCritical() << "Source file name longer than " << QString(MAX_PATH) << " characters";
-                        }
-                        else
-                        {
-                            sourceFiles.insert(sourceFile);
-                        }
+                        Q_ASSERT(sourceFile.length() > 0);
+
+                        sourceFiles.insert(sourceFile);
                     }
 
                 }

@@ -3,6 +3,10 @@ TARGET = 'PC-Lint GUI'
 
 CONFIG += c++17
 
+DEFINES += QT_DEPRECATED_WARNINGS
+
+QMAKE_CXXFLAGS += -Wall -Wextra -Wundef -Wpointer-arith -Wlogical-op
+
 QT += xml widgets
 
 SOURCES += \
