@@ -12,6 +12,7 @@ A Qt based GUI application written in C++ to use with the C/C++ static analysis 
 * Multithread support for PC-Lint (PC-Lint does not have the `-max_threads=n` option)
 * Basic code editor with syntax highlighting
 * Tree view of lint output to navigate through
+* Message type filtering to filter out errors, warnings and informational messages
 * Lint various project solutions (Atmel Studio, Microchip Studio, Visual Studio etc)
 
 Newer features to be implemented soon in no particular order
