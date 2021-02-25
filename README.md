@@ -4,6 +4,8 @@
 
 A Qt based GUI application written in C++ to use with the C/C++ static analysis tool PC-Lint or PC-Lint Plus
 
+![alt text](Screens/000.png)
+
 ## Features
 
 * Supports old PC-Lint and newer PC-Lint Plus versions
