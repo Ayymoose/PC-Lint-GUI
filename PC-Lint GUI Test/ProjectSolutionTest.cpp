@@ -109,6 +109,42 @@ bool ProjectSolutionTest::atmelStudioCPPSolutionTest()
     }
 }
 
+bool ProjectSolutionTest::visualStudioGarbageSolutionNameTest()
+{
+    // Try to build source files from a non-existent file name
+    Lint::VisualStudioProject solution;
+    try
+    {
+        solution.buildSourceFiles("garbage");
+        return false;
+    }
+    catch (const std::runtime_error& e)
+    {
+        return true;
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
+bool ProjectSolutionTest::visualStudioEmptySolutionTest()
+{
+    // Try to build source files from an empty project file
+    Lint::VisualStudioProjectSolution solution;
+    try
+    {
+        auto const fileName = visualStudioSolutionPath + R"(empty_project\empty.sln)";
+        solution.setDirectory(QFileInfo(fileName).canonicalPath());
+        auto files = solution.buildSourceFiles(fileName);
+        return Test::compare(0,files.size());
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
 bool ProjectSolutionTest::visualStudioCPPProjectTest()
 {
     // Test a visual studio project with 1 source file

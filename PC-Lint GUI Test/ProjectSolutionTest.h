@@ -28,6 +28,9 @@ private:
         {"atmelStudioEmptySolutionTest", &ProjectSolutionTest::atmelStudioEmptySolutionTest},
         {"atmelStudioCSolutionTest", &ProjectSolutionTest::atmelStudioCSolutionTest},
         {"atmelStudioCPPSolutionTest", &ProjectSolutionTest::atmelStudioCPPSolutionTest},
+
+        {"visualStudioGarbageSolutionNameTest", &ProjectSolutionTest::visualStudioGarbageSolutionNameTest},
+        {"visualStudioEmptySolutionTest", &ProjectSolutionTest::visualStudioEmptySolutionTest},
         {"visualStudioCPPProjectTest", &ProjectSolutionTest::visualStudioCPPProjectTest},
         {"visualStudioCPPMultiProjectSolutionTest", &ProjectSolutionTest::visualStudioCPPMultiProjectSolutionTest},
         {"qtSolution", &ProjectSolutionTest::qtSolution}
@@ -37,6 +40,9 @@ private:
     bool atmelStudioEmptySolutionTest();
     bool atmelStudioCSolutionTest();
     bool atmelStudioCPPSolutionTest();
+
+    bool visualStudioGarbageSolutionNameTest();
+    bool visualStudioEmptySolutionTest();
     bool visualStudioCPPProjectTest();
     bool visualStudioCPPMultiProjectSolutionTest();
     bool qtSolution();

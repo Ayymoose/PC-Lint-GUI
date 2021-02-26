@@ -25,7 +25,6 @@
 44. Bug: Linter does not append any outstanding data to the table upon an error. Linter must append any data it has when it has a critical error
 45. Bug: Linter crashes linting a huge VS solution (~550 files) and there was no information in the log about it. Must add PDB (for Visual C++ compiler) and exception handler to log crash
 46. Bug: Logger should have a filter so we can specify which errors we want to see
-47. Bug: Crash when providing empty visual studio file
 48. Bug: PC-Lint Plus has a program to configure Visual Studio solutions. It generates 2 lint files which must be specified on the command line; visual studio specific lint file first and then the 2nd lint file. There is no way to specify two PC-Lint Plus lint files at the momemt so the user has to copy the 2nd file into the end of the first.
 49. Bug: Progress Window ETA is unreliable as the ETA calculation isn't correct
 50. Feature: GUI theme (Dark + Normal)
