@@ -19,6 +19,7 @@
 #include <QScreen>
 #include "Log.h"
 #include "CodeEditor.h"
+#include "Preferences.h"
 #include "Jenkins.h"
 #include <QObject>
 #include <QProcess>
@@ -28,14 +29,14 @@ int main(int argc, char *argv[])
 {
     QApplication EditorApp(argc, argv);
 
-    QCoreApplication::setOrganizationName("PC-Lint GUI");
-    QCoreApplication::setApplicationName("PC-Lint GUI");
+    QCoreApplication::setOrganizationName(Lint::SETTINGS_APPLICATION_NAME);
+    QCoreApplication::setApplicationName(Lint::SETTINGS_APPLICATION_NAME);
 
     qInstallMessageHandler(customMessageHandler);
 
-    qDebug() << "---------- Starting PC-Lint GUI ----------";
-    qDebug() << "PC-Lint GUI version: " BUILD_VERSION;
-    // TODO: 32-bit or 64-bit
+    qDebug().noquote() << "------------------------------ Starting" <<
+                          Lint::SETTINGS_APPLICATION_NAME << "------------------------------";
+    qDebug().noquote() << Lint::SETTINGS_APPLICATION_NAME << "version: " BUILD_VERSION;
 
     MainWindow mainWindow;
 

@@ -261,8 +261,10 @@ void MainWindow::startLint(bool lintProject)
         // Lint a project solution file
         if (lintProject)
         {
-            fileName = QFileDialog::getOpenFileName(this, "Select project file", Preferences::m_lastDirectory,
-                                                    "Atmel 7 Studio (*.cproj);; "
+            fileName = QFileDialog::getOpenFileName(this,
+                                                    "Select project file",
+                                                    Preferences::m_lastDirectory,
+                                                    "Atmel 7 Studio / Microchip Studio (*.cproj *.cppproj);; "
                                                     "Visual Studio Project (*.vcxproj);; "
                                                     "Visual Studio Solution (*.sln) "
                                                     );
@@ -286,7 +288,7 @@ void MainWindow::startLint(bool lintProject)
                 Lint::VisualStudioProject vsProject;
                 Lint::VisualStudioProjectSolution vsProjectSolution;
 
-                if (fileExtension == "cproj")
+                if (fileExtension == "cproj" || fileExtension == "cpproj")
                 {
                     // Atmel Studio 7 project supported
                     project = &as7ProjectSolution;
@@ -372,18 +374,15 @@ void MainWindow::slotLintFinished(const Lint::LintResponse& lintResponse)
     // Accumulate lint data here
     // Only when lint complete is sent then we populate lint table
 
-    if (lintResponse.status == Lint::Status::LINTER_PARTIAL_COMPLETE ||
+    m_linter.appendLinterMessages(lintResponse.lintMessages);
+    m_linter.appendLinterErrors(lintResponse.numberOfErrors);
+    m_linter.appendLinterWarnings(lintResponse.numberOfWarnings);
+    m_linter.appendLinterInfo(lintResponse.numberOfInfo);
+
+    if (!(lintResponse.status == Lint::Status::LINTER_PARTIAL_COMPLETE ||
             lintResponse.status == Lint::Status::LINTER_COMPLETE ||
-            lintResponse.status == Lint::Status::LINTER_PROCESS_ERROR)
+            lintResponse.status == Lint::Status::LINTER_PROCESS_ERROR))
     {
-        m_linter.appendLinterMessages(lintResponse.lintMessages);
-        m_linter.appendLinterErrors(lintResponse.numberOfErrors);
-        m_linter.appendLinterWarnings(lintResponse.numberOfWarnings);
-        m_linter.appendLinterInfo(lintResponse.numberOfInfo);
-    }
-    else
-    {
-        qDebug() << "[Error] Linter error " << lintResponse.status << "occurred so not appending any data";
         m_linter.setErrorMessage(lintResponse.errorMessage);
     }
 
@@ -551,7 +550,6 @@ void MainWindow::displayLintTable()
     }
 
     // Error count fluctuating in output looks like a PCLP bug
-    // TODO: Automated tests for this
 
     // Show message if there are no lint problems
     if (m_linterStatus == Lint::Status::LINTER_COMPLETE &&
@@ -598,7 +596,7 @@ void MainWindow::slotLintComplete()
 {
     // All lints are complete
     // Now update the table
-    qDebug() << "All lints are complete. Updating table...";
+    qInfo() << "All lints are complete. Updating table...";
     displayLintTable();
 }
 
@@ -662,7 +660,7 @@ void MainWindow::slotFileModified(QString modifiedFile)
                 if (m_ui->codeEditor->loadFile(modifiedFile))
                 {
                     // Reload
-                    qDebug() << "Reloading file: " << modifiedFile;
+                    qInfo() << "Reloading file: " << modifiedFile;
 
                     // Update the status bar
                     m_ui->statusBar->showMessage("Reloaded " + modifiedFile + " at " + QDateTime::currentDateTime().toString());
@@ -696,7 +694,7 @@ void MainWindow::slotFileDoesntExist(const QString& deletedFile)
     if (msgBox.exec() == QMessageBox::No)
     {
         // Remove
-        qDebug() << "Removing file: " << deletedFile;
+        qInfo() << "Removing file: " << deletedFile;
 
         // Remove this file from the code editor if it's the loaded one
         if (m_ui->codeEditor->loadedFile() == deletedFile)
@@ -768,7 +766,10 @@ void MainWindow::on_actionLog_triggered()
 {
     // Display the event log
     QProcess log;
-    log.startDetached("notepad.exe", QStringList() << Lint::LOG_FILENAME);
+    if (!log.startDetached("notepad.exe", QStringList() << Lint::LOG_FILENAME))
+    {
+        QMessageBox::critical(this, "Error", log.errorString());
+    }
 }
 
 QSet<QString> MainWindow::recursiveBuildSourceFileSet(const QString& directory)

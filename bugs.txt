@@ -30,3 +30,7 @@
 49. Bug: Progress Window ETA is unreliable as the ETA calculation isn't correct
 50. Feature: GUI theme (Dark + Normal)
 51. Feature: Code editor font selection and size
+52. Feature: Show PC-Lint version used on startup if available
+53. Feature: GUI translations
+54. Feature: Set program in settings to open log with (default notepad.exe)
+55. Bug: Abort lint doesn't work properly in that it might not abort on the first click

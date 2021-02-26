@@ -19,6 +19,16 @@
 #include <QDialog>
 #include <QSettings>
 
+namespace Lint
+{
+const QString SETTINGS_APPLICATION_NAME = "PC-Lint GUI";
+const QString SETTINGS_GROUP_NAME = "Settings";
+const QString SETTINGS_MAX_THREADS = "MaxThreads";
+const QString SETTINGS_LINT_EXECUTABLE_PATH = "LintExecutablePath";
+const QString SETTINGS_LINT_FILE_PATH = "LintFilePath";
+const QString SETTINGS_LAST_DIRECTORY = "LastDirectory";
+};
+
 namespace Ui
 {
     class Preferences;

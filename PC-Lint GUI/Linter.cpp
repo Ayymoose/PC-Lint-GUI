@@ -74,7 +74,7 @@ int Linter::numberOfErrors() const noexcept
 
 void Linter::slotGetLinterData(const LintData& lintData) noexcept
 {
-    qDebug() << "[" << QThread::currentThreadId() << "]" << " - Got linter data";
+    qDebug().noquote() << '[' << QThread::currentThreadId() << "] - Got linter data";
     setLintFiles(lintData.lintFiles);
     setLinterFile(lintData.lintOptionFile);
     setLinterExecutable(lintData.linterExecutable);
@@ -129,8 +129,7 @@ Lint::Status Linter::lint() noexcept
     auto startLintTime = std::chrono::steady_clock::now();
 
     Q_ASSERT(m_lintFile.length());
-    qDebug() << "[" << QThread::currentThreadId() << "]" << "Setting working directory to: " << QFileInfo(m_lintFile).canonicalPath();
-    //DEBUG_LOG("[" + QThread::currentThreadId() + "]" + "Setting working directory to: " + QFileInfo(m_lintFile).canonicalPath());
+    qDebug().noquote() << '[' << QThread::currentThreadId() << "] Setting working directory to: " << QFileInfo(m_lintFile).canonicalPath();
 
     QProcess lintProcess;
     lintProcess.setWorkingDirectory(QFileInfo(m_lintFile).canonicalPath());
@@ -147,7 +146,7 @@ Lint::Status Linter::lint() noexcept
         if (status != Lint::LINTER_CANCEL && status != Lint::LINTER_UNSUPPORTED_VERSION)
         {
             status = Lint::LINTER_PROCESS_ERROR;
-            qCritical() << "Process error: " << error;
+            qCritical().noquote() << "Process error: " << error;
         }
     });
 
@@ -214,7 +213,7 @@ Lint::Status Linter::lint() noexcept
                 status = Lint::LINTER_LICENSE_ERROR;
                 lintProcess.closeReadChannel(QProcess::StandardOutput);
                 lintProcess.closeReadChannel(QProcess::StandardError);
-                qCritical() << "Failed to start lint because of license error";
+                qCritical().noquote() << "Failed to start lint because of license error:\n" << readStdErr;
                 m_linterErrorMessage = readStdErr;
                 lintProcess.close();
                 return;
@@ -225,7 +224,7 @@ Lint::Status Linter::lint() noexcept
                 status = Lint::LINTER_UNSUPPORTED_VERSION;
                 lintProcess.closeReadChannel(QProcess::StandardOutput);
                 lintProcess.closeReadChannel(QProcess::StandardError);
-                qCritical() << "Failed to start lint because version unsupported: " << QString(pclintVersion);
+                qCritical().noquote() << "Failed to start lint because version unsupported: " << QString(pclintVersion);
                 lintProcess.close();
                 return;
             }
@@ -241,7 +240,7 @@ Lint::Status Linter::lint() noexcept
                 file = file.left(file.length()-4);
                 if (!lintedFiles.contains(file))
                 {
-                    qDebug() << "[" << QThread::currentThreadId() << "]" << "Processed chunk: " << file;
+                    qDebug().noquote() << '[' << QThread::currentThreadId() << "] Processed chunk: " << file;
                     emit signalUpdateProgress(1);
                     processedFiles++;
                     lintedFiles.append(file);
@@ -261,7 +260,7 @@ Lint::Status Linter::lint() noexcept
                 // TODO: Support multiple passes
                 if (!lintedFiles.contains(file))
                 {
-                    qDebug() << "[" << QThread::currentThreadId() << "]" << "Processed: " << file;
+                    qDebug() << '[' << QThread::currentThreadId() << "] Processed: " << file;
                     emit signalUpdateProgress(1);
                     processedFiles++;
                     emit signalUpdateProcessedFiles(1);
@@ -286,9 +285,9 @@ Lint::Status Linter::lint() noexcept
 
                     // Processing time for 1 file
                     float processingTime = (processingTimeTotal / 1000.0f) / newProcessedFiles;
-                    qDebug() << "[" << QThread::currentThreadId() << "]" << "Processed: " << newProcessedFiles << " file in " << (processingTimeTotal / 1000.0f) << "s";
+                    qDebug() << '[' << QThread::currentThreadId() << "] Processed: " << newProcessedFiles << " file in " << (processingTimeTotal / 1000.0f) << "s";
                     float eta = 1 + (processingTime * (m_filesToLint.size() - processedFiles));
-                    qDebug() << "[" << QThread::currentThreadId() << "]" << "ETA: " << eta << "s";
+                    qDebug() << '[' << QThread::currentThreadId() << "] ETA: " << eta << "s";
                     lintStartTime = std::chrono::steady_clock::now();
 
                     static float etaMax = 0;
@@ -355,19 +354,19 @@ Lint::Status Linter::lint() noexcept
         totalLength += argument.length();
     }
 
-    Q_ASSERT(totalLength + m_linterExecutable.length() < 512);
+    Q_ASSERT(totalLength + m_linterExecutable.length() < MAX_LINT_PATH);
 
     // Add all files to lint    
     for (const auto& file : m_filesToLint)
     {
        m_arguments << file;
        cmdString += " \"" + file + "\"";
-       qInfo() << "Adding file to lint: " << file;
+       qInfo().noquote() << "Adding file to lint: " << file;
     }
 
     Q_ASSERT(m_linterExecutable.length());
-    qInfo() << "Lint path: " << m_linterExecutable;
-    qInfo() << "Lint file: " << m_lintFile;
+    qInfo().noquote() << "Lint path: " << m_linterExecutable;
+    qInfo().noquote() << "Lint file: " << m_lintFile;
 
     lintProcess.setProgram(m_linterExecutable);
     lintProcess.setArguments(m_arguments);
@@ -380,7 +379,7 @@ Lint::Status Linter::lint() noexcept
 
     if (!lintProcess.waitForStarted())
     {
-        qCritical() << lintProcess.errorString();
+        qCritical().noquote() << lintProcess.errorString();
         return Lint::LINTER_PROCESS_ERROR;
     }
 
@@ -392,7 +391,7 @@ Lint::Status Linter::lint() noexcept
     // Assume each module will take the same time tM so the total time is tM * number of files
     // Update tM by averaging it over the number of processed modules
 
-    qDebug() << "[" << QThread::currentThreadId() << "]" << "Total files: " << totalFiles;
+    qDebug() << '[' << QThread::currentThreadId() << "] Total files: " << totalFiles;
 
     emit signalUpdateProgressMax(totalFiles);
     emit signalUpdateProcessedFiles(processedFiles);
@@ -402,7 +401,7 @@ Lint::Status Linter::lint() noexcept
     // TODO: Loop with a delay to check if lint process finished
     if (!lintProcess.waitForFinished(Lint::MAX_LINT_TIME))
     {
-        qCritical() << "Lint process exited as it took too long (" << QString::number(Lint::MAX_LINT_TIME) << "ms) It's possible the lint executable became stuck on a particular file";
+        qCritical().noquote() << "Lint process exited as it took too long: " << QString::number(Lint::MAX_LINT_TIME) << "ms. It's possible the lint executable became stuck on a particular file";
         lintProcess.close();
         return Lint::LINTER_PROCESS_TIMEOUT;
     }
@@ -421,17 +420,16 @@ Lint::Status Linter::lint() noexcept
 
     if (lintedFiles.size() == m_filesToLint.size())
     {
-        qDebug() << "[" << QThread::currentThreadId() << "]" << "All files in project linted";
+        qDebug().noquote() << '[' << QThread::currentThreadId() << "] All files in project linted";
     }
     else
     {
-        qDebug() << "[" << QThread::currentThreadId() << "]" << "Only " << lintedFiles.size() << "/" << m_filesToLint.size() << " were linted!";
+        qDebug().noquote() << '[' << QThread::currentThreadId() << "] Only " << lintedFiles.size() << '/' << m_filesToLint.size() << " were linted!";
         status = Lint::Status::LINTER_PARTIAL_COMPLETE;
     }
 
     // Show lint version used
-    qDebug() << "[" << QThread::currentThreadId() << "]" << "Lint version: " << QString(pclintVersion);
-    //DEBUG_LOG("[" + QThread::currentThreadId() + "]" + "Lint version: " + QString(pclintVersion));
+    qDebug() << '[' << QThread::currentThreadId() << "] Lint version: " << QString(pclintVersion);
 
     lintData.replace("<doc>","");
     lintData.replace("</doc>","");
@@ -449,7 +447,7 @@ Lint::Status Linter::lint() noexcept
 
 
 
-    qDebug() << "[" << QThread::currentThreadId() << "]" << "XML data size: " << lintData.size();
+    qDebug().noquote() << '[' << QThread::currentThreadId() << "] XML data size: " << lintData.size();
 
     // TODO: Temporary debug information
     QFile file2("D:\\Users\\Ayman\\Desktop\\PC-Lint GUI\\test\\cmdline.xml");
@@ -624,7 +622,7 @@ Lint::Status Linter::lint() noexcept
 
     auto endLintTime = std::chrono::steady_clock::now();
     auto totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
-    qDebug() << "[" << QThread::currentThreadId() << "]" << "I took " << totalElapsedTime / 1000.f << "s" << "to complete";
+    qDebug().noquote() << '[' << QThread::currentThreadId() << "] I took " << totalElapsedTime / 1000.f << "s" << "to complete";
 
     return status;
 }

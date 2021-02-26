@@ -4,8 +4,8 @@
 
 SET APP_NAME=PC-Lint GUI
 set APP_EXE=%APP_NAME%.exe
-set DEBUG_APP="D:\Users\Ayman\Desktop\PC-Lint GUI\PC-Lint GUI\Debug\%APP_EXE%"
-set RELEASE_APP="D:\Users\Ayman\Desktop\PC-Lint GUI\PC-Lint GUI\Release\%APP_EXE%"
+set DEBUG_APP="D:\Users\Ayman\Desktop\PC-Lint GUI\PC-Lint GUI Build\%APP_EXE%"
+set RELEASE_APP="D:\Users\Ayman\Desktop\PC-Lint GUI\PC-Lint GUI Build\%APP_EXE%"
 set BUILD_FOLDER=D:\Users\Ayman\Desktop\PC-Lint GUI\build
 set WINDEPLOYQT_APP="D:\Qt\5.14.1\mingw73_32\bin\windeployqt.exe"
 set WINDEPLOYQT_ARGUMENTS=--force --no-quick-import --no-translations --no-webkit2 --no-angle --no-opengl-sw --no-system-d3d-compiler

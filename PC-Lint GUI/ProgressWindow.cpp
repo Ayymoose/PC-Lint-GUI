@@ -69,7 +69,7 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
 void ProgressWindow::slotUpdateProgress(int value) noexcept
 {
     m_currentProgress += value;
-    qDebug() << "Progress now: (" << m_currentProgress << "/" << m_progressMax << ")";
+    qDebug() << "Progress now: (" << m_currentProgress << '/' << m_progressMax << ')';
     m_ui->lintProgressBar->setValue(m_currentProgress);
 }
 
@@ -84,7 +84,7 @@ void ProgressWindow::slotUpdateProgressMax(int value) noexcept
 void ProgressWindow::slotUpdateProcessedFiles(int processedFiles) noexcept
 {
    m_currentFileProgress += processedFiles;
-   m_ui->filesProcessed->setText(QString::number(m_currentFileProgress)+ "/" + QString::number(m_progressMax));
+   m_ui->filesProcessed->setText(QString::number(m_currentFileProgress)+ '/' + QString::number(m_progressMax));
 }
 
 void ProgressWindow::slotUpdateETA(int eta) noexcept
@@ -127,6 +127,7 @@ ProgressWindow::~ProgressWindow()
     }
     else
     {
+        // TODO: Don't set this if there was a license error
         m_parent->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION " - " + m_windowTitle);
     }
     delete m_ui;

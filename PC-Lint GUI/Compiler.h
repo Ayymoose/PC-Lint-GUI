@@ -18,9 +18,9 @@
 
 #if _WIN64
     // 64 bit build
-    #define BUILD_ARCHITECTURE "64-bit"
+    #define BUILD_ARCHITECTURE "(64-bit)"
 #else
-    #define BUILD_ARCHITECTURE "32-bit"
+    #define BUILD_ARCHITECTURE "(32-bit)"
 #endif
 
 

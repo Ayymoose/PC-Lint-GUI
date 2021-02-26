@@ -25,4 +25,5 @@ namespace Lint
 {
     const QString LOG_FILENAME = "PC-Lint GUI.log";
 }
+
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);

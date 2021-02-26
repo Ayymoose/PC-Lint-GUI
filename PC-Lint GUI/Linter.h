@@ -84,7 +84,7 @@ enum Message
 };
 
 constexpr int MAX_PROCESS_CHARACTERS = 8192;
-constexpr int MAX_LINT_TIME = 10*60*1000;
+constexpr int MAX_LINT_TIME = 20*60*1000;
 constexpr int MAX_LINT_PATH = 512;
 
 

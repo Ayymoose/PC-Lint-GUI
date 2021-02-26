@@ -56,16 +56,16 @@ void LintThreadManager::slotSetLinterData(const LintData& lintData) noexcept
     Q_ASSERT(lintData.lintOptionFile.size());
     Q_ASSERT(lintData.linterExecutable.size());
 
-    qDebug() << "[" << QThread::currentThreadId() << "]" << "Number of lint files: " << lintData.lintFiles.size();
-    qDebug() << "[" << QThread::currentThreadId() << "]" << "Lint option file: " << lintData.lintOptionFile;
-    qDebug() << "[" << QThread::currentThreadId() << "]" << "Lint executable: " << lintData.linterExecutable;
+    qDebug() << '[' << QThread::currentThreadId() << "] Number of lint files: " << lintData.lintFiles.size();
+    qDebug() << '[' << QThread::currentThreadId() << "] Lint option file: " << lintData.lintOptionFile;
+    qDebug() << '[' << QThread::currentThreadId() << "] Lint executable: " << lintData.linterExecutable;
     m_lintData = lintData;
     emit startLint();
 }
 
 void LintThreadManager::slotStartLintManager() noexcept
 {
-    qDebug() << "[" << QThread::currentThreadId() << "]" << "Starting Lint Manager";
+    qDebug() << '[' << QThread::currentThreadId() << "] Starting Lint Manager";
     emit signalGetLinterData();
 }
 
@@ -83,7 +83,7 @@ void LintThreadManager::startLint() noexcept
     QSet<QString> lintFiles;
     int length = Lint::MAX_LINT_PATH;
 
-    for (const QString& file : m_lintData.lintFiles)
+    for (const auto& file : m_lintData.lintFiles)
     {
         if (length + file.size() < Lint::MAX_PROCESS_CHARACTERS)
         {
@@ -112,7 +112,7 @@ void LintThreadManager::startLint() noexcept
     m_lintThreads.clear();
 
     int count = 0;
-    for (const QSet<QString>& lintFileList : lintFilePerThread)
+    for (const auto& lintFileList : lintFilePerThread)
     {
 
         // Create a new thread
@@ -143,22 +143,23 @@ void LintThreadManager::startLint() noexcept
         emit signalSetLinterData(perLintData);
         emit signalStartLint(true);
 
-        disconnect(this, &LintThreadManager::signalSetLinterData, m_lintPointers[count].get(), &Linter::slotGetLinterData);
-        disconnect(this, &LintThreadManager::signalStartLint, m_lintPointers[count].get(), &Linter::slotStartLint);
+        QObject::disconnect(this, &LintThreadManager::signalSetLinterData, m_lintPointers[count].get(), &Linter::slotGetLinterData);
+        QObject::disconnect(this, &LintThreadManager::signalStartLint, m_lintPointers[count].get(), &Linter::slotStartLint);
 
         count++;
     }
+
+    qDebug() << count << "threads created";
 }
 
 void LintThreadManager::slotLintFinished(const LintResponse& lintResponse) noexcept
 {
-    const QString debugString = "[LintThreadManager::slotLintFinished]";
 
-    qDebug() << debugString << "Lint finished with " << lintResponse.status;
-    qDebug() << debugString << "Number of lint messages: " << lintResponse.lintMessages.size();
-    qDebug() << debugString << "Number of lint errors: " << lintResponse.numberOfErrors;
-    qDebug() << debugString << "Number of lint warnings: " << lintResponse.numberOfWarnings;
-    qDebug() << debugString << "Number of lint information: " << lintResponse.numberOfInfo;
+    qDebug() << "Lint finished with:" << lintResponse.status;
+    qDebug() << "Number of lint messages:" << lintResponse.lintMessages.size();
+    qDebug() << "Number of lint errors:" << lintResponse.numberOfErrors;
+    qDebug() << "Number of lint warnings:" << lintResponse.numberOfWarnings;
+    qDebug() << "Number of lint information:" << lintResponse.numberOfInfo;
 
     emit signalLintFinished(lintResponse);
     m_completedLints++;
@@ -173,7 +174,7 @@ void LintThreadManager::slotLintFinished(const LintResponse& lintResponse) noexc
 
 void LintThreadManager::slotAbortLint() noexcept
 {
-    qDebug() << "Attempting to abort lint...";
+    qDebug() << "Attempting to abort lint";
     int threads = 1;
     std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[](const auto& thread)
     {
@@ -182,11 +183,12 @@ void LintThreadManager::slotAbortLint() noexcept
     });
     std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[this,&threads](const auto& thread)
     {
+        // TODO: Set 1 minute timeouts of thread waits
         auto waitComplete = thread->wait();
         Q_ASSERT(waitComplete);
-        qDebug() << threads++ << "/" << m_lintThreads.size() << " finished";
+        qDebug() << threads++ << '/' << m_lintThreads.size() << " finished";
     });
-    qDebug() << "Lint aborted!";
+    qDebug() << "Lint was aborted";
     emit signalLintComplete();
 }
 
