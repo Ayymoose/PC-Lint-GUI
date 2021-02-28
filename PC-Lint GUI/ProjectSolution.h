@@ -19,6 +19,7 @@
 #include <QList>
 #include <QString>
 #include <QXmlStreamReader>
+#include <QDebug>
 
 namespace Lint
 {
@@ -26,7 +27,7 @@ namespace Lint
 class ProjectSolution
 {
 public:
-    ProjectSolution() = default;
+    constexpr ProjectSolution() = default;
     virtual ~ProjectSolution() = default;
     virtual QSet<QString> buildSourceFiles(const QString& projectFileName) = 0;
     virtual void setDirectory(const QString&) = 0;
@@ -44,7 +45,7 @@ public:
     {
         if(xmlReader.hasError())
         {
-            qCritical() << "XML parser error in " << xmlReader.name();
+            qCritical() << "XML parser error in" << xmlReader.name();
             qCritical() << "Error Type:       " << QString(xmlReader.error());
             qCritical() << "Error String:     " << xmlReader.errorString();
             qCritical() << "Line Number:      " << QString::number(xmlReader.lineNumber());

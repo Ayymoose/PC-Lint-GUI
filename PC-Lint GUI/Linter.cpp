@@ -37,22 +37,22 @@ Linter::Linter() : m_numberOfErrors(0), m_numberOfWarnings(0), m_numberOfInfo(0)
 {
 }
 
-std::vector<LintMessage> Linter::getLinterMessages() const noexcept
+LintMessages Linter::getLinterMessages() const noexcept
 {
     return m_linterMessages;
 }
 
-void Linter::setLinterFile(const QString& lintFile) noexcept
+void Linter::setLintFile(const QString& lintFile) noexcept
 {
     m_lintFile = lintFile;
 }
 
-void Linter::setLinterExecutable(const QString& linterExecutable) noexcept
+void Linter::setLintExecutable(const QString& linterExecutable) noexcept
 {
     m_linterExecutable = linterExecutable;
 }
 
-void Linter::setLintFiles(const QSet<QString>& files) noexcept
+void Linter::setSourceFiles(const QSet<QString>& files) noexcept
 {
     m_filesToLint = files;
 }
@@ -75,12 +75,12 @@ int Linter::numberOfErrors() const noexcept
 void Linter::slotGetLinterData(const LintData& lintData) noexcept
 {
     qDebug().noquote() << '[' << QThread::currentThreadId() << "] - Got linter data";
-    setLintFiles(lintData.lintFiles);
-    setLinterFile(lintData.lintOptionFile);
-    setLinterExecutable(lintData.linterExecutable);
+    setSourceFiles(lintData.lintFiles);
+    setLintFile(lintData.lintOptionFile);
+    setLintExecutable(lintData.linterExecutable);
 }
 
-void Linter::setLinterMessages(const std::vector<LintMessage>& lintMessages) noexcept
+void Linter::setLinterMessages(const LintMessages& lintMessages) noexcept
 {
     m_linterMessages = lintMessages;
 }
@@ -143,10 +143,11 @@ Lint::Status Linter::lint() noexcept
 
     QObject::connect(&lintProcess, &QProcess::errorOccurred, this, [&](const QProcess::ProcessError& error)
     {
-        if (status != Lint::LINTER_CANCEL && status != Lint::LINTER_UNSUPPORTED_VERSION)
+        if (status != Lint::LINTER_ABORT && status != Lint::LINTER_UNSUPPORTED_VERSION)
         {
             status = Lint::LINTER_PROCESS_ERROR;
-            qCritical().noquote() << "Process error: " << error;
+            qCritical() << "Process error:" << error;
+            qCritical() << "Process state:" << lintProcess.state();
         }
     });
 
@@ -154,7 +155,7 @@ Lint::Status Linter::lint() noexcept
     {
         if (QThread::currentThread()->isInterruptionRequested())
         {
-            status = Lint::LINTER_CANCEL;
+            status = Lint::LINTER_ABORT;
             lintProcess.closeReadChannel(QProcess::StandardOutput);
             lintProcess.closeReadChannel(QProcess::StandardError);
             lintProcess.close();
@@ -183,7 +184,7 @@ Lint::Status Linter::lint() noexcept
     {
         if (QThread::currentThread()->isInterruptionRequested())
         {
-            status = Lint::LINTER_CANCEL;
+            status = Lint::LINTER_ABORT;
             lintProcess.closeReadChannel(QProcess::StandardOutput);
             lintProcess.closeReadChannel(QProcess::StandardError);
             lintProcess.close();
@@ -368,6 +369,20 @@ Lint::Status Linter::lint() noexcept
     qInfo().noquote() << "Lint path: " << m_linterExecutable;
     qInfo().noquote() << "Lint file: " << m_lintFile;
 
+    // TODO: Temporary debug information
+    QString thisFileString = "D:\\Users\\Ayman\\Desktop\\PC-Lint GUI\\test\\cmdline";
+    thisFileString += QString("0x%1").arg((quintptr)QThread::currentThreadId(),
+                        QT_POINTER_SIZE * 2, 16, QChar('0'));
+
+    thisFileString += ".xml";
+
+    QFile file2(thisFileString);
+    file2.open(QIODevice::WriteOnly);
+    Q_ASSERT(file2.isOpen());
+    auto bytesWritten = file2.write(cmdString.toLocal8Bit());
+    Q_ASSERT(bytesWritten > 0);
+    file2.close();
+
     lintProcess.setProgram(m_linterExecutable);
     lintProcess.setArguments(m_arguments);
     lintProcess.start();
@@ -399,11 +414,18 @@ Lint::Status Linter::lint() noexcept
     // Wait forever until finished
     // TODO: Wait forever but timeout after 1 minute if stuck on a file?
     // TODO: Loop with a delay to check if lint process finished
-    if (!lintProcess.waitForFinished(Lint::MAX_LINT_TIME))
+    if (!lintProcess.waitForFinished())
     {
-        qCritical().noquote() << "Lint process exited as it took too long: " << QString::number(Lint::MAX_LINT_TIME) << "ms. It's possible the lint executable became stuck on a particular file";
-        lintProcess.close();
-        return Lint::LINTER_PROCESS_TIMEOUT;
+        if (status == LINTER_PROCESS_ERROR)
+        {
+            return status;
+        }
+        else
+        {
+            qCritical().noquote() << "Lint process exited as it took too long: " << QString::number(Lint::MAX_LINT_TIME) << "ms. It's possible the lint executable became stuck on a particular file";
+            lintProcess.close();
+            return Lint::LINTER_PROCESS_TIMEOUT;
+        }
     }
 
     // TODO: Command string
@@ -413,7 +435,7 @@ Lint::Status Linter::lint() noexcept
 
 
     // Check linter version (if we can't determine the version then return error)
-    if (status == Lint::LINTER_CANCEL || status == Lint::LINTER_LICENSE_ERROR || status == Lint::LINTER_UNSUPPORTED_VERSION)
+    if (status == Lint::LINTER_ABORT || status == Lint::LINTER_LICENSE_ERROR || status == Lint::LINTER_UNSUPPORTED_VERSION)
     {
         return status;
     }
@@ -449,11 +471,6 @@ Lint::Status Linter::lint() noexcept
 
     qDebug().noquote() << '[' << QThread::currentThreadId() << "] XML data size: " << lintData.size();
 
-    // TODO: Temporary debug information
-    QFile file2("D:\\Users\\Ayman\\Desktop\\PC-Lint GUI\\test\\cmdline.xml");
-    file2.open(QIODevice::WriteOnly);
-    file2.write(cmdString.toLocal8Bit());
-    file2.close();
 
     QFile lintXMLOutputFile("D:\\Users\\Ayman\\Desktop\\PC-Lint GUI\\test\\xmldata.xml");
     lintXMLOutputFile.open(QIODevice::WriteOnly);
@@ -503,7 +520,7 @@ Lint::Status Linter::lint() noexcept
 
     // Ordering of messages is now important (was QSet)
     // To group supplemental messages together (PC-Lint Plus)
-    std::vector<LintMessage> lintMessages;
+    LintMessages lintMessages;
 
     QXmlStreamReader lintXML(lintData);
     LintMessage message;
@@ -663,7 +680,7 @@ void Linter::removeMessagesWithNumber(const QString& number) noexcept
     }
 }
 
-void Linter::appendLinterMessages(const std::vector<LintMessage>& lintMessages) noexcept
+void Linter::appendLinterMessages(const LintMessages& lintMessages) noexcept
 {
     for (const auto& message : lintMessages)
     {
@@ -722,7 +739,7 @@ LintMessageGroup Linter::groupLinterMessages() noexcept
         Q_ASSERT(firstPtr->type != Lint::Type::LINT_TYPE_SUPPLEMENTAL);
 
         // Add first message
-        std::vector<LintMessage> message;
+        LintMessages message;
         message.emplace_back(*firstPtr);
 
         // Associate supplemental messages

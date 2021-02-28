@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_lintTableMenu(std::make_unique<QMenu>(this)),
     m_linterStatus(0),
     m_modifiedFileWorker(std::make_unique<Lint::ModifiedFileThread>(this))
-{ 
+{
     qRegisterMetaType<Lint::Status>("Lint::Status");
     qRegisterMetaType<QSet<Lint::LintMessage>>("QSet<LintMessage>");
     qRegisterMetaType<Lint::LintData>("LintData");
@@ -169,7 +169,7 @@ MainWindow::~MainWindow()
     // Stop all threads
     m_modifiedFileWorker->requestInterruption();
     m_modifiedFileWorker->quit();
-    auto waitComplete = m_modifiedFileWorker->wait();
+    auto waitComplete = m_modifiedFileWorker->wait(Lint::MAX_THREAD_WAIT);
     Q_ASSERT(waitComplete);
 }
 
@@ -345,9 +345,9 @@ void MainWindow::startLint(bool lintProject)
         // Only start linting if a file was selected
         if (directoryFiles.size())
         {
-            m_linter.setLinterFile(m_preferences->getLinterLintFilePath().trimmed());
-            m_linter.setLinterExecutable(m_preferences->getLinterExecutablePath().trimmed());
-            m_linter.setLintFiles(directoryFiles);
+            m_linter.setLintFile(m_preferences->getLinterLintFilePath().trimmed());
+            m_linter.setLintExecutable(m_preferences->getLinterExecutablePath().trimmed());
+            m_linter.setSourceFiles(directoryFiles);
 
             // Display directory name or filename
             if (!fileName.isEmpty())
@@ -633,9 +633,9 @@ void MainWindow::on_actionRefresh_triggered()
     // Then try to lint that again
     if (!m_lastProjectLoaded.isEmpty())
     {
-        m_linter.setLinterFile(m_preferences->getLinterLintFilePath().trimmed());
-        m_linter.setLinterExecutable(m_preferences->getLinterExecutablePath().trimmed());
-        m_linter.setLintFiles(m_directoryFiles);
+        m_linter.setLintFile(m_preferences->getLinterLintFilePath().trimmed());
+        m_linter.setLintExecutable(m_preferences->getLinterExecutablePath().trimmed());
+        m_linter.setSourceFiles(m_directoryFiles);
         startLintThread(QFileInfo(m_lastProjectLoaded).fileName());
     }
 }

@@ -22,6 +22,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     '../PC-Lint GUI/ProjectSolution.cpp' \
+    '../PC-Lint GUI/Linter.cpp' \
+    LinterTest.cpp \
     Main.cpp \
     ProjectSolutionTest.cpp
 
@@ -32,5 +34,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     '../PC-Lint GUI/ProjectSolution.h' \
+    '../PC-Lint GUI/Linter.h' \
+    LinterTest.h \
     ProjectSolutionTest.h \
     Tester.h

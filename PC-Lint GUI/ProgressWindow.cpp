@@ -37,7 +37,7 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
     m_windowTitle(title),
     m_lintThreadManager(std::make_unique<Lint::LintThreadManager>(this)),
     m_workerThread(std::make_unique<QThread>(this)),
-    m_parent(dynamic_cast<MainWindow*>(parent))
+    m_parent(static_cast<MainWindow*>(parent))
 {
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
@@ -132,7 +132,7 @@ ProgressWindow::~ProgressWindow()
     }
     delete m_ui;
     m_workerThread->quit();
-    auto waitComplete = m_workerThread->wait();
+    auto waitComplete = m_workerThread->wait(Lint::MAX_THREAD_WAIT);
     Q_ASSERT(waitComplete);
     qDebug() << "ProgressWindow destroyed";
 }

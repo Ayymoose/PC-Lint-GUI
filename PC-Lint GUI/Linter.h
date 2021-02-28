@@ -71,7 +71,7 @@ enum Status
     // Lint process timeout
     LINTER_PROCESS_TIMEOUT = 16,
     // Lint cancelled
-    LINTER_CANCEL = 32,
+    LINTER_ABORT = 32,
 };
 
 enum Message
@@ -84,9 +84,10 @@ enum Message
 };
 
 constexpr int MAX_PROCESS_CHARACTERS = 8192;
-constexpr int MAX_LINT_TIME = 20*60*1000;
+constexpr int MAX_LINT_TIME = /*20**/60*1000;
 constexpr int MAX_LINT_PATH = 512;
-
+constexpr int MAX_WAIT_TIME = 30 * 1000;
+constexpr int MAX_THREAD_WAIT = 30 * 1000;
 
 typedef struct
 {
@@ -96,6 +97,9 @@ typedef struct
     QString number;         // The message number
     QString description;    // The message description
 } LintMessage;
+
+using LintMessages = std::vector<LintMessage>;
+using LintMessageGroup = std::vector<LintMessages>;
 
 typedef struct
 {
@@ -107,27 +111,29 @@ typedef struct
 typedef struct
 {
     Lint::Status status;
-    std::vector<LintMessage> lintMessages;
+    LintMessages lintMessages;
     int numberOfErrors;
     int numberOfWarnings;
     int numberOfInfo;
     QString errorMessage;
 } LintResponse;
 
-using LintMessageGroup = std::vector<std::vector<LintMessage>>;
-
 class Linter : public QObject
 {
     Q_OBJECT
 public:
     Linter();
-    void setLinterExecutable(const QString& linterExecutable) noexcept;
-    void setLinterFile(const QString& lintFile) noexcept;
-    void setLintFiles(const QSet<QString>& files) noexcept;
+
+    // Set the path to the lint.exe
+    void setLintExecutable(const QString& linterExecutable) noexcept;
+    // Set the lint file (.lnt) to use
+    void setLintFile(const QString& lintFile) noexcept;
+    // Set the source files (.c .cpp etc) to lint
+    void setSourceFiles(const QSet<QString>& files) noexcept;
 
     // Gets the set of lintMessage returned after a lint
-    std::vector<LintMessage> getLinterMessages() const noexcept;
-    void setLinterMessages(const std::vector<LintMessage>& lintMessages) noexcept;
+    LintMessages getLinterMessages() const noexcept;
+    void setLinterMessages(const LintMessages& lintMessages) noexcept;
 
     // Group together lint messages (PC-Lint Plus only)
     // So that supplemental messages are tied together with error/info/warnings
@@ -152,7 +158,7 @@ public:
     void setErrorMessage(const QString& errorMessage) noexcept;
 
 
-    void appendLinterMessages(const std::vector<LintMessage>& lintMessages) noexcept;
+    void appendLinterMessages(const LintMessages& lintMessages) noexcept;
     void appendLinterErrors(int numberOfErrors) noexcept;
     void appendLinterWarnings(int numberOfWarnings) noexcept;
     void appendLinterInfo(int numberOfInfo) noexcept;
@@ -184,7 +190,7 @@ private:
     QString m_linterExecutable;
     QString m_lintFile;
     QSet<QString> m_filesToLint;
-    std::vector<LintMessage> m_linterMessages;
+    LintMessages m_linterMessages;
     int m_numberOfErrors;
     int m_numberOfWarnings;
     int m_numberOfInfo;

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Tester.h"
 #include <map>
 #include <QString>
@@ -11,18 +12,14 @@ const QString microchipStudioSolutionPath = solutionPath + R"(microchip studio\)
 const QString visualStudioSolutionPath = solutionPath + R"(visual studio\)";
 const QString qtStudioSolutionPath = solutionPath + R"(qt\)";
 
-class ProjectSolutionTest
+class ProjectSolutionTest : public TestFunction
 {
 public:
-    ProjectSolutionTest() = default;
+    constexpr ProjectSolutionTest() = default;
 
+    using ProjectSolutionFunctionMap = const std::map<QString, bool (ProjectSolutionTest::*)(void)>;
 
-    void runTests();
-
-    using ProjectSolutionFunction = bool (ProjectSolutionTest::*)(void);
-
-private:
-    const std::map<QString, ProjectSolutionFunction> tests =
+    ProjectSolutionFunctionMap m_tests =
     {
         {"atmelStudioGarbageSolutionNameTest", &ProjectSolutionTest::atmelStudioGarbageSolutionNameTest},
         {"atmelStudioEmptySolutionTest", &ProjectSolutionTest::atmelStudioEmptySolutionTest},
@@ -36,6 +33,7 @@ private:
         {"qtSolution", &ProjectSolutionTest::qtSolution}
     };
 
+private:
     bool atmelStudioGarbageSolutionNameTest();
     bool atmelStudioEmptySolutionTest();
     bool atmelStudioCSolutionTest();
@@ -46,9 +44,6 @@ private:
     bool visualStudioCPPProjectTest();
     bool visualStudioCPPMultiProjectSolutionTest();
     bool qtSolution();
-
-    int m_failedTests;
-    int m_passedTests;
 };
 
 };

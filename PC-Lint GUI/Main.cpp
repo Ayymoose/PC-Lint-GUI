@@ -23,6 +23,7 @@
 #include "Jenkins.h"
 #include <QObject>
 #include <QProcess>
+#include <QLoggingCategory>
 
 
 int main(int argc, char *argv[])
@@ -33,6 +34,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName(Lint::SETTINGS_APPLICATION_NAME);
 
     qInstallMessageHandler(customMessageHandler);
+    QLoggingCategory::defaultCategory()->setEnabled(QtDebugMsg, true);
 
     qDebug().noquote() << "------------------------------ Starting" <<
                           Lint::SETTINGS_APPLICATION_NAME << "------------------------------";

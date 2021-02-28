@@ -4,32 +4,8 @@
 #include <QDebug>
 #include <QFileInfo>
 
-
 namespace Test
 {
-
-void ProjectSolutionTest::runTests()
-{
-    for (auto const& [testName, testFunction] : tests)
-    {
-        QString testResult;
-        if ((this->*testFunction)())
-        {
-            testResult = "[OK]";
-            m_passedTests++;
-        }
-        else
-        {
-            testResult = "[FAIL]";
-            m_failedTests++;
-        }
-        qDebug().noquote() << "Running test " << testName << "\t" << testResult;
-    }
-    qDebug().nospace() << "# Passed tests : " << m_passedTests;
-    qDebug().nospace() << "# Failed tests : " << m_failedTests;
-    qDebug().nospace() << "Total tests run: " << (m_passedTests+m_failedTests);
-
-}
 
 bool ProjectSolutionTest::atmelStudioGarbageSolutionNameTest()
 {
