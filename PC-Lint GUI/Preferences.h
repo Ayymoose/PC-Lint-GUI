@@ -19,7 +19,7 @@
 #include <QDialog>
 #include <QSettings>
 
-namespace Lint
+namespace PCLint
 {
 const QString SETTINGS_APPLICATION_NAME = "PC-Lint GUI";
 const QString SETTINGS_GROUP_NAME = "Settings";

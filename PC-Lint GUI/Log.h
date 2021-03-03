@@ -21,7 +21,7 @@
 #include <QMessageBox>
 #include <QtDebug>
 
-namespace Lint
+namespace PCLint
 {
     const QString LOG_FILENAME = "PC-Lint GUI.log";
 }

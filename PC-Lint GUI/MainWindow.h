@@ -28,7 +28,7 @@
 
 #include "ProgressWindow.h"
 #include "Preferences.h"
-#include "Linter.h"
+#include "Lint.h"
 #include "Log.h"
 #include "CodeEditor.h"
 #include "Highlighter.h"
@@ -63,19 +63,26 @@ public:
 signals:
     void signalUpdateTypes(int errors, int warnings, int info);
 
-    void signalSetLinterData(const Lint::LintData& lintData);
+    void signalSetLinterData(const PCLint::LintData& lintData);
 
     // Modified file signals
-    void signalSetModifiedFiles(QMap<QString, Lint::ModifiedFile> modifiedFiles);
+    void signalSetModifiedFiles(QMap<QString, PCLint::ModifiedFile> modifiedFiles);
     void signalSetModifiedFile(const QString& modifiedFile, const QDateTime& dateTime);
     void signalStartMonitor();
     void signalRemoveFile(const QString& deletedFile);
     void signalKeepFile(const QString& keepFile);
+
+
+    void signalMainWindowHereIsLintData();
+
 public slots:
     void handleContextMenu(const QPoint& pos);
-    void slotLintFinished(const Lint::LintResponse& lintResponse);
+    void slotLintFinished(const PCLint::LintResponse& lintResponse);
     void slotGetLinterData();
     void slotLintComplete();
+
+
+    void slotProgressWindowHelloMainWindow();
 
 private slots:
 
@@ -110,19 +117,19 @@ private:
     QString m_lastProjectLoaded;
     QSet<QString> m_directoryFiles;
     std::unique_ptr<Preferences> m_preferences;
-    Lint::Linter m_linter;
-    std::unique_ptr<Lint::Highlighter> m_highlighter;
+    PCLint::Lint m_linter;
+    std::unique_ptr<PCLint::Highlighter> m_highlighter;
 
     std::unique_ptr<QMenu> m_lintTableMenu;
     QMap<QString, QString> m_projectLintMap;
     int m_linterStatus;
 
     // ModifiedFileWorker thread
-    std::unique_ptr<Lint::ModifiedFileThread> m_modifiedFileWorker;
+    std::unique_ptr<PCLint::ModifiedFileThread> m_modifiedFileWorker;
 
     void displayLintTable();
     bool verifyLint();
     QSet<QString> recursiveBuildSourceFileSet(const QString& directory);
-    Lint::About m_about;
+    PCLint::About m_about;
 
 };

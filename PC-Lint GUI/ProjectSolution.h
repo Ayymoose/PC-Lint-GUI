@@ -21,7 +21,7 @@
 #include <QXmlStreamReader>
 #include <QDebug>
 
-namespace Lint
+namespace PCLint
 {
 
 class ProjectSolution

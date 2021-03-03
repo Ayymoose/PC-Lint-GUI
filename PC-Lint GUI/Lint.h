@@ -25,7 +25,7 @@
 #include <vector>
 #include <set>
 
-namespace Lint
+namespace PCLint
 {
 
 namespace Xml
@@ -56,22 +56,22 @@ namespace Type
 };
 
 
-enum Status
+enum LintStatus
 {
     // Lint completed successfully
-    LINTER_COMPLETE = 0,
+    LINT_COMPLETE = 0x0,
     // Lint partially completed but didn't lint all files
-    LINTER_PARTIAL_COMPLETE = 1,
+    LINT_PARTIAL_COMPLETE = 0x1,
     // Lint version unknown
-    LINTER_UNSUPPORTED_VERSION = 2,
+    LINT_UNSUPPORTED_VERSION = 0x2,
     // Lint license error
-    LINTER_LICENSE_ERROR = 4,
+    LINT_LICENSE_ERROR = 0x4,
     // Lint process error
-    LINTER_PROCESS_ERROR = 8,
+    LINT_PROCESS_ERROR = 0x8,
     // Lint process timeout
-    LINTER_PROCESS_TIMEOUT = 16,
+    LINT_PROCESS_TIMEOUT = 0x10,
     // Lint cancelled
-    LINTER_ABORT = 32,
+    LINT_ABORT = 0x20,
 };
 
 enum Message
@@ -84,7 +84,7 @@ enum Message
 };
 
 constexpr int MAX_PROCESS_CHARACTERS = 8192;
-constexpr int MAX_LINT_TIME = /*20**/60*1000;
+constexpr int MAX_LINT_TIME = 5 * 60 * 1000;
 constexpr int MAX_LINT_PATH = 512;
 constexpr int MAX_WAIT_TIME = 30 * 1000;
 constexpr int MAX_THREAD_WAIT = 30 * 1000;
@@ -110,7 +110,7 @@ typedef struct
 
 typedef struct
 {
-    Lint::Status status;
+    LintStatus status;
     LintMessages lintMessages;
     int numberOfErrors;
     int numberOfWarnings;
@@ -118,11 +118,11 @@ typedef struct
     QString errorMessage;
 } LintResponse;
 
-class Linter : public QObject
+class Lint : public QObject
 {
     Q_OBJECT
 public:
-    Linter();
+    Lint();
 
     // Set the path to the lint.exe
     void setLintExecutable(const QString& linterExecutable) noexcept;
@@ -131,13 +131,16 @@ public:
     // Set the source files (.c .cpp etc) to lint
     void setSourceFiles(const QSet<QString>& files) noexcept;
 
+    // Set the working directory for the lint executable
+    void setWorkingDirectory(const QString& directory) noexcept;
+
     // Gets the set of lintMessage returned after a lint
-    LintMessages getLinterMessages() const noexcept;
-    void setLinterMessages(const LintMessages& lintMessages) noexcept;
+    LintMessages getLintMessages() const noexcept;
+    void setLintMessages(const LintMessages& lintMessages) noexcept;
 
     // Group together lint messages (PC-Lint Plus only)
     // So that supplemental messages are tied together with error/info/warnings
-    LintMessageGroup groupLinterMessages() noexcept;
+    LintMessageGroup groupLintMessages() noexcept;
 
     // Remove all associated messages with the given file
     void removeAssociatedMessages(const QString& file) noexcept;
@@ -158,22 +161,22 @@ public:
     void setErrorMessage(const QString& errorMessage) noexcept;
 
 
-    void appendLinterMessages(const LintMessages& lintMessages) noexcept;
-    void appendLinterErrors(int numberOfErrors) noexcept;
-    void appendLinterWarnings(int numberOfWarnings) noexcept;
+    void appendLintMessages(const LintMessages& lintMessages) noexcept;
+    void appendLintErrors(int numberOfErrors) noexcept;
+    void appendLintWarnings(int numberOfWarnings) noexcept;
     void appendLinterInfo(int numberOfInfo) noexcept;
 
     // Lint a directory or some files
-    Lint::Status lint() noexcept;
+    LintStatus lint() noexcept;
 
     // Return path to the lint file used (.lnt)
-    QString getLinterFile() const noexcept;
+    QString getLintFile() const noexcept;
 
     static QImage associateMessageTypeWithIcon(const QString& message) noexcept;
 
 public slots:
     void slotStartLint() noexcept;
-    void slotGetLinterData(const LintData& lintData) noexcept;
+    void slotGetLintData(const LintData& lintData) noexcept;
 
 
 signals:
@@ -181,20 +184,20 @@ signals:
     void signalUpdateProgressMax(int value);
     void signalUpdateETA(int eta);
     void signalUpdateProcessedFiles(int processedFiles);
-    void signalLinterProgress(int value);
+    void signalLintProgress(int value);
     void signalLintFinished(const LintResponse& lintResponse);
 
 private:
-    QString m_lintingDirectory;
+    QString m_lintDirectory;
     QStringList m_arguments;
-    QString m_linterExecutable;
+    QString m_lintExecutable;
     QString m_lintFile;
     QSet<QString> m_filesToLint;
-    LintMessages m_linterMessages;
+    LintMessages m_messages;
     int m_numberOfErrors;
     int m_numberOfWarnings;
     int m_numberOfInfo;
-    QString m_linterErrorMessage;
+    QString m_errorMessage;
 };
 
 inline bool operator==(const LintMessage &e1, const LintMessage &e2) noexcept

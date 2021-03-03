@@ -41,7 +41,7 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext&, const QStri
          break;
    }
 
-   QFile outFile(Lint::LOG_FILENAME);
+   QFile outFile(PCLint::LOG_FILENAME);
    outFile.open(QIODevice::WriteOnly | QIODevice::Append);
    if (!outFile.isOpen())
    {

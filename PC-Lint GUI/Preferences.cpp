@@ -106,26 +106,26 @@ void Preferences::on_lintFileFileOpen_clicked()
 void Preferences::on_buttonSave_clicked()
 {
     // Save all settings
-    QSettings settings(Lint::SETTINGS_APPLICATION_NAME,QSettings::IniFormat);
-    settings.beginGroup(Lint::SETTINGS_GROUP_NAME);
-    settings.setValue(Lint::SETTINGS_MAX_THREADS, m_ui->lintUsingThreadsComboBox->currentText());
-    settings.setValue(Lint::SETTINGS_LINT_EXECUTABLE_PATH, m_ui->lintPathExeLineEdit->text());
-    settings.setValue(Lint::SETTINGS_LINT_FILE_PATH, m_ui->lintFileLineEdit->text());
-    settings.setValue(Lint::SETTINGS_LAST_DIRECTORY, m_lastDirectory);
+    QSettings settings(PCLint::SETTINGS_APPLICATION_NAME,QSettings::IniFormat);
+    settings.beginGroup(PCLint::SETTINGS_GROUP_NAME);
+    settings.setValue(PCLint::SETTINGS_MAX_THREADS, m_ui->lintUsingThreadsComboBox->currentText());
+    settings.setValue(PCLint::SETTINGS_LINT_EXECUTABLE_PATH, m_ui->lintPathExeLineEdit->text());
+    settings.setValue(PCLint::SETTINGS_LINT_FILE_PATH, m_ui->lintFileLineEdit->text());
+    settings.setValue(PCLint::SETTINGS_LAST_DIRECTORY, m_lastDirectory);
     settings.endGroup();
     close();
 }
 
 void Preferences::loadSettings() noexcept
 {
-    QSettings settings(Lint::SETTINGS_APPLICATION_NAME,QSettings::IniFormat);
-    settings.beginGroup(Lint::SETTINGS_GROUP_NAME);
+    QSettings settings(PCLint::SETTINGS_APPLICATION_NAME,QSettings::IniFormat);
+    settings.beginGroup(PCLint::SETTINGS_GROUP_NAME);
     // Set default threads to 1 if not selected
-    auto const lintThreads = std::max(settings.value(Lint::SETTINGS_MAX_THREADS).toInt()-1,0);
+    auto const lintThreads = std::max(settings.value(PCLint::SETTINGS_MAX_THREADS).toInt()-1,0);
     m_ui->lintUsingThreadsComboBox->setCurrentIndex(lintThreads);
-    m_ui->lintPathExeLineEdit->setText(settings.value(Lint::SETTINGS_LINT_EXECUTABLE_PATH).toString());
-    m_ui->lintFileLineEdit->setText(settings.value(Lint::SETTINGS_LINT_FILE_PATH).toString());
-    m_lastDirectory = settings.value(Lint::SETTINGS_LAST_DIRECTORY).toString();
+    m_ui->lintPathExeLineEdit->setText(settings.value(PCLint::SETTINGS_LINT_EXECUTABLE_PATH).toString());
+    m_ui->lintFileLineEdit->setText(settings.value(PCLint::SETTINGS_LINT_FILE_PATH).toString());
+    m_lastDirectory = settings.value(PCLint::SETTINGS_LAST_DIRECTORY).toString();
     settings.endGroup();
 }
 

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Linter.h"
+#include "Lint.h"
 #include "Log.h"
 
 #include <QDebug>
@@ -30,49 +30,49 @@
 #include <algorithm>
 #include <QDir>
 
-namespace Lint
+namespace PCLint
 {
 
-Linter::Linter() : m_numberOfErrors(0), m_numberOfWarnings(0), m_numberOfInfo(0)
+Lint::Lint() : m_numberOfErrors(0), m_numberOfWarnings(0), m_numberOfInfo(0)
 {
 }
 
-LintMessages Linter::getLinterMessages() const noexcept
+LintMessages Lint::getLintMessages() const noexcept
 {
-    return m_linterMessages;
+    return m_messages;
 }
 
-void Linter::setLintFile(const QString& lintFile) noexcept
+void Lint::setLintFile(const QString& lintFile) noexcept
 {
     m_lintFile = lintFile;
 }
 
-void Linter::setLintExecutable(const QString& linterExecutable) noexcept
+void Lint::setLintExecutable(const QString& linterExecutable) noexcept
 {
-    m_linterExecutable = linterExecutable;
+    m_lintExecutable = linterExecutable;
 }
 
-void Linter::setSourceFiles(const QSet<QString>& files) noexcept
+void Lint::setSourceFiles(const QSet<QString>& files) noexcept
 {
     m_filesToLint = files;
 }
 
-int Linter::numberOfInfo() const noexcept
+int Lint::numberOfInfo() const noexcept
 {
     return m_numberOfInfo;
 }
 
-int Linter::numberOfWarnings() const noexcept
+int Lint::numberOfWarnings() const noexcept
 {
     return m_numberOfWarnings;
 }
 
-int Linter::numberOfErrors() const noexcept
+int Lint::numberOfErrors() const noexcept
 {
     return m_numberOfErrors;
 }
 
-void Linter::slotGetLinterData(const LintData& lintData) noexcept
+void Lint::slotGetLintData(const LintData& lintData) noexcept
 {
     qDebug().noquote() << '[' << QThread::currentThreadId() << "] - Got linter data";
     setSourceFiles(lintData.lintFiles);
@@ -80,51 +80,51 @@ void Linter::slotGetLinterData(const LintData& lintData) noexcept
     setLintExecutable(lintData.linterExecutable);
 }
 
-void Linter::setLinterMessages(const LintMessages& lintMessages) noexcept
+void Lint::setLintMessages(const LintMessages& lintMessages) noexcept
 {
-    m_linterMessages = lintMessages;
+    m_messages = lintMessages;
 }
 
-void Linter::setNumberOfErrors(int numberOfErrors) noexcept
+void Lint::setNumberOfErrors(int numberOfErrors) noexcept
 {
     m_numberOfErrors = numberOfErrors;
 }
 
-void Linter::setNumberOfWarnings(int numberOfWarnings) noexcept
+void Lint::setNumberOfWarnings(int numberOfWarnings) noexcept
 {
     m_numberOfWarnings = numberOfWarnings;
 }
 
-void Linter::setNumberOfInfo(int numberOfInfo) noexcept
+void Lint::setNumberOfInfo(int numberOfInfo) noexcept
 {
     m_numberOfInfo = numberOfInfo;
 }
 
-void Linter::slotStartLint() noexcept
+void Lint::slotStartLint() noexcept
 {
     LintResponse lintResponse;
     lintResponse.status = lint();
-    lintResponse.lintMessages = m_linterMessages;
+    lintResponse.lintMessages = m_messages;
     lintResponse.numberOfErrors = m_numberOfErrors;
     lintResponse.numberOfWarnings = m_numberOfWarnings;
     lintResponse.numberOfInfo = m_numberOfInfo;
-    lintResponse.errorMessage = m_linterErrorMessage;
+    lintResponse.errorMessage = m_errorMessage;
     emit signalLintFinished(lintResponse);
 }
 
-void Linter::setErrorMessage(const QString& errorMessage) noexcept
+void Lint::setErrorMessage(const QString& errorMessage) noexcept
 {
-    m_linterErrorMessage = errorMessage;
+    m_errorMessage = errorMessage;
 }
 
-QString Linter::errorMessage() const noexcept
+QString Lint::errorMessage() const noexcept
 {
-    return m_linterErrorMessage;
+    return m_errorMessage;
 }
 
-Lint::Status Linter::lint() noexcept
+LintStatus Lint::lint() noexcept
 {
-    Lint::Status status = Lint::LINTER_COMPLETE;
+    LintStatus status = LINT_COMPLETE;
 
     auto startLintTime = std::chrono::steady_clock::now();
 
@@ -139,13 +139,13 @@ Lint::Status Linter::lint() noexcept
     QByteArray lintData;
 
 
-    QString cmdString = m_linterExecutable;
+    QString cmdString = m_lintExecutable;
 
     QObject::connect(&lintProcess, &QProcess::errorOccurred, this, [&](const QProcess::ProcessError& error)
     {
-        if (status != Lint::LINTER_ABORT && status != Lint::LINTER_UNSUPPORTED_VERSION)
+        if (status != LINT_ABORT && status != LINT_UNSUPPORTED_VERSION)
         {
-            status = Lint::LINTER_PROCESS_ERROR;
+            status = LINT_PROCESS_ERROR;
             qCritical() << "Process error:" << error;
             qCritical() << "Process state:" << lintProcess.state();
         }
@@ -155,7 +155,7 @@ Lint::Status Linter::lint() noexcept
     {
         if (QThread::currentThread()->isInterruptionRequested())
         {
-            status = Lint::LINTER_ABORT;
+            status = LINT_ABORT;
             lintProcess.closeReadChannel(QProcess::StandardOutput);
             lintProcess.closeReadChannel(QProcess::StandardError);
             lintProcess.close();
@@ -184,7 +184,7 @@ Lint::Status Linter::lint() noexcept
     {
         if (QThread::currentThread()->isInterruptionRequested())
         {
-            status = Lint::LINTER_ABORT;
+            status = LINT_ABORT;
             lintProcess.closeReadChannel(QProcess::StandardOutput);
             lintProcess.closeReadChannel(QProcess::StandardError);
             lintProcess.close();
@@ -211,18 +211,18 @@ Lint::Status Linter::lint() noexcept
             // Some unknown executable or lint version we don't know about
             if (pclintVersion.contains("License Error"))
             {
-                status = Lint::LINTER_LICENSE_ERROR;
+                status = LINT_LICENSE_ERROR;
                 lintProcess.closeReadChannel(QProcess::StandardOutput);
                 lintProcess.closeReadChannel(QProcess::StandardError);
                 qCritical().noquote() << "Failed to start lint because of license error:\n" << readStdErr;
-                m_linterErrorMessage = readStdErr;
+                m_errorMessage = readStdErr;
                 lintProcess.close();
                 return;
             }
 
             if (!(pclintVersion.contains("PC-lint Plus") || pclintVersion.contains("PC-lint")))
             {
-                status = Lint::LINTER_UNSUPPORTED_VERSION;
+                status = LINT_UNSUPPORTED_VERSION;
                 lintProcess.closeReadChannel(QProcess::StandardOutput);
                 lintProcess.closeReadChannel(QProcess::StandardError);
                 qCritical().noquote() << "Failed to start lint because version unsupported: " << QString(pclintVersion);
@@ -355,7 +355,7 @@ Lint::Status Linter::lint() noexcept
         totalLength += argument.length();
     }
 
-    Q_ASSERT(totalLength + m_linterExecutable.length() < MAX_LINT_PATH);
+    Q_ASSERT(totalLength + m_lintExecutable.length() < MAX_LINT_PATH);
 
     // Add all files to lint    
     for (const auto& file : m_filesToLint)
@@ -365,8 +365,8 @@ Lint::Status Linter::lint() noexcept
        qInfo().noquote() << "Adding file to lint: " << file;
     }
 
-    Q_ASSERT(m_linterExecutable.length());
-    qInfo().noquote() << "Lint path: " << m_linterExecutable;
+    Q_ASSERT(m_lintExecutable.length());
+    qInfo().noquote() << "Lint path: " << m_lintExecutable;
     qInfo().noquote() << "Lint file: " << m_lintFile;
 
     // TODO: Temporary debug information
@@ -383,7 +383,7 @@ Lint::Status Linter::lint() noexcept
     Q_ASSERT(bytesWritten > 0);
     file2.close();
 
-    lintProcess.setProgram(m_linterExecutable);
+    lintProcess.setProgram(m_lintExecutable);
     lintProcess.setArguments(m_arguments);
     lintProcess.start();
 
@@ -392,10 +392,10 @@ Lint::Status Linter::lint() noexcept
     m_numberOfInfo = 0;
     m_numberOfWarnings = 0;
 
-    if (!lintProcess.waitForStarted())
+    if (!lintProcess.waitForStarted(MAX_WAIT_TIME))
     {
         qCritical().noquote() << lintProcess.errorString();
-        return Lint::LINTER_PROCESS_ERROR;
+        return LINT_PROCESS_ERROR;
     }
 
     // Estimate progress of lint
@@ -414,17 +414,19 @@ Lint::Status Linter::lint() noexcept
     // Wait forever until finished
     // TODO: Wait forever but timeout after 1 minute if stuck on a file?
     // TODO: Loop with a delay to check if lint process finished
+
+    // TODO: This may be the total time it takes to finish
     if (!lintProcess.waitForFinished())
     {
-        if (status == LINTER_PROCESS_ERROR)
+        if (status == LINT_PROCESS_ERROR)
         {
             return status;
         }
         else
         {
-            qCritical().noquote() << "Lint process exited as it took too long: " << QString::number(Lint::MAX_LINT_TIME) << "ms. It's possible the lint executable became stuck on a particular file";
+            qCritical().noquote() << "Lint process exited as it took too long: " << QString::number(MAX_LINT_TIME) << "ms. It's possible the lint executable became stuck on a particular file";
             lintProcess.close();
-            return Lint::LINTER_PROCESS_TIMEOUT;
+            return LINT_PROCESS_TIMEOUT;
         }
     }
 
@@ -435,11 +437,13 @@ Lint::Status Linter::lint() noexcept
 
 
     // Check linter version (if we can't determine the version then return error)
-    if (status == Lint::LINTER_ABORT || status == Lint::LINTER_LICENSE_ERROR || status == Lint::LINTER_UNSUPPORTED_VERSION)
+    if (status == LINT_ABORT || status == LINT_LICENSE_ERROR || status == LINT_UNSUPPORTED_VERSION)
     {
         return status;
     }
 
+
+    // TODO: We can have more linted files that we put in
     if (lintedFiles.size() == m_filesToLint.size())
     {
         qDebug().noquote() << '[' << QThread::currentThreadId() << "] All files in project linted";
@@ -447,7 +451,7 @@ Lint::Status Linter::lint() noexcept
     else
     {
         qDebug().noquote() << '[' << QThread::currentThreadId() << "] Only " << lintedFiles.size() << '/' << m_filesToLint.size() << " were linted!";
-        status = Lint::Status::LINTER_PARTIAL_COMPLETE;
+        status = LintStatus::LINT_PARTIAL_COMPLETE;
     }
 
     // Show lint version used
@@ -541,13 +545,13 @@ Lint::Status Linter::lint() noexcept
         if(token == QXmlStreamReader::StartElement)
         {
             // <doc> or <m> tag
-            if(lintXML.name() == Lint::Xml::XML_ELEMENT_DOC || lintXML.name() == Lint::Xml::XML_ELEMENT_MESSAGE)
+            if(lintXML.name() == Xml::XML_ELEMENT_DOC || lintXML.name() == Xml::XML_ELEMENT_MESSAGE)
             {
                 continue;
             }
 
             // <f> tag
-            if(lintXML.name() == Lint::Xml::XML_ELEMENT_FILE)
+            if(lintXML.name() == Xml::XML_ELEMENT_FILE)
             {
                 message.file = lintXML.readElementText();
                 // Why does PC-Lint Plus mess with the directory separator?
@@ -556,28 +560,28 @@ Lint::Status Linter::lint() noexcept
             }
 
             // <l> tag
-            if(lintXML.name() == Lint::Xml::XML_ELEMENT_LINE)
+            if(lintXML.name() == Xml::XML_ELEMENT_LINE)
             {
                 message.line = lintXML.readElementText();
                 Q_ASSERT(message.line.length() > 0);
             }
 
             // <t> tag
-            if(lintXML.name() == Lint::Xml::XML_ELEMENT_MESSAGE_TYPE)
+            if(lintXML.name() == Xml::XML_ELEMENT_MESSAGE_TYPE)
             {
                 message.type = lintXML.readElementText();
                 Q_ASSERT(message.type.length() > 0);
             }
 
             // <n> tag
-            if(lintXML.name() == Lint::Xml::XML_ELEMENT_MESSAGE_NUMBER)
+            if(lintXML.name() == Xml::XML_ELEMENT_MESSAGE_NUMBER)
             {
                 message.number = lintXML.readElementText();
                 Q_ASSERT(message.number.length() > 0);
             }
 
             // <d> tag
-            if(lintXML.name() == Lint::Xml::XML_ELEMENT_DESCRIPTION)
+            if(lintXML.name() == Xml::XML_ELEMENT_DESCRIPTION)
             {
                 message.description = lintXML.readElementText();
                 Q_ASSERT(message.description.length() > 0);
@@ -585,7 +589,7 @@ Lint::Status Linter::lint() noexcept
 
         }
 
-        if((token == QXmlStreamReader::EndElement) && (lintXML.name() == Lint::Xml::XML_ELEMENT_MESSAGE))
+        if((token == QXmlStreamReader::EndElement) && (lintXML.name() == Xml::XML_ELEMENT_MESSAGE))
         {
             // Lint can spit out duplicates for some reason
             // Just add it for now
@@ -596,19 +600,19 @@ Lint::Status Linter::lint() noexcept
                 lintMessages.emplace_back(message);
 
                 // Ascertain type
-                if (!QString::compare(message.type, Lint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
+                if (!QString::compare(message.type, Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
                 {
                     m_numberOfErrors++;
                 }
-                else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
+                else if (!QString::compare(message.type, Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
                 {
                     m_numberOfWarnings++;
                 }
-                else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
+                else if (!QString::compare(message.type, Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
                 {
                     m_numberOfInfo++;
                 }
-                else if (!QString::compare(message.type, Lint::Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
+                else if (!QString::compare(message.type, Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
                 {
                     // Don't care about number of supplementals
                 }
@@ -631,11 +635,11 @@ Lint::Status Linter::lint() noexcept
         qCritical() << "Line Number:      " << QString::number(lintXML.lineNumber());
         qCritical() << "Column Number:    " << QString::number(lintXML.columnNumber());
         qCritical() << "Character Offset: " << QString::number(lintXML.characterOffset());
-        return Lint::Status::LINTER_PROCESS_ERROR;
+        return LintStatus::LINT_PROCESS_ERROR;
     }
 
 
-    m_linterMessages = lintMessages;
+    m_messages = lintMessages;
 
     auto endLintTime = std::chrono::steady_clock::now();
     auto totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
@@ -644,16 +648,16 @@ Lint::Status Linter::lint() noexcept
     return status;
 }
 
-void Linter::removeAssociatedMessages(const QString& file) noexcept
+void Lint::removeAssociatedMessages(const QString& file) noexcept
 {
     // Find the LintMessage who has the same file part
-    auto it = m_linterMessages.begin();
-    while (it != m_linterMessages.end())
+    auto it = m_messages.begin();
+    while (it != m_messages.end())
     {
         if ((*it).file == file)
         {
             // Remove this message
-            it = m_linterMessages.erase(it);
+            it = m_messages.erase(it);
         }
         else
         {
@@ -662,16 +666,16 @@ void Linter::removeAssociatedMessages(const QString& file) noexcept
     }
 }
 
-void Linter::removeMessagesWithNumber(const QString& number) noexcept
+void Lint::removeMessagesWithNumber(const QString& number) noexcept
 {
     // Find the LintMessage who has the same code part
-    auto it = m_linterMessages.begin();
-    while (it != m_linterMessages.end())
+    auto it = m_messages.begin();
+    while (it != m_messages.end())
     {
         if ((*it).number == number)
         {
             // Remove this message
-            it = m_linterMessages.erase(it);
+            it = m_messages.erase(it);
         }
         else
         {
@@ -680,50 +684,50 @@ void Linter::removeMessagesWithNumber(const QString& number) noexcept
     }
 }
 
-void Linter::appendLinterMessages(const LintMessages& lintMessages) noexcept
+void Lint::appendLintMessages(const LintMessages& lintMessages) noexcept
 {
     for (const auto& message : lintMessages)
     {
-        m_linterMessages.emplace_back(message);
+        m_messages.emplace_back(message);
     }
 }
 
-void Linter::appendLinterErrors(int numberOfErrors) noexcept
+void Lint::appendLintErrors(int numberOfErrors) noexcept
 {
     m_numberOfErrors += numberOfErrors;
 }
 
-void Linter::appendLinterWarnings(int numberOfWarnings) noexcept
+void Lint::appendLintWarnings(int numberOfWarnings) noexcept
 {
     m_numberOfWarnings += numberOfWarnings;
 }
 
-void Linter::appendLinterInfo(int numberOfInfo) noexcept
+void Lint::appendLinterInfo(int numberOfInfo) noexcept
 {
     m_numberOfInfo += numberOfInfo;
 }
 
-void Linter::resetLinter() noexcept
+void Lint::resetLinter() noexcept
 {
-    m_linterMessages.clear();
+    m_messages.clear();
     m_numberOfErrors = 0;
     m_numberOfWarnings = 0;
     m_numberOfInfo = 0;
 }
 
-QString Linter::getLinterFile() const noexcept
+QString Lint::getLintFile() const noexcept
 {
     return m_lintFile;
 }
 
 // Group together lint messages (PC-Lint Plus only)
 // So that supplemental messages are tied together with error/info/warnings
-LintMessageGroup Linter::groupLinterMessages() noexcept
+LintMessageGroup Lint::groupLintMessages() noexcept
 {
     // Spit out a LintMessageGroup
     LintMessageGroup messageGroup;
 
-    auto firstPtr = m_linterMessages.cbegin();
+    auto firstPtr = m_messages.cbegin();
     auto secondPtr = firstPtr+1;
 
     // Use two pointers to find groups
@@ -733,17 +737,17 @@ LintMessageGroup Linter::groupLinterMessages() noexcept
     // Point first one to second pointer+1
     // Repeat until end
 
-    while (firstPtr != m_linterMessages.cend() && secondPtr != m_linterMessages.cend())
+    while (firstPtr != m_messages.cend() && secondPtr != m_messages.cend())
     {
         // First message type should never be "Supplemental"
-        Q_ASSERT(firstPtr->type != Lint::Type::LINT_TYPE_SUPPLEMENTAL);
+        Q_ASSERT(firstPtr->type != Type::LINT_TYPE_SUPPLEMENTAL);
 
         // Add first message
         LintMessages message;
         message.emplace_back(*firstPtr);
 
         // Associate supplemental messages
-        while (secondPtr != m_linterMessages.cend() && secondPtr->type == Lint::Type::LINT_TYPE_SUPPLEMENTAL)
+        while (secondPtr != m_messages.cend() && secondPtr->type == Type::LINT_TYPE_SUPPLEMENTAL)
         {
             message.emplace_back(*secondPtr);
             secondPtr++;
@@ -759,43 +763,48 @@ LintMessageGroup Linter::groupLinterMessages() noexcept
     return messageGroup;
 }
 
-QImage Linter::associateMessageTypeWithIcon(const QString& type) noexcept
+QImage Lint::associateMessageTypeWithIcon(const QString& type) noexcept
 {
-    Lint::Message messageType;
+    Message messageType;
 
     // Determine type
-    if (!QString::compare(type, Lint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
+    if (!QString::compare(type, Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
     {
-        messageType = Lint::Message::MESSAGE_TYPE_ERROR;
+        messageType = Message::MESSAGE_TYPE_ERROR;
     }
-    else if (!QString::compare(type, Lint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
+    else if (!QString::compare(type, Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
     {
-        messageType = Lint::Message::MESSAGE_TYPE_WARNING;
+        messageType = Message::MESSAGE_TYPE_WARNING;
     }
-    else if (!QString::compare(type, Lint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
+    else if (!QString::compare(type, Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
     {
-        messageType = Lint::Message::MESSAGE_TYPE_INFORMATION;
+        messageType = Message::MESSAGE_TYPE_INFORMATION;
     }
-    else if (!QString::compare(type, Lint::Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
+    else if (!QString::compare(type, Type::LINT_TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
     {
-        messageType = Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL;
+        messageType = Message::MESSAGE_TYPE_SUPPLEMENTAL;
     }
     else
     {
-        messageType = Lint::Message::MESSAGE_TYPE_UNKNOWN;
+        messageType = Message::MESSAGE_TYPE_UNKNOWN;
     }
 
     QImage icon;
     switch (messageType)
     {
-        case Lint::Message::MESSAGE_TYPE_ERROR: icon.load(":/images/error.png");  break;
-        case Lint::Message::MESSAGE_TYPE_WARNING: icon.load(":/images/warning.png"); break;
-        case Lint::Message::MESSAGE_TYPE_INFORMATION:
-        case Lint::Message::MESSAGE_TYPE_SUPPLEMENTAL: icon.load(":/images/info.png"); break;
+        case Message::MESSAGE_TYPE_ERROR: icon.load(":/images/error.png");  break;
+        case Message::MESSAGE_TYPE_WARNING: icon.load(":/images/warning.png"); break;
+        case Message::MESSAGE_TYPE_INFORMATION:
+        case Message::MESSAGE_TYPE_SUPPLEMENTAL: icon.load(":/images/info.png"); break;
         default: Q_ASSERT(false); break;
     }
 
     return icon;
+}
+
+void Lint::setWorkingDirectory(const QString& directory) noexcept
+{
+    m_lintDirectory = directory;
 }
 
 

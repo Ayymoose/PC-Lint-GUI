@@ -16,7 +16,7 @@
 
 #include "ProgressWindow.h"
 #include "ui_ProgressWindow.h"
-#include "Linter.h"
+#include "Lint.h"
 #include "Jenkins.h"
 
 #include <QDebug>
@@ -35,7 +35,7 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
     m_aborted(false),
     m_timer(std::make_unique<QTimer>()),
     m_windowTitle(title),
-    m_lintThreadManager(std::make_unique<Lint::LintThreadManager>(this)),
+    m_lintThreadManager(std::make_unique<PCLint::LintManager>(this)),
     m_workerThread(std::make_unique<QThread>(this)),
     m_parent(static_cast<MainWindow*>(parent))
 {
@@ -51,11 +51,11 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
     m_workerThread->start();
 
     // Signal lint thread manager to start linting
-    QObject::connect(this, &ProgressWindow::signalStartLintManager, m_lintThreadManager.get(), &Lint::LintThreadManager::slotStartLintManager);
+    QObject::connect(this, &ProgressWindow::signalStartLintManager, m_lintThreadManager.get(), &PCLint::LintManager::slotStartLintManager);
     // Get linter data from MainWindow
-    QObject::connect(m_lintThreadManager.get(), &Lint::LintThreadManager::signalGetLinterData, m_parent, &MainWindow::slotGetLinterData);
+    QObject::connect(m_lintThreadManager.get(), &PCLint::LintManager::signalGetLinterData, m_parent, &MainWindow::slotGetLinterData);
     // Send linter data to Lint thread manager
-    QObject::connect(m_parent, &MainWindow::signalSetLinterData, m_lintThreadManager.get(), &Lint::LintThreadManager::slotSetLinterData);
+    QObject::connect(m_parent, &MainWindow::signalSetLinterData, m_lintThreadManager.get(), &PCLint::LintManager::slotSetLinterData);
     // Tell MainWindow we are done
     QObject::connect(this, &ProgressWindow::signalLintFinished, m_parent, &MainWindow::slotLintFinished);
 
@@ -64,6 +64,17 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
     m_ui->lintGroupBox->setTitle(title);
 
     emit signalStartLintManager();
+
+    //QObject::connect(this, &ProgressWindow::signalProgressWindowHelloMainWindow, m_parent, &MainWindow::slotProgressWindowHelloMainWindow);
+   // QObject::connect(m_parent, &MainWindow::signalMainWindowHereIsLintData, this, &ProgressWindow::slotMainWindowHereIsLintData);
+
+    //emit signalProgressWindowHelloMainWindow();
+}
+
+
+void ProgressWindow::slotMainWindowHereIsLintData()
+{
+    qDebug() << "MainWindow sends Lint data";
 }
 
 void ProgressWindow::slotUpdateProgress(int value) noexcept
@@ -106,7 +117,7 @@ void ProgressWindow::slotUpdateTime() noexcept
     }
 }
 
-void ProgressWindow::slotLintFinished(const Lint::LintResponse& lintResponse) noexcept
+void ProgressWindow::slotLintFinished(const PCLint::LintResponse& lintResponse) noexcept
 {
     emit signalLintFinished(lintResponse);
 }
@@ -132,7 +143,7 @@ ProgressWindow::~ProgressWindow()
     }
     delete m_ui;
     m_workerThread->quit();
-    auto waitComplete = m_workerThread->wait(Lint::MAX_THREAD_WAIT);
+    auto waitComplete = m_workerThread->wait(PCLint::MAX_THREAD_WAIT);
     Q_ASSERT(waitComplete);
     qDebug() << "ProgressWindow destroyed";
 }

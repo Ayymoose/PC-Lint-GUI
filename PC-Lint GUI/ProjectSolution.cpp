@@ -23,7 +23,7 @@
 #include "Log.h"
 #include <stdexcept>
 
-namespace Lint
+namespace PCLint
 {
 
 

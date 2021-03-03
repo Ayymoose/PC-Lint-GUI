@@ -21,17 +21,17 @@
 
 #include <vector>
 #include <memory>
-#include "Linter.h"
+#include "Lint.h"
 
-namespace Lint
+namespace PCLint
 {
 
-class LintThreadManager : public QObject
+class LintManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit LintThreadManager(QObject *parent = nullptr);
-    ~LintThreadManager();
+    explicit LintManager(QObject *parent = nullptr);
+    ~LintManager();
 signals:
     void signalGetLinterData();
     void signalSetLinterData(const LintData& lintData);
@@ -47,7 +47,7 @@ private slots:
 private:
     void startLint() noexcept;
     std::vector<std::unique_ptr<QThread>> m_lintThreads;
-    std::vector<std::unique_ptr<Linter>> m_lintPointers;
+    std::vector<std::unique_ptr<Lint>> m_lintPointers;
     LintData m_lintData;
     unsigned int m_completedLints;
     QObject* m_parent;

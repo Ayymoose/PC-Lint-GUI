@@ -19,7 +19,7 @@
 #include <QClipboard>
 #include <QMessageBox>
 
-namespace Lint
+namespace PCLint
 {
 
 void About::display() const noexcept

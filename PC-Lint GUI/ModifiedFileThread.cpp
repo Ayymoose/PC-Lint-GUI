@@ -24,7 +24,7 @@
 
 // TODO: Change this to QFileSystemWatcher
 
-namespace Lint
+namespace PCLint
 {
 
 void ModifiedFileThread::run()

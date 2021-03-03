@@ -30,15 +30,15 @@ int main(int argc, char *argv[])
 {
     QApplication EditorApp(argc, argv);
 
-    QCoreApplication::setOrganizationName(Lint::SETTINGS_APPLICATION_NAME);
-    QCoreApplication::setApplicationName(Lint::SETTINGS_APPLICATION_NAME);
+    QCoreApplication::setOrganizationName(PCLint::SETTINGS_APPLICATION_NAME);
+    QCoreApplication::setApplicationName(PCLint::SETTINGS_APPLICATION_NAME);
 
-    qInstallMessageHandler(customMessageHandler);
+   // qInstallMessageHandler(customMessageHandler);
     QLoggingCategory::defaultCategory()->setEnabled(QtDebugMsg, true);
 
     qDebug().noquote() << "------------------------------ Starting" <<
-                          Lint::SETTINGS_APPLICATION_NAME << "------------------------------";
-    qDebug().noquote() << Lint::SETTINGS_APPLICATION_NAME << "version: " BUILD_VERSION;
+                          PCLint::SETTINGS_APPLICATION_NAME << "------------------------------";
+    qDebug().noquote() << PCLint::SETTINGS_APPLICATION_NAME << "version: " BUILD_VERSION;
 
     MainWindow mainWindow;
 

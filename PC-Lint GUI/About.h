@@ -19,7 +19,7 @@
 #include "Compiler.h"
 #include "Jenkins.h"
 
-namespace Lint
+namespace PCLint
 {
 
 class About

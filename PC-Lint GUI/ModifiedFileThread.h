@@ -24,7 +24,7 @@
 #include <QMutex>
 #include <QPair>
 
-namespace Lint
+namespace PCLint
 {
 
 struct ModifiedFile
