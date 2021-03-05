@@ -22,6 +22,7 @@
 #include <vector>
 #include <memory>
 #include "Lint.h"
+#include "ProgressWindow.h"
 
 namespace PCLint
 {
@@ -39,15 +40,17 @@ signals:
     void signalLintFinished(const LintResponse& lintResponse);
     void signalLintComplete();
 public slots:
-    void slotSetLinterData(const LintData& lintData) noexcept;
-    void slotStartLintManager() noexcept;
     void slotAbortLint() noexcept;
+
+    void slotGetLintData(const LintData& lintData) noexcept;
+    void slotStartLint() noexcept;
+    void slotLintComplete(const LintResponse& lintResponse) noexcept;
+
 private slots:
     void slotLintFinished(const LintResponse& lintResponse) noexcept;
 private:
-    void startLint() noexcept;
     std::vector<std::unique_ptr<QThread>> m_lintThreads;
-    std::vector<std::unique_ptr<Lint>> m_lintPointers;
+    std::vector<std::unique_ptr<Lint>> m_lints;
     LintData m_lintData;
     unsigned int m_completedLints;
     QObject* m_parent;

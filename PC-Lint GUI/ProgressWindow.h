@@ -26,6 +26,12 @@
 #include <vector>
 #include <memory>
 
+
+namespace PCLint
+{
+class LintManager;
+}
+
 class MainWindow;
 
 namespace Ui
@@ -49,7 +55,7 @@ public slots:
     void slotLintFinished(const PCLint::LintResponse& lintResponse) noexcept;
     void slotLintComplete() noexcept;
 
-    void slotMainWindowHereIsLintData();
+    void slotGetLintData(const PCLint::LintData& lintData) noexcept;
 
 
 private slots:
@@ -63,7 +69,9 @@ signals:
     void signalStartLintManager();
 
 
-    void signalProgressWindowHelloMainWindow();
+    void signalStartLint();
+    void signalGetLintData();
+    void signalSetLintData(const PCLint::LintData& lintData);
 private:
     Ui::ProgressWindow *m_ui;
     int m_elapsedTime;
@@ -75,7 +83,7 @@ private:
     bool m_aborted;
     std::unique_ptr<QTimer> m_timer;
     QString m_windowTitle;
-    std::unique_ptr<PCLint::LintManager> m_lintThreadManager;
+    std::unique_ptr<PCLint::LintManager> m_lintManager;
     std::unique_ptr<QThread> m_workerThread;
     MainWindow* m_parent;
 };

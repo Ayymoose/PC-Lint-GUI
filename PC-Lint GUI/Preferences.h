@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "Lint.h"
 #include <QDialog>
 #include <QSettings>
 
@@ -47,6 +48,9 @@ public:
     static QString m_lastDirectory;
     //void reject() override;
 
+signals:
+    void signalLintVersion(const PCLint::Version& version);
+
 private slots:
     void on_lintPathFileOpen_clicked();
     void on_lintFileFileOpen_clicked();
@@ -56,4 +60,5 @@ private slots:
 private:
     Ui::Preferences* m_ui;
     void loadSettings() noexcept;
+    void checkPCLintVersion() noexcept;
 };

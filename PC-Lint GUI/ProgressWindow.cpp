@@ -27,7 +27,7 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
     QDialog(parent),
     m_ui(new Ui::ProgressWindow),
     m_elapsedTime(0),
-    m_eta(5),
+    m_eta(5), // TODO: Make it "Calculating..."
     m_progressMax(0),
     m_currentProgress(0),
     m_fileProgressMax(0),
@@ -35,7 +35,7 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
     m_aborted(false),
     m_timer(std::make_unique<QTimer>()),
     m_windowTitle(title),
-    m_lintThreadManager(std::make_unique<PCLint::LintManager>(this)),
+    m_lintManager(std::make_unique<PCLint::LintManager>(this)),
     m_workerThread(std::make_unique<QThread>(this)),
     m_parent(static_cast<MainWindow*>(parent))
 {
@@ -47,34 +47,44 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
 
     QObject::connect(m_timer.get(), &QTimer::timeout, this, &ProgressWindow::slotUpdateTime);
     m_timer->start(1000);
-    m_lintThreadManager->moveToThread(m_workerThread.get());
+    m_lintManager->moveToThread(m_workerThread.get());
     m_workerThread->start();
-
-    // Signal lint thread manager to start linting
-    QObject::connect(this, &ProgressWindow::signalStartLintManager, m_lintThreadManager.get(), &PCLint::LintManager::slotStartLintManager);
-    // Get linter data from MainWindow
-    QObject::connect(m_lintThreadManager.get(), &PCLint::LintManager::signalGetLinterData, m_parent, &MainWindow::slotGetLinterData);
-    // Send linter data to Lint thread manager
-    QObject::connect(m_parent, &MainWindow::signalSetLinterData, m_lintThreadManager.get(), &PCLint::LintManager::slotSetLinterData);
-    // Tell MainWindow we are done
-    QObject::connect(this, &ProgressWindow::signalLintFinished, m_parent, &MainWindow::slotLintFinished);
-
-    QObject::connect(this, &ProgressWindow::signalLintComplete, m_parent, &MainWindow::slotLintComplete);
 
     m_ui->lintGroupBox->setTitle(title);
 
-    emit signalStartLintManager();
+    // ProgressWindow asks MainWindow for lint data
+    // MainWindow gives ProgressWindow lint data
+    // ProgressWindow gives lint data to LintManager which starts the process
+    // Start lint
+    // Lint object gives LintManager lint responses
+    // LintManager gives ProgressWindow progress data
+    // ...
+    // LintManager finishes and gives ProgressWindow the data
+    // ProgressWindow gives MainWindow the output data
 
-    //QObject::connect(this, &ProgressWindow::signalProgressWindowHelloMainWindow, m_parent, &MainWindow::slotProgressWindowHelloMainWindow);
-   // QObject::connect(m_parent, &MainWindow::signalMainWindowHereIsLintData, this, &ProgressWindow::slotMainWindowHereIsLintData);
+    // ProgressWindow asks MainWindow for lint data
+    QObject::connect(this, &ProgressWindow::signalGetLintData, m_parent, &MainWindow::slotGetLintData);
+    // MainWindow gives ProgressWindow lint data
+    QObject::connect(m_parent, &MainWindow::signalSetLintData, this, &ProgressWindow::slotGetLintData);
+    // ProgressWindow gives lint data to LintManager which starts the process
+    QObject::connect(this, &ProgressWindow::signalSetLintData, m_lintManager.get(), &PCLint::LintManager::slotGetLintData);
+    // Start lint
+    QObject::connect(this, &ProgressWindow::signalStartLint, m_lintManager.get(), &PCLint::LintManager::slotStartLint);
+    // LintManager gives ProgressWindow progress data
+    // ...
+    // ProgressWindow gives MainWindow the output data
+    QObject::connect(this, &ProgressWindow::signalLintFinished, m_parent, &MainWindow::slotLintFinished);
+    QObject::connect(this, &ProgressWindow::signalLintComplete, m_parent, &MainWindow::slotLintComplete);
 
-    //emit signalProgressWindowHelloMainWindow();
+    emit signalGetLintData();
+    emit signalStartLint();
 }
 
 
-void ProgressWindow::slotMainWindowHereIsLintData()
+void ProgressWindow::slotGetLintData(const PCLint::LintData& lintData) noexcept
 {
-    qDebug() << "MainWindow sends Lint data";
+    qDebug() << "MainWindow sends Lint data to ProgressWindow";
+    emit signalSetLintData(lintData);
 }
 
 void ProgressWindow::slotUpdateProgress(int value) noexcept

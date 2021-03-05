@@ -17,69 +17,49 @@
 #include "LintManager.h"
 #include <QDebug>
 #include <thread>
-#include "ProgressWindow.h"
-#include "Lint.h"
 
 namespace PCLint
 {
 
-LintManager::LintManager(QObject *parent): m_completedLints(0), m_parent(parent)
+LintManager::LintManager(QObject *parent):
+    m_completedLints(0),
+    m_parent(parent)
 {
+
     QObject::connect(this, &LintManager::signalLintFinished, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotLintFinished);
     QObject::connect(this, &LintManager::signalLintComplete, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotLintComplete);
     QObject::connect(static_cast<ProgressWindow*>(m_parent), &ProgressWindow::signalAbortLint,this, &LintManager::slotAbortLint);
 }
 
-void LintManager::joinAll() const noexcept
+void LintManager::slotGetLintData(const LintData& lintData) noexcept
 {
-    for (auto const& thread : m_lintThreads)
-     {
-         thread->quit();
-     }
-     std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[](auto const& thread)
-     {
-         auto waitComplete = thread->wait(MAX_THREAD_WAIT);
-         Q_ASSERT(waitComplete);
-     });
-}
+    qDebug() << "ProgressWindow sends Lint data to LintManager";
 
-LintManager::~LintManager()
-{
-    // Join all
-    joinAll();
-    qDebug() << "LintManager destroyed";
-}
-
-void LintManager::slotSetLinterData(const LintData& lintData) noexcept
-{
     Q_ASSERT(lintData.lintFiles.size());
     Q_ASSERT(lintData.lintOptionFile.size());
     Q_ASSERT(lintData.linterExecutable.size());
 
-    qDebug() << '[' << QThread::currentThreadId() << "] Number of lint files: " << lintData.lintFiles.size();
-    qDebug() << '[' << QThread::currentThreadId() << "] Lint option file: " << lintData.lintOptionFile;
-    qDebug() << '[' << QThread::currentThreadId() << "] Lint executable: " << lintData.linterExecutable;
+    qDebug() << "Number of lint files: " << lintData.lintFiles.size();
+    qDebug() << "Lint option file: " << lintData.lintOptionFile;
+    qDebug() << "Lint executable: " << lintData.linterExecutable;
     m_lintData = lintData;
-    emit startLint();
 }
 
-void LintManager::slotStartLintManager() noexcept
+void LintManager::slotStartLint() noexcept
 {
-    qDebug() << '[' << QThread::currentThreadId() << "] Starting Lint Manager";
-    emit signalGetLinterData();
-}
+    qDebug() << "ProgressWindow wants LintManager to start lint";
 
-void LintManager::startLint() noexcept
-{
-    // Because the maximum we can write to a process is 8192 characters on Windows
-    // We will need to split it between threads
+    Q_ASSERT(m_lintData.lintFiles.size());
+    Q_ASSERT(m_lintData.lintOptionFile.size());
+    Q_ASSERT(m_lintData.linterExecutable.size());
 
-    // Assume linter doesn't consume more than 512 characters (use assertion in linter)
+    // Because the maximum data we can supply on command line to a QProcess is 8192 characters on Windows
+    // We will need to split it up in chunks
+
+    // Assume PC-Lint management data doesn't consume more than 512 characters
     // While we still have files to add, add as many files as possible until it reaches 8192 characters
-    // Give to one thread
-    // Repeat until no files left then start all threads
-
-
+    // Give to one lint object
+    // Repeat until no files left then start
 
     QSet<QSet<QString>> lintFilePerThread;
     QSet<QString> lintFiles;
@@ -107,62 +87,73 @@ void LintManager::startLint() noexcept
 
     // Sanity check
     int size = 0;
-    std::for_each(lintFilePerThread.begin(), lintFilePerThread.end(),[&size](const QSet<QString>& list){ size += list.size(); });
+    std::for_each(lintFilePerThread.begin(), lintFilePerThread.end(),[&size](const auto& list)
+    {
+        size += list.size();
+    });
     Q_ASSERT(size == m_lintData.lintFiles.size());
 
-    m_lintPointers.clear();
-    m_lintThreads.clear();
+    m_completedLints = 0;
+    m_lints.clear();
 
-    // TODO: There is a bug in here that is causing QProcess to crash randomly
-
-    int count = 0;
     for (const auto& lintFileList : lintFilePerThread)
     {
+        // Create new lint and hand it the data
+        auto lint = std::make_unique<Lint>();
 
-        // Create a new thread
-    /*    auto lintThread = std::make_unique<QThread>(this);
-        // Create a new linter
-        auto linter = std::make_unique<Linter>();*/
-
-        m_lintThreads.emplace_back(std::make_unique<QThread>(this));
-        m_lintPointers.emplace_back(std::make_unique<Lint>());
-
-
-        m_lintPointers[count]->moveToThread(m_lintThreads[count].get());
-        m_lintThreads[count]->start();
-
-        // Now move to thread
-        /*linter->moveToThread(lintThread.get());
-        lintThread->start();*/
+        QObject::connect(lint.get(), &Lint::signalLintComplete, this, &LintManager::slotLintComplete);
+        QObject::connect(lint.get(), &Lint::signalUpdateProgress, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProgress);
+        QObject::connect(lint.get(), &Lint::signalUpdateProgressMax, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProgressMax);
+        QObject::connect(lint.get(), &Lint::signalUpdateProcessedFiles, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProcessedFiles);
 
 
-       // QObject::connect(this, &LintManager::signalSetLinterData, m_lintPointers[count].get(), &slotGetLintData);
-       // QObject::connect(this, &LintManager::signalStartLint, m_lintPointers[count].get(), &slotStartLint);
-       // QObject::connect(m_lintPointers[count].get(), &signalLintFinished, this, &LintManager::slotLintFinished);
-/*
-
-        QObject::connect(m_lintPointers[count].get(), &Linter::signalUpdateProgress, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProgress);
-        QObject::connect(m_lintPointers[count].get(), &Linter::signalUpdateProgressMax, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProgressMax);
-        QObject::connect(m_lintPointers[count].get(), &Linter::signalUpdateProcessedFiles, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProcessedFiles);
-        QObject::connect(m_lintPointers[count].get(), &Linter::signalUpdateETA, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateETA);
-
-*/
-        // Assign the data
+        // Asynchronous start
         LintData perLintData = m_lintData;
         perLintData.lintFiles = lintFileList;
 
-        emit signalSetLinterData(perLintData);
-        emit signalStartLint(true);
+        // Go!
+        lint->setLintData(perLintData);
+        lint->asyncLint();
 
-
-
-        //QObject::disconnect(this, &LintManager::signalSetLinterData, m_lintPointers[count].get(), &Linter::slotGetLinterData);
-        //QObject::disconnect(this, &LintManager::signalStartLint, m_lintPointers[count].get(), &Linter::slotStartLint);
-
-        count++;
+        m_lints.emplace_back(std::move(lint));
     }
 
-    qDebug() << count << "threads created";
+    qDebug() << "Running" << QString::number(m_lints.size()) << " instances";
+}
+
+void LintManager::slotLintComplete(const LintResponse& lintResponse) noexcept
+{
+    qDebug() << "Lint finished with:" << lintResponse.status;
+    qDebug() << "Number of lint messages:" << lintResponse.lintMessages.size();
+    qDebug() << "Number of lint errors:" << lintResponse.numberOfErrors;
+    qDebug() << "Number of lint warnings:" << lintResponse.numberOfWarnings;
+    qDebug() << "Number of lint information:" << lintResponse.numberOfInfo;
+
+    emit signalLintFinished(lintResponse);
+    m_completedLints++;
+
+    if (m_completedLints == m_lints.size())
+    {
+        emit signalLintComplete();
+    }
+}
+
+void LintManager::joinAll() const noexcept
+{
+    for (auto const& thread : m_lintThreads)
+     {
+         thread->quit();
+     }
+     std::for_each(m_lintThreads.begin(), m_lintThreads.end(),[](auto const& thread)
+     {
+         auto waitComplete = thread->wait(MAX_THREAD_WAIT);
+         Q_ASSERT(waitComplete);
+     });
+}
+
+LintManager::~LintManager()
+{
+    // TODO: Abort lint
 }
 
 void LintManager::slotLintFinished(const LintResponse& lintResponse) noexcept

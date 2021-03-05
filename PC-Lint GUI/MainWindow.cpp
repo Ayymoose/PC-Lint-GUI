@@ -61,7 +61,8 @@ MainWindow::MainWindow(QWidget *parent) :
     qRegisterMetaType<QSet<PCLint::LintMessage>>("QSet<LintMessage>");
     qRegisterMetaType<PCLint::LintData>("LintData");
     qRegisterMetaType<PCLint::LintResponse>("LintResponse");
-    qRegisterMetaType<PCLint::LintData>("LintData");
+    qRegisterMetaType<PCLint::LintData>("PCLint::LintData");
+    qRegisterMetaType<PCLint::Version>("PCLint::Version");
 
     // Turn UI into actual objects
     m_ui->setupUi(this);
@@ -379,9 +380,9 @@ void MainWindow::slotLintFinished(const PCLint::LintResponse& lintResponse)
     m_linter.appendLintWarnings(lintResponse.numberOfWarnings);
     m_linter.appendLinterInfo(lintResponse.numberOfInfo);
 
-    if (!(lintResponse.status == PCLint::LintStatus::LINT_PARTIAL_COMPLETE ||
-            lintResponse.status == PCLint::LintStatus::LINT_COMPLETE ||
-            lintResponse.status == PCLint::LintStatus::LINT_PROCESS_ERROR))
+    if (!(lintResponse.status == PCLint::LintStatus::STATUS_PARTIAL_COMPLETE ||
+            lintResponse.status == PCLint::LintStatus::STATUS_COMPLETE ||
+            lintResponse.status == PCLint::LintStatus::STATUS_PROCESS_ERROR))
     {
         m_linter.setErrorMessage(lintResponse.errorMessage);
     }
@@ -552,7 +553,7 @@ void MainWindow::displayLintTable()
     // Error count fluctuating in output looks like a PCLP bug
 
     // Show message if there are no lint problems
-    if (m_linterStatus == PCLint::LintStatus::LINT_COMPLETE &&
+    if (m_linterStatus == PCLint::LintStatus::STATUS_COMPLETE &&
             m_linter.numberOfErrors() == 0 && m_linter.numberOfWarnings() == 0 && m_linter.numberOfInfo() == 0)
     {
         QMessageBox::information(this, "Information", "No errors detected in code");
@@ -560,24 +561,20 @@ void MainWindow::displayLintTable()
     else
     {
         // Display any outstanding messages
-        if (m_linterStatus & PCLint::LintStatus::LINT_PARTIAL_COMPLETE)
+        if (m_linterStatus & PCLint::LintStatus::STATUS_PARTIAL_COMPLETE)
         {
             // TODO: This doesn't work correctly as sometimes we have 17/16 files shown
             QMessageBox::information(this, "Information", "Not all files were successfully linted as errors were generated in the lint output.");
         }
-        else if (m_linterStatus & PCLint::LintStatus::LINT_UNSUPPORTED_VERSION)
-        {
-            QMessageBox::critical(this, "Error", "Failed to start lint because of unknown PC-Lint/PC-Lint Plus version.");
-        }
-        else if (m_linterStatus & PCLint::LintStatus::LINT_LICENSE_ERROR)
+        else if (m_linterStatus & PCLint::LintStatus::STATUS_LICENSE_ERROR)
         {
             QMessageBox::critical(this, "Error", m_linter.errorMessage());
         }
-        else if (m_linterStatus & PCLint::LintStatus::LINT_PROCESS_ERROR)
+        else if (m_linterStatus & PCLint::LintStatus::STATUS_PROCESS_ERROR)
         {
             QMessageBox::critical(this, "Error", "Failed to complete lint because of an internal error");
         }
-        else if (m_linterStatus & PCLint::LintStatus::LINT_PROCESS_TIMEOUT)
+        else if (m_linterStatus & PCLint::LintStatus::STATUS_PROCESS_TIMEOUT)
         {
             QMessageBox::critical(this, "Error", "Failed to complete lint because process became stuck");
         }
@@ -591,6 +588,11 @@ void MainWindow::displayLintTable()
     emit signalStartMonitor();
     emit signalUpdateTypes(m_linter.numberOfErrors(), m_linter.numberOfWarnings(), m_linter.numberOfInfo());
 
+}
+
+void MainWindow::slotLintVersion(const PCLint::Version& version) noexcept
+{
+    m_linter.setVersion(version);
 }
 
 void MainWindow::slotLintComplete()
@@ -612,10 +614,16 @@ void MainWindow::slotGetLinterData()
     emit signalSetLinterData(lintData);
 }
 
-void MainWindow::slotProgressWindowHelloMainWindow()
+void MainWindow::slotGetLintData() noexcept
 {
-    qDebug() << "Progress Window wants Lint data";
-    emit signalMainWindowHereIsLintData();
+    qDebug() << "Progress Window asks MainWindow for lint data";
+    PCLint::LintData lintData
+    {
+       m_preferences->getLinterExecutablePath().trimmed(),
+       m_preferences->getLinterLintFilePath().trimmed(),
+       m_directoryFiles
+    };
+    emit signalSetLintData(lintData);
 }
 
 void MainWindow::startLintThread(QString title)
@@ -710,7 +718,7 @@ void MainWindow::slotFileDoesntExist(const QString& deletedFile)
         }
 
         // Update the linter messages
-        m_linter.removeAssociatedMessages(deletedFile);
+        //m_linter.removeAssociatedMessages(deletedFile);
 
         // Update the lint table again
         displayLintTable();
@@ -860,7 +868,7 @@ bool MainWindow::filterMessageType(const QString& type) const noexcept
     bool filter = false;
     if (!m_toggleError)
     {
-        if (!QString::compare(type, PCLint::Type::LINT_TYPE_ERROR, Qt::CaseInsensitive))
+        if (!QString::compare(type, PCLint::Type::TYPE_ERROR, Qt::CaseInsensitive))
         {
             filter = true;
         }
@@ -868,7 +876,7 @@ bool MainWindow::filterMessageType(const QString& type) const noexcept
 
     if (!m_toggleWarning)
     {
-        if (!QString::compare(type, PCLint::Type::LINT_TYPE_WARNING, Qt::CaseInsensitive))
+        if (!QString::compare(type, PCLint::Type::TYPE_WARNING, Qt::CaseInsensitive))
         {
             filter = true;
         }
@@ -876,7 +884,7 @@ bool MainWindow::filterMessageType(const QString& type) const noexcept
 
     if (!m_toggleInfo)
     {
-        if (!QString::compare(type, PCLint::Type::LINT_TYPE_INFO, Qt::CaseInsensitive))
+        if (!QString::compare(type, PCLint::Type::TYPE_INFO, Qt::CaseInsensitive))
         {
             filter = true;
         }

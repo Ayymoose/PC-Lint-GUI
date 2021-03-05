@@ -5,7 +5,7 @@ CONFIG += c++17
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
-QMAKE_CXXFLAGS += -Wall -Wextra -Wunused -Wpointer-arith -Wlogical-op
+QMAKE_CXXFLAGS += -Wunused -Wpointer-arith -Wlogical-op
 
 QT += xml widgets
 

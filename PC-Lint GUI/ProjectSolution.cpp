@@ -227,7 +227,7 @@ QSet<QString> VisualStudioProjectSolution::buildSourceFiles(const QString &proje
               Q_ASSERT(split.size() >= 5);
               auto const projectUnclean = split[5];
 
-              qInfo().noquote() << "Found " << projectUnclean;
+              qInfo() << "Found " << projectUnclean;
 
               //if (maxProjects < 10)
               {

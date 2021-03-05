@@ -36,9 +36,9 @@ int main(int argc, char *argv[])
    // qInstallMessageHandler(customMessageHandler);
     QLoggingCategory::defaultCategory()->setEnabled(QtDebugMsg, true);
 
-    qDebug().noquote() << "------------------------------ Starting" <<
+    qDebug() << "------------------------------ Starting" <<
                           PCLint::SETTINGS_APPLICATION_NAME << "------------------------------";
-    qDebug().noquote() << PCLint::SETTINGS_APPLICATION_NAME << "version: " BUILD_VERSION;
+    qDebug() << PCLint::SETTINGS_APPLICATION_NAME << "version: " BUILD_VERSION;
 
     MainWindow mainWindow;
 

@@ -73,7 +73,7 @@ signals:
     void signalKeepFile(const QString& keepFile);
 
 
-    void signalMainWindowHereIsLintData();
+    void signalSetLintData(const PCLint::LintData& lintData);
 
 public slots:
     void handleContextMenu(const QPoint& pos);
@@ -82,7 +82,8 @@ public slots:
     void slotLintComplete();
 
 
-    void slotProgressWindowHelloMainWindow();
+    void slotLintVersion(const PCLint::Version& version) noexcept;
+    void slotGetLintData() noexcept;
 
 private slots:
 

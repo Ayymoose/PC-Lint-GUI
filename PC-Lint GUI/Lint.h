@@ -49,38 +49,45 @@ namespace Xml
 namespace Type
 {
     // PC-Lint types
-    const QString LINT_TYPE_ERROR = "Error";
-    const QString LINT_TYPE_INFO = "Info";
-    const QString LINT_TYPE_WARNING = "Warning";
-    const QString LINT_TYPE_SUPPLEMENTAL = "supplemental"; // PC-Lint Plus only
+    const QString TYPE_ERROR = "Error";
+    const QString TYPE_INFO = "Info";
+    const QString TYPE_WARNING = "Warning";
+    const QString TYPE_SUPPLEMENTAL = "supplemental"; // PC-Lint Plus only
 };
 
 
 enum LintStatus
 {
     // Lint completed successfully
-    LINT_COMPLETE = 0x0,
+    STATUS_COMPLETE = 0x0,
     // Lint partially completed but didn't lint all files
-    LINT_PARTIAL_COMPLETE = 0x1,
-    // Lint version unknown
-    LINT_UNSUPPORTED_VERSION = 0x2,
+    STATUS_PARTIAL_COMPLETE = 0x1,
     // Lint license error
-    LINT_LICENSE_ERROR = 0x4,
+    STATUS_LICENSE_ERROR = 0x4,
     // Lint process error
-    LINT_PROCESS_ERROR = 0x8,
+    STATUS_PROCESS_ERROR = 0x8,
     // Lint process timeout
-    LINT_PROCESS_TIMEOUT = 0x10,
+    STATUS_PROCESS_TIMEOUT = 0x10,
     // Lint cancelled
-    LINT_ABORT = 0x20,
+    STATUS_ABORT = 0x20,
+    // Unknown state
+    STATUS_UNKNOWN = 0x40
 };
 
 enum Message
 {
-    MESSAGE_TYPE_ERROR = 0,
-    MESSAGE_TYPE_WARNING,
-    MESSAGE_TYPE_INFORMATION,
-    MESSAGE_TYPE_SUPPLEMENTAL,
-    MESSAGE_TYPE_UNKNOWN,
+    MESSAGE_ERROR,
+    MESSAGE_WARNING,
+    MESSAGE_INFORMATION,
+    MESSAGE_SUPPLEMENTAL,
+    MESSAGE_UNKNOWN,
+};
+
+enum Version
+{
+    VERSION_PC_LINT,
+    VERSION_PC_LINT_PLUS,
+    VERSION_UNKNOWN
 };
 
 constexpr int MAX_PROCESS_CHARACTERS = 8192;
@@ -131,6 +138,11 @@ public:
     // Set the source files (.c .cpp etc) to lint
     void setSourceFiles(const QSet<QString>& files) noexcept;
 
+    void setLintData(const LintData& lintData) noexcept;
+
+
+    void asyncLint() noexcept;
+
     // Set the working directory for the lint executable
     void setWorkingDirectory(const QString& directory) noexcept;
 
@@ -143,9 +155,9 @@ public:
     LintMessageGroup groupLintMessages() noexcept;
 
     // Remove all associated messages with the given file
-    void removeAssociatedMessages(const QString& file) noexcept;
+    //void removeAssociatedMessages(const QString& file) noexcept;
     // Removes all messages with the given number
-    void removeMessagesWithNumber(const QString& number) noexcept;
+    //void removeMessagesWithNumber(const QString& number) noexcept;
 
     // Clear all messages and information
     void resetLinter() noexcept;
@@ -166,6 +178,11 @@ public:
     void appendLintWarnings(int numberOfWarnings) noexcept;
     void appendLinterInfo(int numberOfInfo) noexcept;
 
+    void setVersion(const Version& version) noexcept
+    {
+        m_version = version;
+    }
+
     // Lint a directory or some files
     LintStatus lint() noexcept;
 
@@ -175,10 +192,7 @@ public:
     static QImage associateMessageTypeWithIcon(const QString& message) noexcept;
 
 public slots:
-    void slotStartLint() noexcept;
     void slotGetLintData(const LintData& lintData) noexcept;
-
-
 signals:
     void signalUpdateProgress(int value);
     void signalUpdateProgressMax(int value);
@@ -186,6 +200,8 @@ signals:
     void signalUpdateProcessedFiles(int processedFiles);
     void signalLintProgress(int value);
     void signalLintFinished(const LintResponse& lintResponse);
+
+    void signalLintComplete(const LintResponse& lintResponse);
 
 private:
     QString m_lintDirectory;
@@ -198,6 +214,16 @@ private:
     int m_numberOfWarnings;
     int m_numberOfInfo;
     QString m_errorMessage;
+    QProcess m_process;
+    Version m_version;
+
+    // stderr has the module (file lint) progress
+    // stdout has the actual data
+    QByteArray m_stdOutData;
+    LintStatus m_status;
+    int m_numberOfLintedFiles;
+
+    void emitLintComplete() noexcept;
 };
 
 inline bool operator==(const LintMessage &e1, const LintMessage &e2) noexcept

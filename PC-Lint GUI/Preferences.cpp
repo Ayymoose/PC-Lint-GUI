@@ -17,11 +17,20 @@
 #include "Preferences.h"
 #include "ui_Preferences.h"
 #include "Log.h"
+#include "MainWindow.h"
 
 #include <QFileDialog>
 #include <QSettings>
 #include <QDebug>
 #include <QThread>
+#include <QProcess>
+
+namespace
+{
+const char* PC_LINT = "PC-lint";
+const char* PC_LINT_PLUS = "PC-lint Plus";
+}
+
 
 QString Preferences::m_lastDirectory = "";
 
@@ -33,6 +42,7 @@ Preferences::Preferences(QWidget *parent) :
     // Hide "?" on Window
     setWindowFlags(this->windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
+    QObject::connect(this, &Preferences::signalLintVersion, static_cast<MainWindow*>(parent), &MainWindow::slotLintVersion);
 
     // Allow user to select number of threads to use for lint process
     int hardwareThreads = QThread::idealThreadCount();
@@ -43,6 +53,8 @@ Preferences::Preferences(QWidget *parent) :
         m_ui->lintUsingThreadsComboBox->addItem(QString::number(i));
     }
 
+
+    // TODO: Determine PC-Lint or PC-Lint Plus version and send to main linter
 
 
     // TODO: Add default editor to launch log
@@ -102,6 +114,48 @@ void Preferences::on_lintFileFileOpen_clicked()
     }
 }
 
+// TODO: This must be inside the lint
+void Preferences::checkPCLintVersion() noexcept
+{
+    QProcess lintProcess;
+    lintProcess.setProgram(m_ui->lintPathExeLineEdit->text());
+    lintProcess.start();
+
+    PCLint::Version version = PCLint::VERSION_UNKNOWN;
+
+    QObject::connect(&lintProcess, &QProcess::errorOccurred, this, [&](const QProcess::ProcessError& error)
+    {
+        qDebug() << __FUNCTION__ << " error occurred: " << error;
+    });
+
+    QObject::connect(&lintProcess, &QProcess::readyReadStandardError, this,[&]()
+    {
+        auto const readStdErr = lintProcess.readAllStandardError();
+        if (readStdErr.contains(PC_LINT_PLUS))
+        {
+            version = PCLint::VERSION_PC_LINT_PLUS;
+        }
+        else if (readStdErr.contains(PC_LINT))
+        {
+            version = PCLint::VERSION_PC_LINT;
+        }
+        lintProcess.closeReadChannel(QProcess::StandardError);
+        lintProcess.close();
+    });
+
+    lintProcess.waitForStarted();
+    lintProcess.waitForFinished();
+
+    if (version != PCLint::VERSION_UNKNOWN)
+    {
+        emit signalLintVersion(version);
+    }
+    else
+    {
+        qWarning() << "Couldn't determine lint version";
+    }
+}
+
 // Save clicked
 void Preferences::on_buttonSave_clicked()
 {
@@ -113,6 +167,10 @@ void Preferences::on_buttonSave_clicked()
     settings.setValue(PCLint::SETTINGS_LINT_FILE_PATH, m_ui->lintFileLineEdit->text());
     settings.setValue(PCLint::SETTINGS_LAST_DIRECTORY, m_lastDirectory);
     settings.endGroup();
+
+    // Determine if we are using PC-Lint or PC-Lint Plus
+    checkPCLintVersion();
+
     close();
 }
 
