@@ -38,8 +38,15 @@ Lint::Lint() :
     m_numberOfInfo(0),
     m_version(VERSION_UNKNOWN),
     m_status(STATUS_UNKNOWN),
-    m_numberOfLintedFiles(0)
+    m_numberOfLintedFiles(0),
+    m_abort(false)
 {
+
+}
+
+void Lint::slotAbortLint() noexcept
+{
+    m_abort = true;
 }
 
 LintMessages Lint::getLintMessages() const noexcept
@@ -127,6 +134,19 @@ QString Lint::errorMessage() const noexcept
     return m_errorMessage;
 }
 
+bool Lint::checkAbort() noexcept
+{
+    if (m_abort)
+    {
+        m_status = STATUS_ABORT;
+        m_process.closeReadChannel(QProcess::StandardOutput);
+        m_process.closeReadChannel(QProcess::StandardError);
+        m_process.close();
+        return true;
+    }
+    return false;
+}
+
 void Lint::asyncLint() noexcept
 {
     Q_ASSERT(m_filesToLint.size());
@@ -152,15 +172,19 @@ void Lint::asyncLint() noexcept
     m_numberOfInfo = 0;
     m_numberOfWarnings = 0;
     m_numberOfLintedFiles = 0;
-    m_stdOutData.clear();
+    m_abort = false;
+    m_messageSet.clear();
 
     // TODO: Use 1 only and create multiple lints as threads because PCLP doesn't seem to output the file names
     // of all the files if -max_threads is set > 1
     // Has to be the first argument for it to take effect
     //if (m_version == VERSION_PC_LINT_PLUS)
     {
-        m_arguments << ("-max_threads=1");
+        m_arguments << ("-max_threads=8");
     }
+
+    // For testing, does 1 pass only
+    //m_arguments << ("-unit_check");
 
     // Extra arguments to produce XML output
     // Enable verbosity and module information displayed so we know progress
@@ -204,12 +228,12 @@ void Lint::asyncLint() noexcept
     Q_ASSERT(totalLength + m_lintExecutable.length() < MAX_LINT_PATH);
 
     // Add all files to lint
-    for (const auto& file : m_filesToLint)
+    /*for (const auto& file : m_filesToLint)
     {
        m_arguments << file;
        cmdString += " \"" + file + "\"";
        qInfo() << "Adding file: " << file;
-    }
+    }*/
 
     qInfo() << "Lint path: " << m_lintExecutable;
     qInfo() << "Lint file: " << m_lintFile;
@@ -221,6 +245,19 @@ void Lint::asyncLint() noexcept
     auto bytesWritten = commandFileDebug.write(cmdString.toLocal8Bit());
     Q_ASSERT(bytesWritten > 0);
     commandFileDebug.close();
+
+
+    m_lintFailedFile.setFileName(R"(D:\Users\Ayman\Desktop\PC-Lint GUI\test\failedLintChunk.xml)");
+    if (!m_lintFailedFile.open(QIODevice::WriteOnly | QIODevice::Append))
+    {
+        Q_ASSERT(false);
+    }
+
+    m_lintOutFile.setFileName(R"(D:\Users\Ayman\Desktop\PC-Lint GUI\test\lintChunks.xml)");
+    if (!m_lintOutFile.open(QIODevice::WriteOnly | QIODevice::Append))
+    {
+        Q_ASSERT(false);
+    }
 
     //std::chrono::steady_clock::time_point lintStartTime;
 
@@ -241,15 +278,15 @@ void Lint::asyncLint() noexcept
     QObject::connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
     [this](int exitCode, QProcess::ExitStatus exitStatus)
     {
-        qDebug() << "Lint process finished with exit code: " << QString::number(exitCode) << " and exit status: " << exitStatus;
+        qDebug() << "Lint process finished with exit code:" << QString::number(exitCode) << "and exit status:" << exitStatus;
 
         if (m_status & (STATUS_PROCESS_ERROR | STATUS_PROCESS_TIMEOUT | STATUS_ABORT | STATUS_LICENSE_ERROR))
         {
-            emitLintComplete();
+            emit signalLintComplete(m_status, m_errorMessage);
             return;
         }
 
-        // if -env_push is used we'll lint outside files
+        // if -env_push is used we'll lint "more" files than we have since it does multiple passes
         if (m_numberOfLintedFiles >= m_filesToLint.size())
         {
             qDebug() << "Successfully linted all files";
@@ -257,137 +294,11 @@ void Lint::asyncLint() noexcept
         }
         else
         {
-            qDebug() << "Linted only " << m_numberOfLintedFiles << '/' << m_filesToLint.size() << "files";
+            qDebug() << "Linted only" << m_numberOfLintedFiles << '/' << m_filesToLint.size() << "files";
             m_status = STATUS_PARTIAL_COMPLETE;
         }
 
-        // Fix XML doc tags that are littered about
-        m_stdOutData.replace(Xml::XML_TAG_DOC_OPEN,"");
-        m_stdOutData.replace(Xml::XML_TAG_DOC_CLOSED,"");
-        m_stdOutData.prepend("<doc>");
-        m_stdOutData.append(Xml::XML_TAG_DOC_CLOSED);
-
-        // Ordering of messages is now important (was QSet)
-        // To group supplemental messages together (PC-Lint Plus)
-        LintMessages lintMessages;
-
-        QXmlStreamReader lintXML(m_stdOutData);
-        LintMessage message;
-
-        // Start XML parsing
-        // Parse the XML until we reach end of it
-        while(!lintXML.atEnd() && !lintXML.hasError())
-        {
-
-            // Read next element
-            QXmlStreamReader::TokenType token = lintXML.readNext();
-            //If token is just StartDocument - go to next
-            if(token == QXmlStreamReader::StartDocument)
-            {
-                continue;
-            }
-            //If token is StartElement - read it
-            if(token == QXmlStreamReader::StartElement)
-            {
-                // <doc> or <m> tag
-                if(lintXML.name() == Xml::XML_ELEMENT_DOC || lintXML.name() == Xml::XML_ELEMENT_MESSAGE)
-                {
-                    continue;
-                }
-
-                // <f> tag
-                if(lintXML.name() == Xml::XML_ELEMENT_FILE)
-                {
-                    message.file = lintXML.readElementText();
-                    // Why does PC-Lint Plus mess with the directory separator?
-                    // It spits out '/' and '\' in the same path
-                    message.file = QDir::toNativeSeparators(message.file);
-                }
-
-                // <l> tag
-                if(lintXML.name() == Xml::XML_ELEMENT_LINE)
-                {
-                    message.line = lintXML.readElementText();
-                    Q_ASSERT(message.line.length() > 0);
-                }
-
-                // <t> tag
-                if(lintXML.name() == Xml::XML_ELEMENT_MESSAGE_TYPE)
-                {
-                    message.type = lintXML.readElementText();
-                    Q_ASSERT(message.type.length() > 0);
-                }
-
-                // <n> tag
-                if(lintXML.name() == Xml::XML_ELEMENT_MESSAGE_NUMBER)
-                {
-                    message.number = lintXML.readElementText();
-                    Q_ASSERT(message.number.length() > 0);
-                }
-
-                // <d> tag
-                if(lintXML.name() == Xml::XML_ELEMENT_DESCRIPTION)
-                {
-                    message.description = lintXML.readElementText();
-                    Q_ASSERT(message.description.length() > 0);
-                }
-
-            }
-
-            if((token == QXmlStreamReader::EndElement) && (lintXML.name() == Xml::XML_ELEMENT_MESSAGE))
-            {
-                // Lint can spit out duplicates for some reason
-                // Just add it for now
-
-                auto contains = std::find(lintMessages.begin(), lintMessages.end(), message);
-                if (contains == lintMessages.end())
-                {
-                    lintMessages.emplace_back(message);
-
-                    // Ascertain type
-                    if (!QString::compare(message.type, Type::TYPE_ERROR, Qt::CaseInsensitive))
-                    {
-                        m_numberOfErrors++;
-                    }
-                    else if (!QString::compare(message.type, Type::TYPE_WARNING, Qt::CaseInsensitive))
-                    {
-                        m_numberOfWarnings++;
-                    }
-                    else if (!QString::compare(message.type, Type::TYPE_INFO, Qt::CaseInsensitive))
-                    {
-                        m_numberOfInfo++;
-                    }
-                    else if (!QString::compare(message.type, Type::TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
-                    {
-                        // Don't care about number of supplementals
-                    }
-                    else
-                    {
-                        // Unknown types are treated as informational messages with '?' icon
-                        qWarning() << "Unknown message type: " << message.type;
-                    }
-                }
-
-                message = {};
-            }
-        }
-
-        if (lintXML.hasError())
-        {
-            qCritical() << "XML parser error";
-            qCritical() << "Error Type:       " << QString(lintXML.error());
-            qCritical() << "Error String:     " << lintXML.errorString();
-            qCritical() << "Line Number:      " << QString::number(lintXML.lineNumber());
-            qCritical() << "Column Number:    " << QString::number(lintXML.columnNumber());
-            qCritical() << "Character Offset: " << QString::number(lintXML.characterOffset());
-            m_status = STATUS_PROCESS_ERROR;
-            emitLintComplete();
-            return;
-        }
-
-        m_messages = lintMessages;
-
-        emitLintComplete();
+        emit signalLintComplete(m_status, m_errorMessage);
 
     });
 
@@ -396,17 +307,55 @@ void Lint::asyncLint() noexcept
 
     QObject::connect(&m_process, &QProcess::errorOccurred, this, [&](const QProcess::ProcessError& error)
     {
-        qWarning() << __FUNCTION__ << " error occurred: " << error;
-        m_status = STATUS_PROCESS_ERROR;
+        if (m_status != STATUS_ABORT)
+        {
+            qWarning() << __FUNCTION__ << " error occurred: " << error;
+            m_status = STATUS_PROCESS_ERROR;
+        }
     });
 
     QObject::connect(&m_process, &QProcess::readyReadStandardOutput, this, [this]()
     {
-        m_stdOutData.append(m_process.readAllStandardOutput());
+        // TODO: Set timer here to expire if lint per file takes too long
+        if (checkAbort())
+        {
+            return;
+        }
+
+        try
+        {
+            // On large projects, there's a good chance we'll get a bad_alloc thrown
+            auto readStdOut = m_process.readAllStandardOutput();
+            m_stdOut.append(readStdOut);
+        }
+        catch (const std::exception&)
+        {
+            qWarning() << "Couldn't allocate enough memory for array";
+            m_process.closeReadChannel(QProcess::StandardOutput);
+            m_process.closeReadChannel(QProcess::StandardError);
+            m_process.close();
+            return;
+        }
+        catch (...)
+        {
+            qWarning() << "Caught unknown exception";
+            m_process.closeReadChannel(QProcess::StandardOutput);
+            m_process.closeReadChannel(QProcess::StandardError);
+            m_process.close();
+            return;
+        }
+
+        // Process chunk of data
+        processLinkChunk();
     });
 
     QObject::connect(&m_process, &QProcess::readyReadStandardError, this,[this]()
     {
+        if (checkAbort())
+        {
+            return;
+        }
+
         auto stdErrData = m_process.readAllStandardError();
 
         // Check if license is valid
@@ -442,7 +391,7 @@ void Lint::asyncLint() noexcept
 
             Q_ASSERT(QFileInfo(file).exists());
 
-            qInfo() << "Linted:" << file;
+            //qInfo() << "Linted:" << file;
             m_numberOfLintedFiles++;
 
             // Update ProgressWindow
@@ -455,18 +404,366 @@ void Lint::asyncLint() noexcept
 
 }
 
-void Lint::emitLintComplete() noexcept
+void Lint::processLinkChunk() noexcept
 {
-    emit signalLintComplete(LintResponse
+    // This is because PCLP can spit out partial chunks of data when it's ready
+
+    // If it has pair of "--- Module:   "
+    // While data has pairs, extract XML data and chop upto the "--- Module:   " location
+    // Process and send to MainWindow
+    for (;;)
     {
-        m_status,
-        m_messages,
-        m_numberOfErrors,
-        m_numberOfWarnings,
-        m_numberOfInfo,
-        m_errorMessage
-    });
+
+        int firstIndex = m_stdOut.indexOf("--- Module:   ");
+        if (firstIndex == -1)
+        {
+            break;
+        }
+        int secondIndex = m_stdOut.indexOf("--- Module:   ", firstIndex+1);
+        if (secondIndex == -1)
+        {
+            break;
+        }
+        // We have a complete module of data, chop and process
+        QByteArray moduleData = m_stdOut.mid(firstIndex, secondIndex-firstIndex);
+
+        // Remove this from our array
+        m_stdOut.replace(firstIndex, secondIndex-firstIndex, "");
+
+        // Now we can process them
+        processLintMessages((moduleData));
+
+    }
+
 }
+
+
+LintResponse Lint::testLintProcessMessages(QByteArray& lintChunk) noexcept
+{
+    int numberOfErrors = 0;
+    int numberOfWarnings = 0;
+    int numberOfInformation = 0;
+
+    // Fix XML doc tags that are littered about
+    lintChunk.replace(Xml::XML_TAG_DOC_OPEN,"");
+    lintChunk.replace(Xml::XML_TAG_DOC_CLOSED,"");
+    lintChunk.prepend("<doc>");
+    lintChunk.append(Xml::XML_TAG_DOC_CLOSED);
+
+
+    // Ordering of messages is now important (was QSet)
+    LintMessages lintMessages;
+
+    QXmlStreamReader lintXML(lintChunk);
+    LintMessage message;
+
+    int messagesAdded = 0;
+    auto startLintTime = std::chrono::steady_clock::now();
+
+    // Start XML parsing
+    // Parse the XML until we reach end of it
+    while(!lintXML.atEnd() && !lintXML.hasError())
+    {
+
+        // Read next element
+        QXmlStreamReader::TokenType token = lintXML.readNext();
+        //If token is just StartDocument - go to next
+        if(token == QXmlStreamReader::StartDocument)
+        {
+            continue;
+        }
+        //If token is StartElement - read it
+        if(token == QXmlStreamReader::StartElement)
+        {
+            // <doc> or <m> tag
+            if(lintXML.name() == Xml::XML_ELEMENT_DOC || lintXML.name() == Xml::XML_ELEMENT_MESSAGE)
+            {
+                continue;
+            }
+
+            // <f> tag
+            if(lintXML.name() == Xml::XML_ELEMENT_FILE)
+            {
+                message.file = lintXML.readElementText();
+                // Why does PC-Lint Plus mess with the directory separator?
+                // It spits out '/' and '\' in the same path which messages with the hash for QSet
+                // TODO: I still see some duplicate output in the tree; investigate
+                message.file = QDir::toNativeSeparators(message.file);
+            }
+
+            // <l> tag
+            if(lintXML.name() == Xml::XML_ELEMENT_LINE)
+            {
+                message.line = lintXML.readElementText().toInt();
+                Q_ASSERT(message.line > 0);
+            }
+
+            // <t> tag
+            if(lintXML.name() == Xml::XML_ELEMENT_MESSAGE_TYPE)
+            {
+                message.type = lintXML.readElementText();
+                Q_ASSERT(message.type.length() > 0);
+            }
+
+            // <n> tag
+            if(lintXML.name() == Xml::XML_ELEMENT_MESSAGE_NUMBER)
+            {
+                message.number = lintXML.readElementText().toInt();
+                Q_ASSERT(message.number > 0);
+            }
+
+            // <d> tag
+            if(lintXML.name() == Xml::XML_ELEMENT_DESCRIPTION)
+            {
+                message.description = lintXML.readElementText();
+                Q_ASSERT(message.description.length() > 0);
+            }
+
+        }
+
+
+        if((token == QXmlStreamReader::EndElement) && (lintXML.name() == Xml::XML_ELEMENT_MESSAGE))
+        {
+            // Lint can spit out duplicate messages for different files
+            // So we must remove them otherwise we'd consume a huge chunk of memory
+            if (m_messageSet.find(message) == m_messageSet.end())
+            {
+                messagesAdded++;
+                // Ascertain type
+                if (!QString::compare(message.type, Type::TYPE_ERROR, Qt::CaseInsensitive))
+                {
+                    numberOfErrors++;
+                }
+                else if (!QString::compare(message.type, Type::TYPE_WARNING, Qt::CaseInsensitive))
+                {
+                    numberOfWarnings++;
+                }
+                else if (!QString::compare(message.type, Type::TYPE_INFO, Qt::CaseInsensitive))
+                {
+                    numberOfInformation++;
+                }
+                else if (!QString::compare(message.type, Type::TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
+                {
+                    // Don't care about number of supplementals
+                }
+                else
+                {
+                    // Unknown types are treated as informational messages with '?' icon
+                    qWarning() << "Unknown message type: " << message.type;
+                }
+
+                // Don't add supplementals first
+                if (!(lintMessages.size() == 0 && !QString::compare(message.type, Type::TYPE_SUPPLEMENTAL, Qt::CaseInsensitive)))
+                {
+                    m_messageSet.insert(message);
+                    lintMessages.emplace_back(std::move(message));
+                }
+
+            }
+
+            message = {};
+        }
+
+
+    }
+
+    auto endLintTime = std::chrono::steady_clock::now();
+    auto totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
+    if (messagesAdded)
+    {
+        qDebug() << "Messages added:" << QString::number(messagesAdded) <<  "processLintMessagesXML" << totalElapsedTime / 1000.f << "s elapsed";
+    }
+
+    if (lintXML.hasError())
+    {
+        qCritical() << "XML parser error";
+        qCritical() << "Error Type:" << QString(lintXML.error());
+        qCritical() << "Error String:" << lintXML.errorString();
+        qCritical() << "Line Number:" << QString::number(lintXML.lineNumber());
+        qCritical() << "Column Number:" << QString::number(lintXML.columnNumber());
+        qCritical() << "Character Offset:" << QString::number(lintXML.characterOffset());
+        // TODO: Return process error
+        std::terminate();
+    }
+
+    // Send chunk of data to be processed
+    return LintResponse
+    {
+       std::move(lintMessages),
+       numberOfErrors,
+       numberOfWarnings,
+       numberOfInformation
+    };
+}
+
+void Lint::processLintMessages(QByteArray& lintChunk) noexcept
+{
+    int numberOfErrors = 0;
+    int numberOfWarnings = 0;
+    int numberOfInformation = 0;
+
+    // Fix XML doc tags that are littered about
+    lintChunk.replace(Xml::XML_TAG_DOC_OPEN,"");
+    lintChunk.replace(Xml::XML_TAG_DOC_CLOSED,"");
+    lintChunk.prepend("<doc>");
+    lintChunk.append(Xml::XML_TAG_DOC_CLOSED);
+
+    m_lintOutFile.write(lintChunk);
+
+    // Ordering of messages is now important (was QSet)
+    LintMessages lintMessages;
+
+    QXmlStreamReader lintXML(lintChunk);
+    LintMessage message;
+
+    int messagesAdded = 0;
+    auto startLintTime = std::chrono::steady_clock::now();
+
+    // Start XML parsing
+    // Parse the XML until we reach end of it
+    // TODO: try catch block around this while
+    try
+    {
+        while(!lintXML.atEnd() && !lintXML.hasError())
+        {
+
+            // Read next element
+            QXmlStreamReader::TokenType token = lintXML.readNext();
+            //If token is just StartDocument - go to next
+            if(token == QXmlStreamReader::StartDocument)
+            {
+                continue;
+            }
+            //If token is StartElement - read it
+            if(token == QXmlStreamReader::StartElement)
+            {
+                // <doc> or <m> tag
+                if(lintXML.name() == Xml::XML_ELEMENT_DOC || lintXML.name() == Xml::XML_ELEMENT_MESSAGE)
+                {
+                    continue;
+                }
+
+                // <f> tag
+                if(lintXML.name() == Xml::XML_ELEMENT_FILE)
+                {
+                    message.file = lintXML.readElementText();
+                    // Why does PC-Lint Plus mess with the directory separator?
+                    // It spits out '/' and '\' in the same path which messages with the hash for QSet
+                    // TODO: I still see some duplicate output in the tree; investigate
+                    message.file = QDir::toNativeSeparators(message.file);
+                }
+
+                // <l> tag
+                if(lintXML.name() == Xml::XML_ELEMENT_LINE)
+                {
+                    message.line = lintXML.readElementText().toInt();
+                    Q_ASSERT(message.line > 0);
+                }
+
+                // <t> tag
+                if(lintXML.name() == Xml::XML_ELEMENT_MESSAGE_TYPE)
+                {
+                    message.type = lintXML.readElementText();
+                    Q_ASSERT(message.type.length() > 0);
+                }
+
+                // <n> tag
+                if(lintXML.name() == Xml::XML_ELEMENT_MESSAGE_NUMBER)
+                {
+                    message.number = lintXML.readElementText().toInt();
+                    Q_ASSERT(message.number > 0);
+                }
+
+                // <d> tag
+                if(lintXML.name() == Xml::XML_ELEMENT_DESCRIPTION)
+                {
+                    message.description = lintXML.readElementText();
+                    Q_ASSERT(message.description.length() > 0);
+                }
+
+            }
+
+
+            if((token == QXmlStreamReader::EndElement) && (lintXML.name() == Xml::XML_ELEMENT_MESSAGE))
+            {
+                // Lint can spit out duplicate messages for different files
+                // So we must remove them otherwise we'd consume a huge chunk of memory
+                if (m_messageSet.find(message) == m_messageSet.end())
+                {
+                    messagesAdded++;
+                    // Ascertain type
+                    if (!QString::compare(message.type, Type::TYPE_ERROR, Qt::CaseInsensitive))
+                    {
+                        numberOfErrors++;
+                    }
+                    else if (!QString::compare(message.type, Type::TYPE_WARNING, Qt::CaseInsensitive))
+                    {
+                        numberOfWarnings++;
+                    }
+                    else if (!QString::compare(message.type, Type::TYPE_INFO, Qt::CaseInsensitive))
+                    {
+                        numberOfInformation++;
+                    }
+                    else if (!QString::compare(message.type, Type::TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
+                    {
+                        // Don't care about number of supplementals
+                    }
+                    else
+                    {
+                        // Unknown types are treated as informational messages with '?' icon
+                        qWarning() << "Unknown message type: " << message.type;
+                    }
+
+                    // Don't add supplementals first
+                    if (!(lintMessages.size() == 0 && !QString::compare(message.type, Type::TYPE_SUPPLEMENTAL, Qt::CaseInsensitive)))
+                    {
+                        m_messageSet.insert(message);
+                        lintMessages.emplace_back(std::move(message));
+                    }
+
+                }
+
+                message = {};
+            }
+        }
+
+    }
+    catch (const std::exception&)
+    {
+        // TODO: Return process error
+        std::terminate();
+    }
+
+    auto endLintTime = std::chrono::steady_clock::now();
+    auto totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
+    if (messagesAdded)
+    {
+        qDebug() << "Messages added:" << QString::number(messagesAdded) <<  "processLintMessagesXML" << totalElapsedTime / 1000.f << "s elapsed";
+    }
+
+    if (lintXML.hasError())
+    {
+        qCritical() << "XML parser error";
+        qCritical() << "Error Type:" << QString(lintXML.error());
+        qCritical() << "Error String:" << lintXML.errorString();
+        qCritical() << "Line Number:" << QString::number(lintXML.lineNumber());
+        qCritical() << "Column Number:" << QString::number(lintXML.columnNumber());
+        qCritical() << "Character Offset:" << QString::number(lintXML.characterOffset());
+        // TODO: Return process error
+        std::terminate();
+    }
+
+    // Send chunk of data to be processed
+    emit signalProcessLintMessages(LintResponse
+    {
+       std::move(lintMessages),
+       numberOfErrors,
+       numberOfWarnings,
+       numberOfInformation
+    });
+
+}
+
 
 LintStatus Lint::lint() noexcept
 {
@@ -897,8 +1194,8 @@ LintStatus Lint::lint() noexcept
             // <l> tag
             if(lintXML.name() == Xml::XML_ELEMENT_LINE)
             {
-                message.line = lintXML.readElementText();
-                Q_ASSERT(message.line.length() > 0);
+                message.line = lintXML.readElementText().toInt();
+               // Q_ASSERT(message.line.length() > 0);
             }
 
             // <t> tag
@@ -911,8 +1208,8 @@ LintStatus Lint::lint() noexcept
             // <n> tag
             if(lintXML.name() == Xml::XML_ELEMENT_MESSAGE_NUMBER)
             {
-                message.number = lintXML.readElementText();
-                Q_ASSERT(message.number.length() > 0);
+                message.number = lintXML.readElementText().toInt();
+               // Q_ASSERT(message.number.length() > 0);
             }
 
             // <d> tag
@@ -1021,12 +1318,13 @@ QString Lint::getLintFile() const noexcept
 
 // Group together lint messages (PC-Lint Plus only)
 // So that supplemental messages are tied together with error/info/warnings
-LintMessageGroup Lint::groupLintMessages() noexcept
+
+LintMessageGroup Lint::groupLintMessages(const LintMessages& lintMessages) noexcept
 {
     // Spit out a LintMessageGroup
     LintMessageGroup messageGroup;
 
-    auto firstPtr = m_messages.cbegin();
+    auto firstPtr = lintMessages.cbegin();
     auto secondPtr = firstPtr+1;
 
     // Use two pointers to find groups
@@ -1036,7 +1334,7 @@ LintMessageGroup Lint::groupLintMessages() noexcept
     // Point first one to second pointer+1
     // Repeat until end
 
-    while (firstPtr != m_messages.cend() && secondPtr != m_messages.cend())
+    while (firstPtr != lintMessages.cend() && secondPtr != lintMessages.cend())
     {
         // First message type should never be "Supplemental"
         Q_ASSERT(firstPtr->type != Type::TYPE_SUPPLEMENTAL);
@@ -1046,7 +1344,7 @@ LintMessageGroup Lint::groupLintMessages() noexcept
         message.emplace_back(*firstPtr);
 
         // Associate supplemental messages
-        while (secondPtr != m_messages.cend() && secondPtr->type == Type::TYPE_SUPPLEMENTAL)
+        while (secondPtr != lintMessages.cend() && secondPtr->type == Type::TYPE_SUPPLEMENTAL)
         {
             message.emplace_back(*secondPtr);
             secondPtr++;
@@ -1062,40 +1360,30 @@ LintMessageGroup Lint::groupLintMessages() noexcept
     return messageGroup;
 }
 
+
 QImage Lint::associateMessageTypeWithIcon(const QString& type) noexcept
 {
-    Message messageType;
+    QImage icon;
 
-    // Determine type
-    if (!QString::compare(type, Type::TYPE_ERROR, Qt::CaseInsensitive))
+    if (type == Type::TYPE_ERROR)
     {
-        messageType = Message::MESSAGE_ERROR;
+        icon.load(":/images/error.png");
     }
-    else if (!QString::compare(type, Type::TYPE_WARNING, Qt::CaseInsensitive))
+    else if (type == Type::TYPE_WARNING)
     {
-        messageType = Message::MESSAGE_WARNING;
+        icon.load(":/images/warning.png");
     }
-    else if (!QString::compare(type, Type::TYPE_INFO, Qt::CaseInsensitive))
+    else if (type == Type::TYPE_INFO)
     {
-        messageType = Message::MESSAGE_INFORMATION;
+        icon.load(":/images/info.png");
     }
-    else if (!QString::compare(type, Type::TYPE_SUPPLEMENTAL, Qt::CaseInsensitive))
+    else if (type == Type::TYPE_SUPPLEMENTAL)
     {
-        messageType = Message::MESSAGE_SUPPLEMENTAL;
+        icon.load(":/images/info.png");
     }
     else
     {
-        messageType = Message::MESSAGE_UNKNOWN;
-    }
-
-    QImage icon;
-    switch (messageType)
-    {
-        case Message::MESSAGE_ERROR: icon.load(":/images/error.png");  break;
-        case Message::MESSAGE_WARNING: icon.load(":/images/warning.png"); break;
-        case Message::MESSAGE_INFORMATION:
-        case Message::MESSAGE_SUPPLEMENTAL: icon.load(":/images/info.png"); break;
-        default: Q_ASSERT(false); break;
+        Q_ASSERT(false);
     }
 
     return icon;

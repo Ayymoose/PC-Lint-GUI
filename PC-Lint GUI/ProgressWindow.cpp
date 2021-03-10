@@ -36,7 +36,7 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
     m_timer(std::make_unique<QTimer>()),
     m_windowTitle(title),
     m_lintManager(std::make_unique<PCLint::LintManager>(this)),
-    m_workerThread(std::make_unique<QThread>(this)),
+    //m_workerThread(std::make_unique<QThread>(this)),
     m_parent(static_cast<MainWindow*>(parent))
 {
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
@@ -47,8 +47,8 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
 
     QObject::connect(m_timer.get(), &QTimer::timeout, this, &ProgressWindow::slotUpdateTime);
     m_timer->start(1000);
-    m_lintManager->moveToThread(m_workerThread.get());
-    m_workerThread->start();
+    //m_lintManager->moveToThread(m_workerThread.get());
+    //m_workerThread->start();
 
     m_ui->lintGroupBox->setTitle(title);
 
@@ -73,24 +73,31 @@ ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
     // LintManager gives ProgressWindow progress data
     // ...
     // ProgressWindow gives MainWindow the output data
-    QObject::connect(this, &ProgressWindow::signalLintFinished, m_parent, &MainWindow::slotLintFinished);
+    //QObject::connect(this, &ProgressWindow::signalLintFinished, m_parent, &MainWindow::slotLintFinished);
     QObject::connect(this, &ProgressWindow::signalLintComplete, m_parent, &MainWindow::slotLintComplete);
+
+    QObject::connect(this, &ProgressWindow::signalProcessLintMessages, m_parent, &MainWindow::slotProcessLintMessages);
 
     emit signalGetLintData();
     emit signalStartLint();
 }
 
+// Send to MainWindow
+void ProgressWindow::slotProcessLintMessages(const PCLint::LintResponse& lintResponse) noexcept
+{
+    emit signalProcessLintMessages(lintResponse);
+}
 
 void ProgressWindow::slotGetLintData(const PCLint::LintData& lintData) noexcept
 {
-    qDebug() << "MainWindow sends Lint data to ProgressWindow";
+    //qDebug() << "MainWindow sends Lint data to ProgressWindow";
     emit signalSetLintData(lintData);
 }
 
 void ProgressWindow::slotUpdateProgress(int value) noexcept
 {
     m_currentProgress += value;
-    qDebug() << "Progress now: (" << m_currentProgress << '/' << m_progressMax << ')';
+    //qDebug() << "Progress now: (" << m_currentProgress << '/' << m_progressMax << ')';
     m_ui->lintProgressBar->setValue(m_currentProgress);
 }
 
@@ -132,12 +139,14 @@ void ProgressWindow::slotLintFinished(const PCLint::LintResponse& lintResponse) 
     emit signalLintFinished(lintResponse);
 }
 
-void ProgressWindow::slotLintComplete() noexcept
+void ProgressWindow::slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept
 {
+    // TODO: Crash here sometimes on exec?!
     // Close this window first to prevent the main window
     // from minimising on close for some reason
     close();
-    emit signalLintComplete();
+
+    emit signalLintComplete(lintStatus, errorMessage);
 }
 
 ProgressWindow::~ProgressWindow()
@@ -152,14 +161,15 @@ ProgressWindow::~ProgressWindow()
         m_parent->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION " - " + m_windowTitle);
     }
     delete m_ui;
-    m_workerThread->quit();
-    auto waitComplete = m_workerThread->wait(PCLint::MAX_THREAD_WAIT);
-    Q_ASSERT(waitComplete);
+    //m_workerThread->quit();
+    //auto waitComplete = m_workerThread->wait(PCLint::MAX_THREAD_WAIT);
+    //Q_ASSERT(waitComplete);
     qDebug() << "ProgressWindow destroyed";
 }
 
 void ProgressWindow::on_lintCancel_clicked()
 {
+    // TODO: Cancel must abort right away otherwise we'll get stuck if the lint gets stuck
     m_aborted = true;
     emit signalAbortLint();
 }

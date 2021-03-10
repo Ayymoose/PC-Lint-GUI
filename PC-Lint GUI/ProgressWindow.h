@@ -53,20 +53,29 @@ public slots:
     void slotUpdateETA(int eta) noexcept;
     void slotUpdateProcessedFiles(int processedFiles) noexcept;
     void slotLintFinished(const PCLint::LintResponse& lintResponse) noexcept;
-    void slotLintComplete() noexcept;
+
+
+    void slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept;
 
     void slotGetLintData(const PCLint::LintData& lintData) noexcept;
 
+
+    void slotProcessLintMessages(const PCLint::LintResponse& lintResponse) noexcept;
 
 private slots:
     void on_lintCancel_clicked();
     void slotUpdateTime() noexcept;
 
 signals:
-    void signalLintComplete();
+    void signalLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage);
+
+
     void signalLintFinished(const PCLint::LintResponse& lintResponse);
     void signalAbortLint();
     void signalStartLintManager();
+
+
+    void signalProcessLintMessages(const PCLint::LintResponse& lintResponse);
 
 
     void signalStartLint();
@@ -84,6 +93,6 @@ private:
     std::unique_ptr<QTimer> m_timer;
     QString m_windowTitle;
     std::unique_ptr<PCLint::LintManager> m_lintManager;
-    std::unique_ptr<QThread> m_workerThread;
+    //std::unique_ptr<QThread> m_workerThread;
     MainWindow* m_parent;
 };

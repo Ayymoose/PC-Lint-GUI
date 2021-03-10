@@ -23,7 +23,9 @@
 #include <QProcess>
 #include <memory>
 #include <vector>
+#include <unordered_set>
 #include <set>
+#include <QFile>
 
 namespace PCLint
 {
@@ -48,11 +50,11 @@ namespace Xml
 
 namespace Type
 {
-    // PC-Lint types
-    const QString TYPE_ERROR = "Error";
-    const QString TYPE_INFO = "Info";
-    const QString TYPE_WARNING = "Warning";
-    const QString TYPE_SUPPLEMENTAL = "supplemental"; // PC-Lint Plus only
+    // PC-Lint Plus types
+    const QString TYPE_ERROR = "error";
+    const QString TYPE_INFO = "info";
+    const QString TYPE_WARNING = "warning";
+    const QString TYPE_SUPPLEMENTAL = "supplemental";
 };
 
 
@@ -96,16 +98,20 @@ constexpr int MAX_LINT_PATH = 512;
 constexpr int MAX_WAIT_TIME = 30 * 1000;
 constexpr int MAX_THREAD_WAIT = 30 * 1000;
 
+constexpr int MAX_QBYTEARRAY_SIZE = 1024 * 1024 * 32;
+
 typedef struct
 {
-    QString file;           // The file that has the problem
-    QString line;           // The line that has the problem
-    QString type;           // The type of the problem
-    QString number;         // The message number
-    QString description;    // The message description
+    QString file;        // File associated with message
+    int line;            // Source code line number
+    QString type;        // Message type ("error", "warning", "information", "supplemental")
+    int number;          // Message number
+    QString description; // Message description
 } LintMessage;
 
+
 using LintMessages = std::vector<LintMessage>;
+using LintMessagesSet = QSet<LintMessage>;
 using LintMessageGroup = std::vector<LintMessages>;
 
 typedef struct
@@ -115,14 +121,13 @@ typedef struct
     QSet<QString> lintFiles;
 } LintData;
 
+// Data from a processed lint chunk
 typedef struct
 {
-    LintStatus status;
     LintMessages lintMessages;
     int numberOfErrors;
     int numberOfWarnings;
-    int numberOfInfo;
-    QString errorMessage;
+    int numberOfInformation;
 } LintResponse;
 
 class Lint : public QObject
@@ -149,15 +154,6 @@ public:
     // Gets the set of lintMessage returned after a lint
     LintMessages getLintMessages() const noexcept;
     void setLintMessages(const LintMessages& lintMessages) noexcept;
-
-    // Group together lint messages (PC-Lint Plus only)
-    // So that supplemental messages are tied together with error/info/warnings
-    LintMessageGroup groupLintMessages() noexcept;
-
-    // Remove all associated messages with the given file
-    //void removeAssociatedMessages(const QString& file) noexcept;
-    // Removes all messages with the given number
-    //void removeMessagesWithNumber(const QString& number) noexcept;
 
     // Clear all messages and information
     void resetLinter() noexcept;
@@ -191,8 +187,19 @@ public:
 
     static QImage associateMessageTypeWithIcon(const QString& message) noexcept;
 
+    // Group together lint messages (PC-Lint Plus only)
+    // So that supplemental messages are tied together with error/info/warnings
+    static LintMessageGroup groupLintMessages(const LintMessages& lintMessages) noexcept;
+
+
+    LintResponse testLintProcessMessages(QByteArray &lintChunk) noexcept;
+
 public slots:
     void slotGetLintData(const LintData& lintData) noexcept;
+
+
+    void slotAbortLint() noexcept;
+
 signals:
     void signalUpdateProgress(int value);
     void signalUpdateProgressMax(int value);
@@ -201,7 +208,9 @@ signals:
     void signalLintProgress(int value);
     void signalLintFinished(const LintResponse& lintResponse);
 
-    void signalLintComplete(const LintResponse& lintResponse);
+
+    void signalLintComplete(const LintStatus& lintStatus, const QString& errorMessage);
+    void signalProcessLintMessages(const LintResponse& lintResponse);
 
 private:
     QString m_lintDirectory;
@@ -219,13 +228,30 @@ private:
 
     // stderr has the module (file lint) progress
     // stdout has the actual data
-    QByteArray m_stdOutData;
+
     LintStatus m_status;
     int m_numberOfLintedFiles;
 
+    QFile m_lintOutFile;
+    QFile m_lintFailedFile;
+
+
+    QByteArray m_stdOut;
+
     void emitLintComplete() noexcept;
+    void processLinkChunk() noexcept;
+    void processLintMessages(QByteArray& lintChunk) noexcept;
+
+    bool checkAbort() noexcept;
+
+    LintMessagesSet m_messageSet;
+
+    bool m_abort;
+
+
 };
 
+// For QSet
 inline bool operator==(const LintMessage &e1, const LintMessage &e2) noexcept
 {
     return (e1.number == e2.number) &&
@@ -235,9 +261,9 @@ inline bool operator==(const LintMessage &e1, const LintMessage &e2) noexcept
             (e1.description == e2.description);
 }
 
-inline uint qHash(const LintMessage &key, uint seed) noexcept
+inline uint qHash(const LintMessage& key, uint seed) noexcept
 {
-    return qHash(key.number + key.line, seed) ^ qHash(key.file + key.type + key.description, seed);
+    return qHash(key.file + key.type + key.description, seed) ^ key.line ^ key.number;
 }
 
 };

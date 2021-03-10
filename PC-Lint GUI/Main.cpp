@@ -25,7 +25,6 @@
 #include <QProcess>
 #include <QLoggingCategory>
 
-
 int main(int argc, char *argv[])
 {
     QApplication EditorApp(argc, argv);
@@ -41,6 +40,9 @@ int main(int argc, char *argv[])
     qDebug() << PCLint::SETTINGS_APPLICATION_NAME << "version: " BUILD_VERSION;
 
     MainWindow mainWindow;
+
+
+    // TODO: Crash dump handler
 
     // Center the screen
     QScreen* screen = QGuiApplication::primaryScreen();

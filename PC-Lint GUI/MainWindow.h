@@ -61,7 +61,7 @@ public:
     ~MainWindow();
 
 signals:
-    void signalUpdateTypes(int errors, int warnings, int info);
+    void signalUpdateTypes();
 
     void signalSetLinterData(const PCLint::LintData& lintData);
 
@@ -77,13 +77,18 @@ signals:
 
 public slots:
     void handleContextMenu(const QPoint& pos);
-    void slotLintFinished(const PCLint::LintResponse& lintResponse);
+    //void slotLintFinished(const PCLint::LintResponse& lintResponse);
     void slotGetLinterData();
-    void slotLintComplete();
+
+
+    void slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept;
 
 
     void slotLintVersion(const PCLint::Version& version) noexcept;
     void slotGetLintData() noexcept;
+
+    void slotProcessLintMessages(const PCLint::LintResponse& lintResponse) noexcept;
+
 
 private slots:
 
@@ -100,7 +105,7 @@ private slots:
 
 public:
     void startLint(bool lintProject);
-    void startLintThread(QString title);
+    void startLint(QString title);
     bool filterMessageType(const QString& type) const noexcept;
 
 private:
@@ -108,13 +113,13 @@ private:
     std::unique_ptr<QToolBar> m_lowerToolbar;
     std::unique_ptr<QToolButton> m_buttonErrors;
     std::unique_ptr<QToolButton> m_buttonWarnings;
-    std::unique_ptr<QToolButton> m_buttonInfo;
+    std::unique_ptr<QToolButton> m_buttonInformation;
     std::unique_ptr<QAction> m_actionError;
     std::unique_ptr<QAction> m_actionWarning;
-    std::unique_ptr<QAction> m_actionInfo;
+    std::unique_ptr<QAction> m_actionInformation;
     bool m_toggleError;
     bool m_toggleWarning;
-    bool m_toggleInfo;
+    bool m_toggleInformation;
     QString m_lastProjectLoaded;
     QSet<QString> m_directoryFiles;
     std::unique_ptr<Preferences> m_preferences;
@@ -128,9 +133,22 @@ private:
     // ModifiedFileWorker thread
     std::unique_ptr<PCLint::ModifiedFileThread> m_modifiedFileWorker;
 
+    PCLint::LintMessages m_lintTreeMessages;
+    int m_lintTreeErrors;
+    int m_lintTreeWarnings;
+    int m_lintTreeInformation;
+
+    void clearLintTree() noexcept;
+    void applyLintTreeFilter() noexcept;
+    void groupLintTreeMessages(const PCLint::LintMessages& lintMessages) noexcept;
+
     void displayLintTable();
     bool verifyLint();
     QSet<QString> recursiveBuildSourceFileSet(const QString& directory);
     PCLint::About m_about;
+
+
+
+    void testLintTreeFilter() noexcept;
 
 };

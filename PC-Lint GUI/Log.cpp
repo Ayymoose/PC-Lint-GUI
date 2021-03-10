@@ -16,6 +16,7 @@
 
 #include "Log.h"
 
+// TODO: Log to Qt window too
 void customMessageHandler(QtMsgType type, const QMessageLogContext&, const QString &msg)
 {
 
