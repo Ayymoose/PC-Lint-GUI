@@ -27,6 +27,7 @@
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <QThread>
+#include <QTreeWidget>
 #include <QDir>
 #include <QFile>
 #include <mutex>
@@ -109,7 +110,10 @@ constexpr int MAX_LINT_PATH = 512;
 constexpr int MAX_WAIT_TIME = 30 * 1000;
 constexpr int MAX_THREAD_WAIT = 30 * 1000;
 
-constexpr int MAX_QBYTEARRAY_SIZE = 1024 * 1024 * 32;
+constexpr int LINT_TABLE_FILE_COLUMN = 0;
+constexpr int LINT_TABLE_NUMBER_COLUMN = 1;
+constexpr int LINT_TABLE_DESCRIPTION_COLUMN = 2;
+constexpr int LINT_TABLE_LINE_COLUMN = 3;
 
 typedef struct
 {
@@ -199,13 +203,13 @@ public:
     LintResponse testLintProcessMessages(QByteArray &lintChunk) noexcept;
 
 public slots:
-    void slotGetLintData(const LintData& lintData) noexcept;
-
 
     void slotAbortLint() noexcept;
 
-
     void lint() noexcept;
+
+    void slotPointerToLintTree(QTreeWidget *treeTable) noexcept;
+
 
 
 signals:
@@ -252,6 +256,10 @@ private:
     void emitLintComplete() noexcept;
     void consumeLintChunk() noexcept;
 
+
+    void addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
+    bool filterMessageType(const QString& type) const noexcept;
+
     LintMessagesSet m_messageSet;
 
     bool m_finished;
@@ -260,6 +268,8 @@ private:
     std::mutex m_consumerMutex;
     std::condition_variable m_consumerConditionVariable;
     std::unique_ptr<std::thread> m_consumerThread;
+
+    QTreeWidget* m_treeTable;
 
 };
 

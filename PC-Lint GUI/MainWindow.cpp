@@ -74,10 +74,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Configure the lint table
     // Icon column width
-    m_ui->lintTable->setColumnWidth(LINT_TABLE_FILE_COLUMN,256);
-    m_ui->lintTable->setColumnWidth(LINT_TABLE_NUMBER_COLUMN,80);
-    m_ui->lintTable->setColumnWidth(LINT_TABLE_DESCRIPTION_COLUMN,800);
-    m_ui->lintTable->setColumnWidth(LINT_TABLE_LINE_COLUMN,80);
+    m_ui->lintTable->setColumnWidth(PCLint::LINT_TABLE_FILE_COLUMN,256);
+    m_ui->lintTable->setColumnWidth(PCLint::LINT_TABLE_NUMBER_COLUMN,80);
+    m_ui->lintTable->setColumnWidth(PCLint::LINT_TABLE_DESCRIPTION_COLUMN,800);
+    m_ui->lintTable->setColumnWidth(PCLint::LINT_TABLE_LINE_COLUMN,80);
 
     // Configure the code editor
     m_ui->codeEditor->setLineNumberAreaColour(LINE_NUMBER_AREA_COLOUR);
@@ -203,7 +203,7 @@ bool MainWindow::verifyLint()
     QFileInfo fileInfo;
 
     // Check if executable exists
-    QString linterExecutable = m_preferences->getLinterExecutablePath().trimmed();
+    QString linterExecutable = m_preferences->getLintExecutablePath().trimmed();
     fileInfo.setFile(linterExecutable);
 
     if (!fileInfo.exists())
@@ -219,7 +219,7 @@ bool MainWindow::verifyLint()
     }
 
     // Check if lint file exists
-    QString linterLintFile = m_preferences->getLinterLintFilePath().trimmed();
+    QString linterLintFile = m_preferences->getLintFilePath().trimmed();
     fileInfo.setFile(linterLintFile);
     if (!fileInfo.exists())
     {
@@ -236,21 +236,21 @@ void MainWindow::on_actionLint_triggered()
     //startLint(false);
 }
 
+/*
 void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept
 {
-   // auto const startLintTime = std::chrono::steady_clock::now();
 
     auto createTreeNode = [](QTreeWidgetItem* parentItem, const PCLint::LintMessage& message)
     {
         auto* treeItem = new QTreeWidgetItem(parentItem);
-        treeItem->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(message.file).fileName());
-        treeItem->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, message.file);
-        treeItem->setText(LINT_TABLE_NUMBER_COLUMN, QString::number(message.number));
-        treeItem->setText(LINT_TABLE_DESCRIPTION_COLUMN, message.description);
-        treeItem->setText(LINT_TABLE_LINE_COLUMN, QString::number(message.line));
+        treeItem->setText(PCLint::LINT_TABLE_FILE_COLUMN, QFileInfo(message.file).fileName());
+        treeItem->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::UserRole, message.file);
+        treeItem->setText(PCLint::LINT_TABLE_NUMBER_COLUMN, QString::number(message.number));
+        treeItem->setText(PCLint::LINT_TABLE_DESCRIPTION_COLUMN, message.description);
+        treeItem->setText(PCLint::LINT_TABLE_LINE_COLUMN, QString::number(message.line));
 
         auto const icon = PCLint::Lint::associateMessageTypeWithIcon(message.type);
-        treeItem->setData(LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
+        treeItem->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
         return treeItem;
     };
 
@@ -264,7 +264,7 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
 
         // Group together items under the same file
         auto const messageTopFileName = QFileInfo(messageTop.file).fileName();
-        auto const treeList = m_ui->lintTable->findItems(messageTopFileName,Qt::MatchExactly, LINT_TABLE_FILE_COLUMN);
+        auto const treeList = m_ui->lintTable->findItems(messageTopFileName,Qt::MatchExactly, PCLint::LINT_TABLE_FILE_COLUMN);
 
         QTreeWidgetItem* fileDetailsItemTop = nullptr;
 
@@ -279,8 +279,8 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
         {
             // New file entry
             fileDetailsItemTop = new QTreeWidgetItem(m_ui->lintTable);
-            fileDetailsItemTop->setText(LINT_TABLE_FILE_COLUMN, messageTopFileName);
-            fileDetailsItemTop->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
+            fileDetailsItemTop->setText(PCLint::LINT_TABLE_FILE_COLUMN, messageTopFileName);
+            fileDetailsItemTop->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
         }
 
         // Filter
@@ -333,12 +333,10 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
             createTreeNode(fileDetailsItem, message);
         }
     }
-/*
-    auto const endLintTime = std::chrono::steady_clock::now();
-    auto const totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
-    qDebug() << "groupLintTreeMessages" << totalElapsedTime / 1000.f << "s elapsed";*/
+
 
 }
+*/
 
 void MainWindow::clearLintTree() noexcept
 {
@@ -425,7 +423,7 @@ void MainWindow::slotProcessLintMessageGroup(const PCLint::LintMessageGroup& lin
     auto const startLintTime = std::chrono::steady_clock::now();
 
 
-    addTreeMessageGroup(lintMessageGroup);
+    //addTreeMessageGroup(lintMessageGroup);
 
    // auto& lintMessages = lintResponse.lintMessages;
 
@@ -445,11 +443,6 @@ void MainWindow::slotProcessLintMessageGroup(const PCLint::LintMessageGroup& lin
     auto const totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
     qDebug() << "MainWindow::slotProcessLintMessageGroup" << totalElapsedTime / 1000.f << "s elapsed";
 
-}
-
-void MainWindow::slotLintVersion(const PCLint::Version& version) noexcept
-{
-    //m_linter.setVersion(version);
 }
 
 void MainWindow::slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& ) noexcept
@@ -489,28 +482,6 @@ void MainWindow::slotLintComplete(const PCLint::LintStatus& lintStatus, const QS
 
 }
 
-void MainWindow::slotGetLinterData()
-{
-    PCLint::LintData lintData
-    {
-       m_preferences->getLinterExecutablePath().trimmed(),
-       m_preferences->getLinterLintFilePath().trimmed(),
-       m_directoryFiles
-    };
-    emit signalSetLinterData(lintData);
-}
-
-void MainWindow::slotGetLintData() noexcept
-{
-    PCLint::LintData lintData
-    {
-       m_preferences->getLinterExecutablePath().trimmed(),
-       m_preferences->getLinterLintFilePath().trimmed(),
-       m_directoryFiles
-    };
-    emit signalSetLintData(lintData);
-}
-
 void MainWindow::startLint(QString)
 {
     clearLintTree();
@@ -521,8 +492,8 @@ void MainWindow::startLint(QString)
     progressWindow.setWindowFlags(flags | Qt::Tool);
 
     PCLint::Lint lint;
-    lint.setLintExecutable(m_preferences->getLinterExecutablePath().trimmed());
-    lint.setLintFile(m_preferences->getLinterLintFilePath().trimmed());
+    lint.setLintExecutable(m_preferences->getLintExecutablePath().trimmed());
+    lint.setLintFile(m_preferences->getLintFilePath().trimmed());
 
 
     QObject::connect(&lint, &PCLint::Lint::signalLintFinished, &progressWindow, &ProgressWindow::slotLintFinished);
@@ -537,6 +508,9 @@ void MainWindow::startLint(QString)
 
     // Lint passes processed chunk to ProgressWindow
     QObject::connect(&lint, &PCLint::Lint::signalProcessLintMessageGroup, this, &MainWindow::slotProcessLintMessageGroup);
+
+    QObject::connect(this, &MainWindow::signalPointerToLintTree, &lint, &PCLint::Lint::slotPointerToLintTree);
+
 
     // ProgressWindow asks MainWindow for lint data
     // MainWindow gives ProgressWindow lint data
@@ -556,6 +530,7 @@ void MainWindow::startLint(QString)
     // ...
     // ProgressWindow gives MainWindow the output data
 
+    emit signalPointerToLintTree(m_ui->lintTable);
     lint.lint();
 
     progressWindow.exec();
@@ -656,7 +631,7 @@ void MainWindow::on_actionLintProject_triggered()
 void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
 {
     // Get the file to load
-    QString fileToLoad = item->data(LINT_TABLE_FILE_COLUMN,Qt::UserRole).value<QString>();
+    QString fileToLoad = item->data(PCLint::LINT_TABLE_FILE_COLUMN,Qt::UserRole).value<QString>();
 
     if (!fileToLoad.isEmpty())
     {
@@ -677,7 +652,7 @@ void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
                 qInfo() << "Loading file: " << fileToLoad;
 
                 // Select the line number
-                QString lineNumber = item->data(LINT_TABLE_LINE_COLUMN, Qt::DisplayRole).value<QString>();
+                QString lineNumber = item->data(PCLint::LINT_TABLE_LINE_COLUMN, Qt::DisplayRole).value<QString>();
                 if (!lineNumber.isEmpty())
                 {
                     m_ui->codeEditor->selectLine(lineNumber.toUInt());
@@ -695,7 +670,7 @@ void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
         else
         {
             // Select the line number
-            QString lineNumber = item->data(LINT_TABLE_LINE_COLUMN, Qt::DisplayRole).value<QString>();
+            QString lineNumber = item->data(PCLint::LINT_TABLE_LINE_COLUMN, Qt::DisplayRole).value<QString>();
             if (!lineNumber.isEmpty())
             {
                 m_ui->codeEditor->selectLine(lineNumber.toUInt());
@@ -704,7 +679,7 @@ void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
     }
 }
 
-
+/*
 bool MainWindow::filterMessageType(const QString& type) const noexcept
 {
     bool filter = false;
@@ -722,4 +697,4 @@ bool MainWindow::filterMessageType(const QString& type) const noexcept
         filter = true;
     }
     return filter;
-}
+}*/

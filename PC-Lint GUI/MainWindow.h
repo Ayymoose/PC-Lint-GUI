@@ -44,14 +44,6 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
-namespace
-{
-constexpr int LINT_TABLE_FILE_COLUMN = 0;
-constexpr int LINT_TABLE_NUMBER_COLUMN = 1;
-constexpr int LINT_TABLE_DESCRIPTION_COLUMN = 2;
-constexpr int LINT_TABLE_LINE_COLUMN = 3;
-};
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -62,31 +54,20 @@ public:
 
 signals:
     void signalUpdateTypes();
-
-    void signalSetLinterData(const PCLint::LintData& lintData);
     void signalRemoveFile(const QString& deletedFile);
     void signalKeepFile(const QString& keepFile);
-
-
-    void signalSetLintData(const PCLint::LintData& lintData);
-
-
     void signalStartLint();
+
+
+
+
+    void signalPointerToLintTree(QTreeWidget* treeTable);
 
 public slots:
     void handleContextMenu(const QPoint& pos);
-    void slotGetLinterData();
-
-
     void slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept;
 
-
-    void slotLintVersion(const PCLint::Version& version) noexcept;
-    void slotGetLintData() noexcept;
-
     void slotProcessLintMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
-
-
 
 private slots:
     void save();
@@ -100,7 +81,6 @@ private slots:
 
 public:
     void startLint(QString title);
-    bool filterMessageType(const QString& type) const noexcept;
 
 private:
     Ui::MainWindow* m_ui;
@@ -131,7 +111,7 @@ private:
 
     void clearLintTree() noexcept;
     void applyLintTreeFilter() noexcept;
-    void addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
+    //void addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
 
     bool verifyLint();
     QSet<QString> recursiveBuildSourceFileSet(const QString& directory);

@@ -30,7 +30,8 @@ Lint::Lint() :
     m_version(VERSION_UNKNOWN),
     m_status(STATUS_UNKNOWN),
     m_numberOfLintedFiles(0),
-    m_finished(false)
+    m_finished(false),
+    m_treeTable(nullptr)
 {
 
 }
@@ -44,9 +45,140 @@ Lint::Lint(const QString& lintExecutable, const QString& lintFile) :
     m_version(VERSION_UNKNOWN),
     m_status(STATUS_UNKNOWN),
     m_numberOfLintedFiles(0),
-    m_finished(false)
+    m_finished(false),
+    m_treeTable(nullptr)
 {
 
+}
+
+bool Lint::filterMessageType(const QString& type) const noexcept
+{
+    bool filter = false;
+
+    /*if (!m_toggleError && (type == PCLint::Type::TYPE_ERROR))
+    {
+        filter = true;
+    }
+    else if (!m_toggleWarning && (type == PCLint::Type::TYPE_WARNING))
+    {
+        filter = true;
+    }
+    else if (!m_toggleInformation && (type == PCLint::Type::TYPE_INFO))
+    {
+        filter = true;
+    }*/
+    return filter;
+}
+
+
+void Lint::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept
+{
+   // auto const startLintTime = std::chrono::steady_clock::now();
+    Q_ASSERT(m_treeTable);
+
+    auto createTreeNode = [](QTreeWidgetItem* parentItem, const PCLint::LintMessage& message)
+    {
+        auto* treeItem = new QTreeWidgetItem(parentItem);
+        treeItem->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(message.file).fileName());
+        treeItem->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, message.file);
+        treeItem->setText(LINT_TABLE_NUMBER_COLUMN, QString::number(message.number));
+        treeItem->setText(LINT_TABLE_DESCRIPTION_COLUMN, message.description);
+        treeItem->setText(LINT_TABLE_LINE_COLUMN, QString::number(message.line));
+
+        auto const icon = PCLint::Lint::associateMessageTypeWithIcon(message.type);
+        treeItem->setData(LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
+        return treeItem;
+    };
+
+    for (const auto& groupMessage : lintMessageGroup)
+    {
+        // Every vector must be at least 1 otherwise something went wrong
+        Q_ASSERT(groupMessage.size() >= 1);
+
+        // Create the top-level item
+        const auto messageTop = groupMessage.front();
+
+        // Group together items under the same file
+        auto const messageTopFileName = QFileInfo(messageTop.file).fileName();
+        auto const treeList = m_treeTable->findItems(messageTopFileName,Qt::MatchExactly, LINT_TABLE_FILE_COLUMN);
+
+        QTreeWidgetItem* fileDetailsItemTop = nullptr;
+
+        if (treeList.size())
+        {
+            // Should only ever be 1 file name, unless there are mutiple files with the same name but different path?
+            // Already exists, use this one
+            Q_ASSERT(treeList.size() == 1);
+            fileDetailsItemTop = treeList.first();
+        }
+        else
+        {
+            // New file entry
+            fileDetailsItemTop = new QTreeWidgetItem(m_treeTable);
+            fileDetailsItemTop->setText(LINT_TABLE_FILE_COLUMN, messageTopFileName);
+            fileDetailsItemTop->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
+        }
+
+        // Filter
+        /*if (filterMessageType(messageTop.type))
+        {
+            continue;
+        }*/
+
+        // If it's just a single entry
+        if (groupMessage.size() == 1)
+        {
+            createTreeNode(fileDetailsItemTop, messageTop);
+            // Skip next
+            continue;
+        }
+
+        // Create a child level item
+        auto fileDetailsItem = createTreeNode(fileDetailsItemTop, messageTop);
+
+        Q_ASSERT(groupMessage.size() > 1);
+
+        // Otherwise grab the rest of the group
+        for (auto cit = groupMessage.cbegin()+1; cit != groupMessage.cend(); cit++)
+        {
+            auto message = *cit;
+
+            // Filter
+            // TODO: Should this be message.type?!
+            if (filterMessageType(messageTop.type))
+            {
+                continue;
+            }
+
+            // Check if the file exists (absolute path given)
+            // Check if it exists in the project file's directory
+            if (!QFile(message.file).exists())
+            {
+                // TODO: Optimise this
+                const auto relativeFile = QFileInfo(m_lintFile).canonicalPath() + '/' + message.file;
+                if (!QFile(relativeFile).exists())
+                {
+                    message.file = "";
+                }
+                else
+                {
+                    message.file = relativeFile;
+                }
+            }
+            // The sticky details
+            createTreeNode(fileDetailsItem, message);
+        }
+    }
+/*
+    auto const endLintTime = std::chrono::steady_clock::now();
+    auto const totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
+    qDebug() << "groupLintTreeMessages" << totalElapsedTime / 1000.f << "s elapsed";*/
+
+}
+
+void Lint::slotPointerToLintTree(QTreeWidget* treeTable) noexcept
+{
+    m_treeTable = treeTable;
 }
 
 void Lint::slotAbortLint() noexcept
@@ -97,26 +229,6 @@ int Lint::numberOfErrors() const noexcept
     return m_numberOfErrors;
 }
 
-void Lint::slotGetLintData(const LintData& lintData) noexcept
-{
-    qDebug() << '[' << QThread::currentThreadId() << "] - Got linter data";
-    setSourceFiles(lintData.lintFiles);
-    setLintFile(lintData.lintOptionFile);
-    setLintExecutable(lintData.linterExecutable);
-}
-
-void Lint::setLintData(const LintData& lintData) noexcept
-{
-    Q_ASSERT(lintData.lintFiles.size());
-    Q_ASSERT(lintData.lintOptionFile.size());
-    Q_ASSERT(lintData.linterExecutable.size());
-
-    m_filesToLint = lintData.lintFiles;
-    m_lintFile = lintData.lintOptionFile;
-    m_lintExecutable = lintData.linterExecutable;
-}
-
-
 void Lint::setLintMessages(const LintMessages& lintMessages) noexcept
 {
     m_messages = lintMessages;
@@ -151,6 +263,7 @@ void Lint::lint() noexcept
 {
     Q_ASSERT(m_lintFile.size());
     Q_ASSERT(m_lintExecutable.size());
+    Q_ASSERT(m_treeTable);
 
     auto const workingDirectory = QFileInfo(m_lintFile).canonicalPath();
     qDebug() << "Setting working directory to: " << workingDirectory;
@@ -280,9 +393,6 @@ void Lint::lint() noexcept
         emit signalLintComplete(m_status, m_errorMessage);
 
     });
-
-    // TODO: Use multiple threads if the user specifies if we are linting a single project (PC-Lint Plus)
-    // Or need some kind of balancing algorithm?
 
     QObject::connect(m_process.get(), &QProcess::errorOccurred, this, [&](const QProcess::ProcessError& error)
     {
@@ -418,9 +528,11 @@ void Lint::consumeLintChunk() noexcept
 
 
         // Ordering of messages is now important (was QSet)
-        LintMessages lintMessages;
         QXmlStreamReader lintXML(moduleData);
+        LintMessages lintMessages;
         LintMessage message;
+
+        // Debug only
         m_lintOutFile.write(moduleData);
 
         // Start XML parsing
@@ -523,7 +635,6 @@ void Lint::consumeLintChunk() noexcept
 
                 }
             }
-
         }
         catch (const std::exception& e)
         {
@@ -550,7 +661,8 @@ void Lint::consumeLintChunk() noexcept
 
         // Send chunk of data to be processed
         // TODO: Send number of errors warnings etc
-        emit signalProcessLintMessageGroup(groupedLintMessages);
+        addTreeMessageGroup(groupedLintMessages);
+        //emit signalProcessLintMessageGroup(groupedLintMessages);
 
        /* emit signalProcessLintMessages(LintResponse
         {

@@ -18,7 +18,6 @@
 
 #include "Lint.h"
 #include "MainWindow.h"
-#include "LintManager.h"
 
 #include <QTime>
 #include <QDialog>

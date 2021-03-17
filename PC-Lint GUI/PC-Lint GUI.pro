@@ -14,7 +14,6 @@ SOURCES += \
     CodeEditor.cpp \
     Highlighter.cpp \
     Lint.cpp \
-    LintManager.cpp \
     Log.cpp \
     MainWindow.cpp \
     ModifiedFileThread.cpp \
@@ -30,7 +29,6 @@ HEADERS += \
     Highlighter.h \
     Jenkins.h \
     Lint.h \
-    LintManager.h \
     Log.h \
     MainWindow.h \
     ModifiedFileThread.h \

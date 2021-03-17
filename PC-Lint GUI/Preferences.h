@@ -42,8 +42,8 @@ class Preferences : public QDialog
 public:
     explicit Preferences(QWidget *parent = nullptr);
     ~Preferences();
-    QString getLinterExecutablePath() const noexcept;
-    QString getLinterLintFilePath() const noexcept;
+    QString getLintExecutablePath() const noexcept;
+    QString getLintFilePath() const noexcept;
     int getLinterHardwareThreads() const noexcept;
     static QString m_lastDirectory;
     //void reject() override;
@@ -60,5 +60,4 @@ private slots:
 private:
     Ui::Preferences* m_ui;
     void loadSettings() noexcept;
-    void checkPCLintVersion() noexcept;
 };
