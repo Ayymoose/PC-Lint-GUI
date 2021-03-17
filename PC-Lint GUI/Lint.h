@@ -20,12 +20,23 @@
 #include <QMetaType>
 #include <QObject>
 #include <QSet>
+#include <QDebug>
+#include <QtConcurrent>
 #include <QProcess>
-#include <memory>
-#include <vector>
-#include <unordered_set>
-#include <set>
+#include <QXmlStreamReader>
+#include <QFileInfo>
+#include <QRegularExpression>
+#include <QThread>
+#include <QDir>
 #include <QFile>
+#include <mutex>
+#include <memory>
+#include <chrono>
+#include <vector>
+#include <algorithm>
+#include <condition_variable>
+#include "atomicops.h"
+#include "readerwriterqueue.h"
 
 namespace PCLint
 {
@@ -114,6 +125,8 @@ using LintMessages = std::vector<LintMessage>;
 using LintMessagesSet = QSet<LintMessage>;
 using LintMessageGroup = std::vector<LintMessages>;
 
+using namespace moodycamel;
+
 typedef struct
 {
     QString linterExecutable;
@@ -135,6 +148,7 @@ class Lint : public QObject
     Q_OBJECT
 public:
     Lint();
+    Lint(const QString& lintExecutable, const QString& lintFile);
 
     // Set the path to the lint.exe
     void setLintExecutable(const QString& linterExecutable) noexcept;
@@ -146,7 +160,6 @@ public:
     void setLintData(const LintData& lintData) noexcept;
 
 
-    void asyncLint() noexcept;
 
     // Set the working directory for the lint executable
     void setWorkingDirectory(const QString& directory) noexcept;
@@ -168,19 +181,10 @@ public:
     void setNumberOfInfo(int numberOfInfo) noexcept;
     void setErrorMessage(const QString& errorMessage) noexcept;
 
-
-    void appendLintMessages(const LintMessages& lintMessages) noexcept;
-    void appendLintErrors(int numberOfErrors) noexcept;
-    void appendLintWarnings(int numberOfWarnings) noexcept;
-    void appendLinterInfo(int numberOfInfo) noexcept;
-
     void setVersion(const Version& version) noexcept
     {
         m_version = version;
     }
-
-    // Lint a directory or some files
-    LintStatus lint() noexcept;
 
     // Return path to the lint file used (.lnt)
     QString getLintFile() const noexcept;
@@ -189,7 +193,7 @@ public:
 
     // Group together lint messages (PC-Lint Plus only)
     // So that supplemental messages are tied together with error/info/warnings
-    static LintMessageGroup groupLintMessages(const LintMessages& lintMessages) noexcept;
+    LintMessageGroup groupLintMessages(LintMessages&& lintMessages) noexcept;
 
 
     LintResponse testLintProcessMessages(QByteArray &lintChunk) noexcept;
@@ -199,6 +203,10 @@ public slots:
 
 
     void slotAbortLint() noexcept;
+
+
+    void lint() noexcept;
+
 
 signals:
     void signalUpdateProgress(int value);
@@ -212,6 +220,8 @@ signals:
     void signalLintComplete(const LintStatus& lintStatus, const QString& errorMessage);
     void signalProcessLintMessages(const LintResponse& lintResponse);
 
+    void signalProcessLintMessageGroup(const LintMessageGroup& lintMessageGroup);
+
 private:
     QString m_lintDirectory;
     QStringList m_arguments;
@@ -223,7 +233,6 @@ private:
     int m_numberOfWarnings;
     int m_numberOfInfo;
     QString m_errorMessage;
-    QProcess m_process;
     Version m_version;
 
     // stderr has the module (file lint) progress
@@ -237,17 +246,20 @@ private:
 
 
     QByteArray m_stdOut;
+    std::unique_ptr<QProcess> m_process;
+
 
     void emitLintComplete() noexcept;
-    void processLinkChunk() noexcept;
-    void processLintMessages(QByteArray& lintChunk) noexcept;
-
-    bool checkAbort() noexcept;
+    void consumeLintChunk() noexcept;
 
     LintMessagesSet m_messageSet;
 
-    bool m_abort;
+    bool m_finished;
 
+    std::unique_ptr<ReaderWriterQueue<QByteArray>> m_dataQueue;
+    std::mutex m_consumerMutex;
+    std::condition_variable m_consumerConditionVariable;
+    std::unique_ptr<std::thread> m_consumerThread;
 
 };
 

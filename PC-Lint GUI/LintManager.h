@@ -43,6 +43,13 @@ signals:
     void signalAbortLint();
 
     void signalLintComplete(const LintStatus& lintStatus, const QString& errorMessage);
+
+
+    void signalUpdateProgress(int value);
+    void signalUpdateProgressMax(int value);
+    void signalUpdateProcessedFiles(int processedFiles);
+    void signalProcessLintMessages(const LintResponse& lintResponse);
+
 public slots:
     void slotAbortLint() noexcept;
 
@@ -52,12 +59,18 @@ public slots:
 
 private slots:
     void slotLintFinished(const LintResponse& lintResponse) noexcept;
+
+
+    void slotUpdateProgress(int value) noexcept;
+    void slotUpdateProgressMax(int value) noexcept;
+    void slotUpdateProcessedFiles(int processedFiles) noexcept;
+    void slotProcessLintMessages(const LintResponse& lintResponse) noexcept;
+
 private:
     std::vector<std::unique_ptr<QThread>> m_lintThreads;
     // Currently only supporting PC-Lint Plus
     Lint m_lint;
     LintData m_lintData;
-    unsigned int m_completedLints;
     QObject* m_parent;
 
     void joinAll() const noexcept;

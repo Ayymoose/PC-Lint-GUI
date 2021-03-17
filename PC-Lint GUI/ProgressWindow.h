@@ -44,7 +44,7 @@ class ProgressWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit ProgressWindow(QWidget *parent = nullptr, const QString& title = "");
+    explicit ProgressWindow(QWidget *parent = nullptr);
     ~ProgressWindow();
 
 public slots:
@@ -57,11 +57,6 @@ public slots:
 
     void slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept;
 
-    void slotGetLintData(const PCLint::LintData& lintData) noexcept;
-
-
-    void slotProcessLintMessages(const PCLint::LintResponse& lintResponse) noexcept;
-
 private slots:
     void on_lintCancel_clicked();
     void slotUpdateTime() noexcept;
@@ -69,30 +64,17 @@ private slots:
 signals:
     void signalLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage);
 
-
     void signalLintFinished(const PCLint::LintResponse& lintResponse);
     void signalAbortLint();
-    void signalStartLintManager();
 
-
-    void signalProcessLintMessages(const PCLint::LintResponse& lintResponse);
-
-
-    void signalStartLint();
-    void signalGetLintData();
-    void signalSetLintData(const PCLint::LintData& lintData);
 private:
     Ui::ProgressWindow *m_ui;
     int m_elapsedTime;
     int m_eta;
-    int m_progressMax;
     int m_currentProgress;
     int m_fileProgressMax;
     int m_currentFileProgress;
     bool m_aborted;
     std::unique_ptr<QTimer> m_timer;
     QString m_windowTitle;
-    std::unique_ptr<PCLint::LintManager> m_lintManager;
-    //std::unique_ptr<QThread> m_workerThread;
-    MainWindow* m_parent;
 };

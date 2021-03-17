@@ -51,8 +51,9 @@ int main(int argc, char *argv[])
     int x = (screenSize.width()-mainWindow.width()) / 2;
     int y = (screenSize.height()-mainWindow.height() - 40) / 2;
     mainWindow.move(x, y);
-    mainWindow.showMaximized();
+    //mainWindow.showMaximized();
     mainWindow.setWindowTitle(APPLICATION_NAME " " BUILD_VERSION);
+    mainWindow.show();
 
     return EditorApp.exec();
 }

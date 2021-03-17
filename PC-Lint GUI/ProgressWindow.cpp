@@ -23,96 +23,50 @@
 #include <QTimer>
 #include <QThread>
 
-ProgressWindow::ProgressWindow(QWidget *parent, const QString& title) :
+ProgressWindow::ProgressWindow(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::ProgressWindow),
     m_elapsedTime(0),
-    m_eta(5), // TODO: Make it "Calculating..."
-    m_progressMax(0),
+    m_eta(0),
     m_currentProgress(0),
     m_fileProgressMax(0),
     m_currentFileProgress(0),
     m_aborted(false),
-    m_timer(std::make_unique<QTimer>()),
-    m_windowTitle(title),
-    m_lintManager(std::make_unique<PCLint::LintManager>(this)),
-    //m_workerThread(std::make_unique<QThread>(this)),
-    m_parent(static_cast<MainWindow*>(parent))
+    m_timer(std::make_unique<QTimer>())
 {
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+
+    //m_lintManager->moveToThread(m_workerThread.get());
+    //m_workerThread->start();
 
     m_ui->setupUi(this);
     m_ui->lintProgressBar->setValue(0);
     m_ui->lintProgressBar->setMaximum(0);
 
     QObject::connect(m_timer.get(), &QTimer::timeout, this, &ProgressWindow::slotUpdateTime);
+    m_ui->eta->setText("Calculating...");
     m_timer->start(1000);
-    //m_lintManager->moveToThread(m_workerThread.get());
-    //m_workerThread->start();
-
-    m_ui->lintGroupBox->setTitle(title);
-
-    // ProgressWindow asks MainWindow for lint data
-    // MainWindow gives ProgressWindow lint data
-    // ProgressWindow gives lint data to LintManager which starts the process
-    // Start lint
-    // Lint object gives LintManager lint responses
-    // LintManager gives ProgressWindow progress data
-    // ...
-    // LintManager finishes and gives ProgressWindow the data
-    // ProgressWindow gives MainWindow the output data
-
-    // ProgressWindow asks MainWindow for lint data
-    QObject::connect(this, &ProgressWindow::signalGetLintData, m_parent, &MainWindow::slotGetLintData);
-    // MainWindow gives ProgressWindow lint data
-    QObject::connect(m_parent, &MainWindow::signalSetLintData, this, &ProgressWindow::slotGetLintData);
-    // ProgressWindow gives lint data to LintManager which starts the process
-    QObject::connect(this, &ProgressWindow::signalSetLintData, m_lintManager.get(), &PCLint::LintManager::slotGetLintData);
-    // Start lint
-    QObject::connect(this, &ProgressWindow::signalStartLint, m_lintManager.get(), &PCLint::LintManager::slotStartLint);
-    // LintManager gives ProgressWindow progress data
-    // ...
-    // ProgressWindow gives MainWindow the output data
-    //QObject::connect(this, &ProgressWindow::signalLintFinished, m_parent, &MainWindow::slotLintFinished);
-    QObject::connect(this, &ProgressWindow::signalLintComplete, m_parent, &MainWindow::slotLintComplete);
-
-    QObject::connect(this, &ProgressWindow::signalProcessLintMessages, m_parent, &MainWindow::slotProcessLintMessages);
-
-    emit signalGetLintData();
-    emit signalStartLint();
+    //m_ui->lintGroupBox->setTitle(title);
 }
 
-// Send to MainWindow
-void ProgressWindow::slotProcessLintMessages(const PCLint::LintResponse& lintResponse) noexcept
+void ProgressWindow::slotUpdateProgress(int progress) noexcept
 {
-    emit signalProcessLintMessages(lintResponse);
-}
-
-void ProgressWindow::slotGetLintData(const PCLint::LintData& lintData) noexcept
-{
-    //qDebug() << "MainWindow sends Lint data to ProgressWindow";
-    emit signalSetLintData(lintData);
-}
-
-void ProgressWindow::slotUpdateProgress(int value) noexcept
-{
-    m_currentProgress += value;
-    //qDebug() << "Progress now: (" << m_currentProgress << '/' << m_progressMax << ')';
+    m_currentProgress += progress;
     m_ui->lintProgressBar->setValue(m_currentProgress);
 }
 
-void ProgressWindow::slotUpdateProgressMax(int value) noexcept
+void ProgressWindow::slotUpdateProgressMax(int maxProgress) noexcept
 {
-    qDebug() << "Progress max received maximum: " << value;
-    // Accumulate progress
-    m_progressMax += value;
-    m_ui->lintProgressBar->setMaximum(m_progressMax);
+    m_timer->start(1000);
+    qDebug() << "Progress max:" << maxProgress;
+    m_ui->lintProgressBar->setMaximum(maxProgress);
 }
 
 void ProgressWindow::slotUpdateProcessedFiles(int processedFiles) noexcept
 {
    m_currentFileProgress += processedFiles;
-   m_ui->filesProcessed->setText(QString::number(m_currentFileProgress)+ '/' + QString::number(m_progressMax));
+   m_ui->filesProcessed->setText(QString::number(m_currentFileProgress) +
+                                 '/' + QString::number(m_ui->lintProgressBar->maximum()));
 }
 
 void ProgressWindow::slotUpdateETA(int eta) noexcept
@@ -153,18 +107,14 @@ ProgressWindow::~ProgressWindow()
 {
     if (m_aborted == true)
     {
-        m_parent->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION);
+        //m_parent->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION);
     }
     else
     {
         // TODO: Don't set this if there was a license error
-        m_parent->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION " - " + m_windowTitle);
+        //m_parent->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION " - " + m_windowTitle);
     }
     delete m_ui;
-    //m_workerThread->quit();
-    //auto waitComplete = m_workerThread->wait(PCLint::MAX_THREAD_WAIT);
-    //Q_ASSERT(waitComplete);
-    qDebug() << "ProgressWindow destroyed";
 }
 
 void ProgressWindow::on_lintCancel_clicked()

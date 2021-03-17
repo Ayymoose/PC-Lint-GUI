@@ -64,20 +64,17 @@ signals:
     void signalUpdateTypes();
 
     void signalSetLinterData(const PCLint::LintData& lintData);
-
-    // Modified file signals
-    void signalSetModifiedFiles(QMap<QString, PCLint::ModifiedFile> modifiedFiles);
-    void signalSetModifiedFile(const QString& modifiedFile, const QDateTime& dateTime);
-    void signalStartMonitor();
     void signalRemoveFile(const QString& deletedFile);
     void signalKeepFile(const QString& keepFile);
 
 
     void signalSetLintData(const PCLint::LintData& lintData);
 
+
+    void signalStartLint();
+
 public slots:
     void handleContextMenu(const QPoint& pos);
-    //void slotLintFinished(const PCLint::LintResponse& lintResponse);
     void slotGetLinterData();
 
 
@@ -87,14 +84,12 @@ public slots:
     void slotLintVersion(const PCLint::Version& version) noexcept;
     void slotGetLintData() noexcept;
 
-    void slotProcessLintMessages(const PCLint::LintResponse& lintResponse) noexcept;
+    void slotProcessLintMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
+
 
 
 private slots:
-
     void save();
-    void slotFileModified(QString modifiedFile);
-    void slotFileDoesntExist(const QString& deletedFile);
     void on_aboutLinty_triggered();
     void on_actionRefresh_triggered();
     void on_actionLog_triggered();
@@ -104,7 +99,6 @@ private slots:
     void on_lintTable_itemClicked(QTreeWidgetItem *item, int column);
 
 public:
-    void startLint(bool lintProject);
     void startLint(QString title);
     bool filterMessageType(const QString& type) const noexcept;
 
@@ -123,15 +117,12 @@ private:
     QString m_lastProjectLoaded;
     QSet<QString> m_directoryFiles;
     std::unique_ptr<Preferences> m_preferences;
-    PCLint::Lint m_linter;
     std::unique_ptr<PCLint::Highlighter> m_highlighter;
 
     std::unique_ptr<QMenu> m_lintTableMenu;
     QMap<QString, QString> m_projectLintMap;
     int m_linterStatus;
 
-    // ModifiedFileWorker thread
-    std::unique_ptr<PCLint::ModifiedFileThread> m_modifiedFileWorker;
 
     PCLint::LintMessages m_lintTreeMessages;
     int m_lintTreeErrors;
@@ -140,13 +131,13 @@ private:
 
     void clearLintTree() noexcept;
     void applyLintTreeFilter() noexcept;
-    void groupLintTreeMessages(const PCLint::LintMessages& lintMessages) noexcept;
+    void addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
 
-    void displayLintTable();
     bool verifyLint();
     QSet<QString> recursiveBuildSourceFileSet(const QString& directory);
     PCLint::About m_about;
 
+    PCLint::Lint m_lint;
 
 
     void testLintTreeFilter() noexcept;

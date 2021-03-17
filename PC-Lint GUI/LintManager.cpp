@@ -21,26 +21,41 @@
 namespace PCLint
 {
 
-LintManager::LintManager(QObject *parent):
-    m_completedLints(0),
-    m_parent(parent)
+LintManager::LintManager(QObject*)
 {
 
-    QObject::connect(this, &LintManager::signalLintFinished, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotLintFinished);
-    QObject::connect(this, &LintManager::signalLintComplete, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotLintComplete);
-    QObject::connect(static_cast<ProgressWindow*>(m_parent), &ProgressWindow::signalAbortLint,this, &LintManager::slotAbortLint);
-
     // Currently only supporting PC-Lint Plus
-    QObject::connect(&m_lint, &Lint::signalLintComplete, this, &LintManager::slotLintComplete);
-    QObject::connect(&m_lint, &Lint::signalUpdateProgress, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProgress);
-    QObject::connect(&m_lint, &Lint::signalUpdateProgressMax, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProgressMax);
-    QObject::connect(&m_lint, &Lint::signalUpdateProcessedFiles, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotUpdateProcessedFiles);
+    QObject::connect(&m_lint, &Lint::signalUpdateProgress, this, &LintManager::slotUpdateProgress);
+    QObject::connect(&m_lint, &Lint::signalUpdateProgressMax, this, &LintManager::slotUpdateProgressMax);
+    QObject::connect(&m_lint, &Lint::signalUpdateProcessedFiles, this, &LintManager::slotUpdateProcessedFiles);
 
     // Lint passes processed chunk to ProgressWindow
-    QObject::connect(&m_lint, &Lint::signalProcessLintMessages, static_cast<ProgressWindow*>(m_parent), &ProgressWindow::slotProcessLintMessages);
+    QObject::connect(&m_lint, &Lint::signalProcessLintMessages, this, &LintManager::slotProcessLintMessages);
 
+
+    QObject::connect(&m_lint, &Lint::signalLintComplete, this, &LintManager::slotLintComplete);
     QObject::connect(this, &LintManager::signalAbortLint, &m_lint, &Lint::slotAbortLint);
 
+}
+
+void LintManager::slotUpdateProgress(int value) noexcept
+{
+    emit signalUpdateProgress(value);
+}
+
+void LintManager::slotUpdateProgressMax(int value) noexcept
+{
+    emit signalUpdateProgressMax(value);
+}
+
+void LintManager::slotUpdateProcessedFiles(int processedFiles) noexcept
+{
+    emit signalUpdateProcessedFiles(processedFiles);
+}
+
+void LintManager::slotProcessLintMessages(const LintResponse& lintResponse) noexcept
+{
+    emit signalProcessLintMessages(lintResponse);
 }
 
 void LintManager::slotGetLintData(const LintData& lintData) noexcept
@@ -63,7 +78,7 @@ void LintManager::slotStartLint() noexcept
 
     // Asynchronous start
     m_lint.setLintData(m_lintData);
-    m_lint.asyncLint();
+    m_lint.lint();
 
 }
 

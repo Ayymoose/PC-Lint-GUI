@@ -55,7 +55,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_preferences(std::make_unique<Preferences>(this)),
     m_lintTableMenu(std::make_unique<QMenu>(this)),
     m_linterStatus(0),
-    m_modifiedFileWorker(std::make_unique<PCLint::ModifiedFileThread>(this)),
     m_lintTreeErrors(0),
     m_lintTreeWarnings(0),
     m_lintTreeInformation(0)
@@ -66,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     qRegisterMetaType<PCLint::LintResponse>("LintResponse");
     qRegisterMetaType<PCLint::LintData>("PCLint::LintData");
     qRegisterMetaType<PCLint::Version>("PCLint::Version");
+    qRegisterMetaType<PCLint::LintMessageGroup>("LintMessageGroup");
 
     // Turn UI into actual objects
     m_ui->setupUi(this);
@@ -155,18 +155,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // With syntax highlighting
     m_highlighter = std::make_unique<PCLint::Highlighter>(m_ui->codeEditor->document());
 
-    // Start the modified file thread
-    QObject::connect(this, &MainWindow::signalSetModifiedFile, m_modifiedFileWorker.get(), &PCLint::ModifiedFileThread::slotSetModifiedFile);
-    QObject::connect(this, &MainWindow::signalSetModifiedFiles, m_modifiedFileWorker.get(), &PCLint::ModifiedFileThread::slotSetModifiedFiles);
-    QObject::connect(this, &MainWindow::signalKeepFile, m_modifiedFileWorker.get(), &PCLint::ModifiedFileThread::slotKeepFile);
-    QObject::connect(m_modifiedFileWorker.get(), &PCLint::ModifiedFileThread::signalFileDoesntExist, this, &MainWindow::slotFileDoesntExist);
-    QObject::connect(m_modifiedFileWorker.get(), &PCLint::ModifiedFileThread::signalFileModified, this, &MainWindow::slotFileModified);
-    m_modifiedFileWorker->start();
-
     // TreeWidget font set to 12
     m_ui->lintTable->setStyleSheet("QTreeWidget { font-size: 12pt; }");
 
-    testLintTreeFilter();
+    //testLintTreeFilter();
 }
 
 
@@ -174,11 +166,6 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete m_ui;
-    // Stop all threads
-    m_modifiedFileWorker->requestInterruption();
-    m_modifiedFileWorker->quit();
-    auto waitComplete = m_modifiedFileWorker->wait(PCLint::MAX_THREAD_WAIT);
-    Q_ASSERT(waitComplete);
 }
 
 void MainWindow::save()
@@ -199,9 +186,6 @@ void MainWindow::save()
         QString text = m_ui->codeEditor->toPlainText();
         out << text;
         file.close();
-
-        emit signalSetModifiedFile(currentFile, QFileInfo(file).lastModified());
-
         m_ui->statusBar->showMessage("Saved " + currentFile + " at " + QDateTime::currentDateTime().toString());
     }
 }
@@ -246,150 +230,15 @@ bool MainWindow::verifyLint()
     return true;
 }
 
-void MainWindow::startLint(bool lintProject)
-{
-    // This function tries to call the linter
-    // The linter will attempt to lint the files specified in the directory we give it
-    // It will show all output in a list view where we can view it
-    // Should be in a separate thread really
-
-    // If a project is selected
-    // If we have a lint file associated with it, start the linter on the project with the given lint file
-    // Otherwise select the lint file, associate it with the project
-
-    // Similar logic for directory
-
-
-    if (verifyLint())
-    {
-        QSet<QString> directoryFiles;
-        QString directoryToLint;
-        QString fileName;
-
-        // Lint a project solution file
-        if (lintProject)
-        {
-            fileName = QFileDialog::getOpenFileName(this,
-                                                    "Select project file",
-                                                    Preferences::m_lastDirectory,
-                                                    "Atmel 7 Studio / Microchip Studio (*.cproj *.cppproj);; "
-                                                    "Visual Studio Project (*.vcxproj);; "
-                                                    "Visual Studio Solution (*.sln) "
-                                                    );
-            if (!fileName.isEmpty())
-            {
-
-                // Have we got an association to a lint file already?
-
-                // What if we want to use a different lint file for a project?
-                // Where would we display the lint file being used?
-
-
-                // Check file extension
-                QString fileExtension = QFileInfo(fileName).completeSuffix();
-                Preferences::m_lastDirectory = QFileInfo(fileName).absolutePath();
-
-                PCLint::ProjectSolution *project= nullptr;
-
-                // Possible solutions/projects
-                PCLint::AtmelStudio7ProjectSolution as7ProjectSolution;
-                PCLint::VisualStudioProject vsProject;
-                PCLint::VisualStudioProjectSolution vsProjectSolution;
-
-                if (fileExtension == "cproj" || fileExtension == "cpproj")
-                {
-                    // Atmel Studio 7 project supported
-                    project = &as7ProjectSolution;
-
-                }
-                else if (fileExtension == "vcxproj")
-                {
-                    // Visual studio project
-                    project = &vsProject;
-                }
-                else if (fileExtension == "sln")
-                {
-                    // Visual studio solution
-                    project = &vsProjectSolution;
-                    project->setDirectory(QFileInfo(fileName).canonicalPath());
-                }
-
-                Q_ASSERT(project);
-
-                try
-                {
-                    directoryFiles = project->buildSourceFiles(fileName);
-                    m_lastProjectLoaded = fileName;
-                    m_directoryFiles = directoryFiles;
-                }
-                catch (const std::logic_error& e)
-                {
-                    QMessageBox::critical(this,"Error", QString(e.what()));
-                }
-                catch (const std::runtime_error& e)
-                {
-                    QMessageBox::critical(this,"Error", QString(e.what()));
-                }
-            }
-        }
-        else
-        {
-            // Lint a directory containing some source file(s)
-            // Lint only C or CPP files
-            directoryToLint = QFileDialog::getExistingDirectory(this,
-                                                            tr("Select directory to lint"),
-                                                            Preferences::m_lastDirectory,
-                                                            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-
-            if (!directoryToLint.isEmpty())
-            {
-                directoryFiles = recursiveBuildSourceFileSet(directoryToLint);
-                m_directoryFiles = directoryFiles;
-            }
-
-        }
-        //
-
-        // Only start linting if a file was selected
-        if (directoryFiles.size())
-        {
-            m_linter.setLintFile(m_preferences->getLinterLintFilePath().trimmed());
-            m_linter.setLintExecutable(m_preferences->getLinterExecutablePath().trimmed());
-            m_linter.setSourceFiles(directoryFiles);
-
-            // Display directory name or filename
-            if (!fileName.isEmpty())
-            {
-                startLint(QFileInfo(fileName).fileName());
-            }
-            else
-            {
-                // Start linting a directory
-                startLint(directoryToLint);
-            }
-        }
-    }
-
-}
-
 void MainWindow::on_actionLint_triggered()
 {
     m_ui->lintTable->setSortingEnabled(false);
-    startLint(false);
+    //startLint(false);
 }
 
-void MainWindow::groupLintTreeMessages(const PCLint::LintMessages& lintMessages) noexcept
+void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept
 {
-
-    // Group messages together
-    auto const startLintTime = std::chrono::steady_clock::now();
-
-    auto const groupedMessages = PCLint::Lint::groupLintMessages(lintMessages);
-
-    auto const endLintTime = std::chrono::steady_clock::now();
-    auto const totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
-    qDebug() << "groupLintMessages" << totalElapsedTime / 1000.f << "s elapsed";
-
+   // auto const startLintTime = std::chrono::steady_clock::now();
 
     auto createTreeNode = [](QTreeWidgetItem* parentItem, const PCLint::LintMessage& message)
     {
@@ -405,7 +254,7 @@ void MainWindow::groupLintTreeMessages(const PCLint::LintMessages& lintMessages)
         return treeItem;
     };
 
-    for (const auto& groupMessage : groupedMessages)
+    for (const auto& groupMessage : lintMessageGroup)
     {
         // Every vector must be at least 1 otherwise something went wrong
         Q_ASSERT(groupMessage.size() >= 1);
@@ -470,7 +319,7 @@ void MainWindow::groupLintTreeMessages(const PCLint::LintMessages& lintMessages)
             if (!QFile(message.file).exists())
             {
                 // TODO: Optimise this
-                const auto relativeFile = QFileInfo(m_linter.getLintFile()).canonicalPath() + '/' + message.file;
+                const auto relativeFile = QFileInfo(m_preferences->getLinterLintFilePath().trimmed()).canonicalPath() + '/' + message.file;
                 if (!QFile(relativeFile).exists())
                 {
                     message.file = "";
@@ -484,6 +333,10 @@ void MainWindow::groupLintTreeMessages(const PCLint::LintMessages& lintMessages)
             createTreeNode(fileDetailsItem, message);
         }
     }
+/*
+    auto const endLintTime = std::chrono::steady_clock::now();
+    auto const totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
+    qDebug() << "groupLintTreeMessages" << totalElapsedTime / 1000.f << "s elapsed";*/
 
 }
 
@@ -516,7 +369,7 @@ void MainWindow::applyLintTreeFilter() noexcept
 
     // Apply filter to tree
     // TODO: May be faster to apply filter to single type than check all 3
-    groupLintTreeMessages(m_lintTreeMessages);
+    //groupLintTreeMessages(m_lintTreeMessages);
 
     endLintTime = std::chrono::steady_clock::now();
     totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
@@ -562,237 +415,41 @@ void MainWindow::testLintTreeFilter() noexcept
     PCLint::Lint lint;
     auto lintResponse = lint.testLintProcessMessages(lintChunk);
 
-    slotProcessLintMessages(lintResponse);
+    //slotProcessLintMessages(lintResponse);
 }
 
-void MainWindow::slotProcessLintMessages(const PCLint::LintResponse& lintResponse) noexcept
+void MainWindow::slotProcessLintMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept
 {
     // Group messages together (PCLP only)
 
     auto const startLintTime = std::chrono::steady_clock::now();
 
-    auto& lintMessages = lintResponse.lintMessages;
+
+    addTreeMessageGroup(lintMessageGroup);
+
+   // auto& lintMessages = lintResponse.lintMessages;
 
     // Group tree messages
-    groupLintTreeMessages(lintMessages);
+    //groupLintTreeMessages(lintMessages);
 
     // Maintain tree messages for filtering
-    m_lintTreeMessages.insert(m_lintTreeMessages.end(),lintMessages.begin(), lintMessages.end());
+    /*m_lintTreeMessages.insert(m_lintTreeMessages.end(),lintMessages.begin(), lintMessages.end());
 
     m_lintTreeErrors += lintResponse.numberOfErrors;
     m_lintTreeWarnings += lintResponse.numberOfWarnings;
-    m_lintTreeInformation += lintResponse.numberOfInformation;
+    m_lintTreeInformation += lintResponse.numberOfInformation;*/
 
     emit signalUpdateTypes();
 
     auto const endLintTime = std::chrono::steady_clock::now();
     auto const totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
-    qDebug() << "groupLintMessages" << totalElapsedTime / 1000.f << "s elapsed";
-
-}
-
-void MainWindow::displayLintTable()
-{
-    // Populate the table view with all the lint messages
-    // Clear all existing entries
-
-    //QMap<QString, PCLint::ModifiedFile> modifiedFiles;
-
-    m_ui->lintTable->setSortingEnabled(false);
-
-    // Get ALL lint messages (combination from all threads)
-    PCLint::LintMessageGroup groupedMessages;// = m_linter.groupLintMessages();
-
-    // Clear all entries
-    while (m_ui->lintTable->topLevelItemCount())
-    {
-        QTreeWidgetItemIterator treeItr(m_ui->lintTable, QTreeWidgetItemIterator::NoChildren);
-        while (*treeItr)
-        {
-            delete *treeItr;
-        }
-    }
-
-    // Group messages together
-    for (const auto& groupMessage : groupedMessages)
-    {
-        // Every vector must be at least 1 otherwise something went wrong in groupLinterMessages()
-        Q_ASSERT(groupMessage.size() >= 1);
-
-        // Create the top-level item
-        const auto messageTop = groupMessage.front();
-
-        // Group together items under the same file
-        //m_ui->lintTable
-        auto const treeList = m_ui->lintTable->findItems(QFileInfo(messageTop.file).fileName(),Qt::MatchExactly, LINT_TABLE_FILE_COLUMN);
-
-        QTreeWidgetItem* fileDetailsItemTop = nullptr;
-
-        if (treeList.size())
-        {
-            // Should only ever be 1 file name, unless there are mutiple files with the same name but different path?
-            // Already exists, use this one
-            Q_ASSERT(treeList.size() == 1);
-            fileDetailsItemTop = treeList.first();
-        }
-        else
-        {
-            // New file entry
-            fileDetailsItemTop = new QTreeWidgetItem(m_ui->lintTable);
-            fileDetailsItemTop->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(messageTop.file).fileName());
-            fileDetailsItemTop->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
-        }
-
-
-        // Filter
-        if (filterMessageType(messageTop.type))
-        {
-            continue;
-        }
-
-        // If it's just a single entry
-        if (groupMessage.size() == 1)
-        {
-            auto* detailsItemTop = new QTreeWidgetItem(fileDetailsItemTop);
-            detailsItemTop->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(messageTop.file).fileName());
-            detailsItemTop->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
-            detailsItemTop->setText(LINT_TABLE_NUMBER_COLUMN, QString::number(messageTop.number));
-            detailsItemTop->setText(LINT_TABLE_DESCRIPTION_COLUMN, messageTop.description);
-            detailsItemTop->setText(LINT_TABLE_LINE_COLUMN, QString::number(messageTop.line));
-
-            auto const icon = PCLint::Lint::associateMessageTypeWithIcon(messageTop.type);
-            detailsItemTop->setData(LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
-
-            // Skip next
-            continue;
-        }
-
-        // Create a child level item
-        auto* fileDetailsItem = new QTreeWidgetItem(fileDetailsItemTop);
-        fileDetailsItem->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(messageTop.file).fileName());
-        fileDetailsItem->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
-        fileDetailsItem->setText(LINT_TABLE_NUMBER_COLUMN, QString::number(messageTop.number));
-        fileDetailsItem->setText(LINT_TABLE_DESCRIPTION_COLUMN, messageTop.description);
-        fileDetailsItem->setText(LINT_TABLE_LINE_COLUMN, QString::number(messageTop.line));
-
-        auto const icon = PCLint::Lint::associateMessageTypeWithIcon(messageTop.type);
-        fileDetailsItem->setData(LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
-
-        Q_ASSERT(groupMessage.size() > 1);
-
-        // Otherwise grab the rest of the group
-        for (auto cit = groupMessage.cbegin()+1; cit != groupMessage.cend(); cit++)
-        {
-            auto const message = *cit;
-            const auto type = message.type;
-
-            // Filter
-            if (filterMessageType(messageTop.type))
-            {
-                continue;
-            }
-
-            //const auto number = message.number;
-            auto file = message.file;
-            //const auto line = message.line;
-            const auto description = message.description;
-
-            // Check if the file exists (absolute path given)
-            // Check if it exists in the project file's directory
-            if (!QFile(file).exists())
-            {
-                const auto relativeFile = QFileInfo(m_linter.getLintFile()).canonicalPath() + QDir::separator() + file;
-                if (!QFile(relativeFile).exists())
-                {
-                    qWarning() << "Unknown file in linter messages: " << file;
-                    file = "";
-                }
-                else
-                {
-                    file = relativeFile;
-                }
-            }
-
-            // The sticky details
-            auto* detailsItem = new QTreeWidgetItem(fileDetailsItem);
-            detailsItem->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(message.file).fileName());
-            detailsItem->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, message.file);
-            detailsItem->setText(LINT_TABLE_NUMBER_COLUMN, QString::number(message.number));
-            detailsItem->setText(LINT_TABLE_DESCRIPTION_COLUMN, message.description);
-            detailsItem->setText(LINT_TABLE_LINE_COLUMN, QString::number(message.line));
-
-            auto const icon = PCLint::Lint::associateMessageTypeWithIcon(message.type);
-            detailsItem->setData(LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
-
-            // Add to set of modified files
-            //PCLint::ModifiedFile modifiedFile;
-            //modifiedFile.lastModified = QFileInfo(file).lastModified();
-            //modifiedFile.keepFile = true;
-           // modifiedFiles[message.file] = modifiedFile;
-
-        }
-
-    }
-
-    m_ui->lintTable->setSortingEnabled(true);
-
-    // Clear any orphaned nodes
-    QTreeWidgetItemIterator treeItr(m_ui->lintTable);
-    while (*treeItr)
-    {
-        if ((*treeItr)->parent() == nullptr && (*treeItr)->childCount() == 0)
-        {
-            delete *treeItr;
-        }
-        else
-        {
-            treeItr++;
-        }
-    }
-
-    // Error count fluctuating in output looks like a PCLP bug
-
-    // Show message if there are no lint problems
-    if (m_linterStatus == PCLint::LintStatus::STATUS_COMPLETE &&
-            m_linter.numberOfErrors() == 0 && m_linter.numberOfWarnings() == 0 && m_linter.numberOfInfo() == 0)
-    {
-        QMessageBox::information(this, "Information", "No errors detected in code");
-    }
-    else
-    {
-        // Display any outstanding messages
-        if (m_linterStatus & PCLint::LintStatus::STATUS_PARTIAL_COMPLETE)
-        {
-            // TODO: This doesn't work correctly as sometimes we have 17/16 files shown
-            QMessageBox::information(this, "Information", "Not all files were successfully linted as errors were generated in the lint output.");
-        }
-        else if (m_linterStatus & PCLint::LintStatus::STATUS_LICENSE_ERROR)
-        {
-            QMessageBox::critical(this, "Error", m_linter.errorMessage());
-        }
-        else if (m_linterStatus & PCLint::LintStatus::STATUS_PROCESS_ERROR)
-        {
-            QMessageBox::critical(this, "Error", "Failed to complete lint because of an internal error");
-        }
-        else if (m_linterStatus & PCLint::LintStatus::STATUS_PROCESS_TIMEOUT)
-        {
-            QMessageBox::critical(this, "Error", "Failed to complete lint because process became stuck");
-        }
-    }
-
-    // TODO: Change type to Status
-    m_linterStatus = 0;
-
-    // Start the file monitor thread
-    //emit signalSetModifiedFiles(modifiedFiles);
-    //emit signalStartMonitor();
-    emit signalUpdateTypes();
+    qDebug() << "MainWindow::slotProcessLintMessageGroup" << totalElapsedTime / 1000.f << "s elapsed";
 
 }
 
 void MainWindow::slotLintVersion(const PCLint::Version& version) noexcept
 {
-    m_linter.setVersion(version);
+    //m_linter.setVersion(version);
 }
 
 void MainWindow::slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& ) noexcept
@@ -802,7 +459,7 @@ void MainWindow::slotLintComplete(const PCLint::LintStatus& lintStatus, const QS
 
     // TODO: Fix this inconsistency between m_linter and these arguments
     // Show message if there are no lint problems
-    if (lintStatus == PCLint::LintStatus::STATUS_COMPLETE &&
+    /*if (lintStatus == PCLint::LintStatus::STATUS_COMPLETE &&
             m_linter.numberOfErrors() == 0 && m_linter.numberOfWarnings() == 0 && m_linter.numberOfInfo() == 0)
     {
         QMessageBox::information(this, "Information", "No errors detected in code");
@@ -827,8 +484,7 @@ void MainWindow::slotLintComplete(const PCLint::LintStatus& lintStatus, const QS
         {
             QMessageBox::critical(this, "Error", "Failed to complete lint because process became stuck");
         }
-    }
-    //displayLintTable();
+    }*/
     m_ui->lintTable->setSortingEnabled(true);
 
 }
@@ -846,7 +502,6 @@ void MainWindow::slotGetLinterData()
 
 void MainWindow::slotGetLintData() noexcept
 {
-    //qDebug() << "Progress Window asks MainWindow for lint data";
     PCLint::LintData lintData
     {
        m_preferences->getLinterExecutablePath().trimmed(),
@@ -856,17 +511,53 @@ void MainWindow::slotGetLintData() noexcept
     emit signalSetLintData(lintData);
 }
 
-void MainWindow::startLint(QString title)
+void MainWindow::startLint(QString)
 {
-    // Clear any existing data
-    m_linter.resetLinter();
-
     clearLintTree();
     m_lintTreeMessages.clear();
 
-    ProgressWindow progressWindow(this,title);
+    ProgressWindow progressWindow;
     Qt::WindowFlags flags = progressWindow.windowFlags();
     progressWindow.setWindowFlags(flags | Qt::Tool);
+
+    PCLint::Lint lint;
+    lint.setLintExecutable(m_preferences->getLinterExecutablePath().trimmed());
+    lint.setLintFile(m_preferences->getLinterLintFilePath().trimmed());
+
+
+    QObject::connect(&lint, &PCLint::Lint::signalLintFinished, &progressWindow, &ProgressWindow::slotLintFinished);
+    QObject::connect(&lint, &PCLint::Lint::signalLintComplete, &progressWindow, &ProgressWindow::slotLintComplete);
+    QObject::connect(&progressWindow, &ProgressWindow::signalAbortLint, &lint, &PCLint::Lint::slotAbortLint);
+
+
+    // Currently only supporting PC-Lint Plus
+    QObject::connect(&lint, &PCLint::Lint::signalUpdateProgress, &progressWindow, &ProgressWindow::slotUpdateProgress);
+    QObject::connect(&lint, &PCLint::Lint::signalUpdateProgressMax, &progressWindow, &ProgressWindow::slotUpdateProgressMax);
+    QObject::connect(&lint, &PCLint::Lint::signalUpdateProcessedFiles, &progressWindow, &ProgressWindow::slotUpdateProcessedFiles);
+
+    // Lint passes processed chunk to ProgressWindow
+    QObject::connect(&lint, &PCLint::Lint::signalProcessLintMessageGroup, this, &MainWindow::slotProcessLintMessageGroup);
+
+    // ProgressWindow asks MainWindow for lint data
+    // MainWindow gives ProgressWindow lint data
+    // ProgressWindow gives lint data to LintManager which starts the process
+    // Start lint
+    // Lint object gives LintManager lint responses
+    // LintManager gives ProgressWindow progress data
+    // ...
+    // LintManager finishes and gives ProgressWindow the data
+    // ProgressWindow gives MainWindow the output data
+
+    // ProgressWindow asks MainWindow for lint data
+    // MainWindow gives ProgressWindow lint data
+    // ProgressWindow gives lint data to LintManager which starts the process
+    // Start lint
+    // LintManager gives ProgressWindow progress data
+    // ...
+    // ProgressWindow gives MainWindow the output data
+
+    lint.lint();
+
     progressWindow.exec();
 }
 
@@ -881,92 +572,10 @@ void MainWindow::on_actionRefresh_triggered()
     // Then try to lint that again
     if (!m_lastProjectLoaded.isEmpty())
     {
-        m_linter.setLintFile(m_preferences->getLinterLintFilePath().trimmed());
-        m_linter.setLintExecutable(m_preferences->getLinterExecutablePath().trimmed());
-        m_linter.setSourceFiles(m_directoryFiles);
+       // m_linter.setLintFile(m_preferences->getLinterLintFilePath().trimmed());
+        //m_linter.setLintExecutable(m_preferences->getLinterExecutablePath().trimmed());
+        //m_linter.setSourceFiles(m_directoryFiles);
         startLint(QFileInfo(m_lastProjectLoaded).fileName());
-    }
-}
-
-void MainWindow::slotFileModified(QString modifiedFile)
-{
-    const QSignalBlocker blocker(m_modifiedFileWorker.get());
-    QMessageBox msgBox(this);
-    msgBox.setText(modifiedFile);
-    msgBox.setInformativeText("This file has been modified by another program. \n Do you want to reload it?");
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msgBox.setIcon(QMessageBox::Question);
-    if (msgBox.exec() == QMessageBox::Yes)
-    {
-
-        // Check if the file was deleted before we try to load it again
-        if (QFile(modifiedFile).exists())
-        {
-            if (m_ui->codeEditor->loadedFile() == modifiedFile)
-            {
-                // Reload the file into the code editor if it's one open
-                if (m_ui->codeEditor->loadFile(modifiedFile))
-                {
-                    // Reload
-                    qInfo() << "Reloading file: " << modifiedFile;
-
-                    // Update the status bar
-                    m_ui->statusBar->showMessage("Reloaded " + modifiedFile + " at " + QDateTime::currentDateTime().toString());
-                }
-                else
-                {
-                    // TODO: Reason for failure
-                    QMessageBox::critical(this, "Error", "Unable to open file: " + modifiedFile);
-                }
-            }
-        }
-        else
-        {
-            // Ask if they want to keep this file
-            slotFileDoesntExist(modifiedFile);
-        }
-
-
-    }
-}
-
-void MainWindow::slotFileDoesntExist(const QString& deletedFile)
-{
-    const QSignalBlocker blocker(m_modifiedFileWorker.get());
-    QMessageBox msgBox(this);
-    msgBox.setText("The file " + deletedFile + " doesn't exist anymore.");
-    msgBox.setInformativeText("Keep this file in editor?");
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msgBox.setIcon(QMessageBox::Question);
-
-    if (msgBox.exec() == QMessageBox::No)
-    {
-        // Remove
-        qInfo() << "Removing file: " << deletedFile;
-
-        // Remove this file from the code editor if it's the loaded one
-        if (m_ui->codeEditor->loadedFile() == deletedFile)
-        {
-            m_ui->codeEditor->clear();
-        }
-
-        // Update the linter messages
-        //m_linter.removeAssociatedMessages(deletedFile);
-
-        // Update the lint table again
-        displayLintTable();
-
-        // Update the status bar
-        m_ui->statusBar->showMessage("Removed " + deletedFile + " at " + QDateTime::currentDateTime().toString());
-
-        // Notify the ModifiedWorker thread
-        emit signalRemoveFile(deletedFile);
-    }
-    else
-    {
-        // Notify monitor thread that we want to keep this file
-        // Save this file locall
-        emit signalKeepFile(deletedFile);
     }
 }
 
@@ -1041,7 +650,7 @@ QSet<QString> MainWindow::recursiveBuildSourceFileSet(const QString& directory)
 
 void MainWindow::on_actionLintProject_triggered()
 {
-    startLint(true);
+   startLint("");
 }
 
 void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
