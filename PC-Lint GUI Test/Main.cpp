@@ -1,7 +1,6 @@
 #include <QCoreApplication>
 
 #include "LinterTest.h"
-#include "ProjectSolutionTest.h"
 
 #include <vector>
 #include <memory>
@@ -23,18 +22,15 @@ void messageHandler(QtMsgType type, const QMessageLogContext&, const QString &ms
     }
 }
 
-int main(int argc, char *argv[])
+int main(int , char *[])
 {
-    QCoreApplication a(argc, argv);
     qInstallMessageHandler(messageHandler);
 
     // Add new tests here
-    Test::ProjectSolutionTest projectSolutionTest;
-    Test::LinterTest linterTest;
+    Test::PCLintPlusTest linterTest;
 
     Test::TestFunction testMain;
-    testMain.runTests(&projectSolutionTest, projectSolutionTest.m_tests);
     testMain.runTests(&linterTest, linterTest.m_tests);
 
-    return a.exec();
+    return 0;
 }

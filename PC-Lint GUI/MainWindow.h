@@ -69,6 +69,12 @@ public slots:
 
     void slotProcessLintMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
 
+
+    void slotUpdateErrors() noexcept;
+    void slotUpdateWarnings() noexcept;
+    void slotUpdateInformations() noexcept;
+
+
 private slots:
     void save();
     void on_aboutLinty_triggered();
@@ -105,9 +111,9 @@ private:
 
 
     PCLint::LintMessages m_lintTreeMessages;
-    int m_lintTreeErrors;
-    int m_lintTreeWarnings;
-    int m_lintTreeInformation;
+    int m_numberOfErrors;
+    int m_numberOfWarnings;
+    int m_numberOfInformations;
 
     void clearLintTree() noexcept;
     void applyLintTreeFilter() noexcept;
@@ -116,9 +122,6 @@ private:
     bool verifyLint();
     QSet<QString> recursiveBuildSourceFileSet(const QString& directory);
     PCLint::About m_about;
-
-    PCLint::Lint m_lint;
-
 
     void testLintTreeFilter() noexcept;
 

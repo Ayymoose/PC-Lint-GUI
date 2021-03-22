@@ -1,0 +1,20 @@
+<doc>
+ <m><f>file1</f><l>60</l><t>warning</t><n>6</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>60</l><t>warning</t><n>6</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>60</l><t>warning</t><n>6</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>1</l><t>info</t><n>1</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>20</l><t>info</t><n>2</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>3</l><t>warning</t><n>3</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>40</l><t>info</t><n>4</n><d>ignoring return value of function</d></m> 
+ 
+ <m><f>file1</f><l>50</l><t>error</t><n>5</n><d>ignoring return value of function</d></m>
+
+ <m><f>file1</f><l>130</l><t>error</t><n>13</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>130</l><t>error</t><n>13</n><d>ignoring return value of function</d></m>
+
+ <m><f>file1</f><l>130</l><t>info</t><n>13</n><d>ignoring return value of function</d></m>
+</doc>

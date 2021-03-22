@@ -21,7 +21,6 @@
 #include <QObject>
 #include <QSet>
 #include <QDebug>
-#include <QtConcurrent>
 #include <QProcess>
 #include <QXmlStreamReader>
 #include <QFileInfo>
@@ -190,17 +189,20 @@ public:
         m_version = version;
     }
 
+
+    void toggleMessages(bool toggleErrors, bool toggleWarnings, bool toggleInformation) noexcept;
+
     // Return path to the lint file used (.lnt)
     QString getLintFile() const noexcept;
-
-    static QImage associateMessageTypeWithIcon(const QString& message) noexcept;
 
     // Group together lint messages (PC-Lint Plus only)
     // So that supplemental messages are tied together with error/info/warnings
     LintMessageGroup groupLintMessages(LintMessages&& lintMessages) noexcept;
 
+    std::vector<QString> parseSourceFileInformation(const QByteArray& data) noexcept;
+    LintMessages parseLintMessages(const QByteArray& data);
 
-    LintResponse testLintProcessMessages(QByteArray &lintChunk) noexcept;
+    std::vector<QByteArray> stitchModule(const QByteArray& data);
 
 public slots:
 
@@ -210,7 +212,8 @@ public slots:
 
     void slotPointerToLintTree(QTreeWidget *treeTable) noexcept;
 
-
+private slots:
+    void slotConsumerFinished() noexcept;
 
 signals:
     void signalUpdateProgress(int value);
@@ -225,6 +228,13 @@ signals:
     void signalProcessLintMessages(const LintResponse& lintResponse);
 
     void signalProcessLintMessageGroup(const LintMessageGroup& lintMessageGroup);
+
+
+    void signalUpdateErrors();
+    void signalUpdateWarnings();
+    void signalUpdateInformations();
+
+    void signalConsumerFinished();
 
 private:
     QString m_lintDirectory;
@@ -245,11 +255,12 @@ private:
     LintStatus m_status;
     int m_numberOfLintedFiles;
 
-    QFile m_lintOutFile;
-    QFile m_lintFailedFile;
+    QFile m_stdOutFile;
+    QFile m_stdErrFile;
 
 
     QByteArray m_stdOut;
+
     std::unique_ptr<QProcess> m_process;
 
 
@@ -259,6 +270,8 @@ private:
 
     void addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
     bool filterMessageType(const QString& type) const noexcept;
+
+    void processModules(std::vector<QByteArray> modules);
 
     LintMessagesSet m_messageSet;
 
@@ -271,6 +284,11 @@ private:
 
     QTreeWidget* m_treeTable;
 
+    bool m_toggleError;
+    bool m_toggleWarning;
+    bool m_toggleInformation;
+
+    QFile m_testFile;
 };
 
 // For QSet

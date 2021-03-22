@@ -55,9 +55,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_preferences(std::make_unique<Preferences>(this)),
     m_lintTableMenu(std::make_unique<QMenu>(this)),
     m_linterStatus(0),
-    m_lintTreeErrors(0),
-    m_lintTreeWarnings(0),
-    m_lintTreeInformation(0)
+    m_numberOfErrors(0),
+    m_numberOfWarnings(0),
+    m_numberOfInformations(0)
 {
     qRegisterMetaType<PCLint::LintStatus>("Status");
     qRegisterMetaType<QSet<PCLint::LintMessage>>("QSet<LintMessage>");
@@ -66,6 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
     qRegisterMetaType<PCLint::LintData>("PCLint::LintData");
     qRegisterMetaType<PCLint::Version>("PCLint::Version");
     qRegisterMetaType<PCLint::LintMessageGroup>("LintMessageGroup");
+    qRegisterMetaType<QVector<int>>("QVector<int>");
 
     // Turn UI into actual objects
     m_ui->setupUi(this);
@@ -96,14 +97,14 @@ MainWindow::MainWindow(QWidget *parent) :
     m_buttonErrors->setCheckable(true);
     m_buttonErrors->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     m_actionError->setIcon(QIcon(":/images/error.png"));
-    m_actionError->setText("Errors:" + QString::number(m_lintTreeErrors));
+    m_actionError->setText("Errors:" + QString::number(m_numberOfErrors));
     m_buttonErrors->setDefaultAction(m_actionError.get());
     m_actionError->setCheckable(true);
     m_actionError->setChecked(m_toggleError);
 
     m_buttonWarnings->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     m_actionWarning->setIcon(QIcon(":/images/warning.png"));
-    m_actionWarning->setText("Warnings:" + QString::number(m_lintTreeWarnings));
+    m_actionWarning->setText("Warnings:" + QString::number(m_numberOfWarnings));
     m_buttonWarnings->setDefaultAction(m_actionWarning.get());
     m_actionWarning->setCheckable(true);
     m_actionWarning->setChecked(m_toggleWarning);
@@ -111,7 +112,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_buttonInformation->setCheckable(true);
     m_buttonInformation->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     m_actionInformation->setIcon(QIcon(":/images/info.png"));
-    m_actionInformation->setText("Information:" + QString::number(m_lintTreeInformation));
+    m_actionInformation->setText("Information:" + QString::number(m_numberOfInformations));
     m_buttonInformation->setDefaultAction(m_actionInformation.get());
     m_actionInformation->setCheckable(true);
     m_actionInformation->setChecked(m_buttonInformation.get());
@@ -144,9 +145,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(this, &MainWindow::signalUpdateTypes, this, [this]()
     {
-        m_actionError->setText("Errors:" + QString::number(m_lintTreeErrors));
-        m_actionWarning->setText("Warnings:" + QString::number(m_lintTreeWarnings));
-        m_actionInformation->setText("Information:" + QString::number(m_lintTreeInformation));
+        m_actionError->setText("Errors:" + QString::number(m_numberOfErrors));
+        m_actionWarning->setText("Warnings:" + QString::number(m_numberOfWarnings));
+        m_actionInformation->setText("Information:" + QString::number(m_numberOfInformations));
     });
 
     m_ui->lintTable->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -158,10 +159,25 @@ MainWindow::MainWindow(QWidget *parent) :
     // TreeWidget font set to 12
     m_ui->lintTable->setStyleSheet("QTreeWidget { font-size: 12pt; }");
 
-    //testLintTreeFilter();
 }
 
+void MainWindow::slotUpdateErrors() noexcept
+{
+    m_numberOfErrors++;
+    m_actionError->setText("Errors:" + QString::number(m_numberOfErrors));
+}
 
+void MainWindow::slotUpdateWarnings() noexcept
+{
+    m_numberOfWarnings++;
+    m_actionWarning->setText("Warnings:" + QString::number(m_numberOfWarnings));
+}
+
+void MainWindow::slotUpdateInformations() noexcept
+{
+    m_numberOfInformations++;
+    m_actionInformation->setText("Information:" + QString::number(m_numberOfInformations));
+}
 
 MainWindow::~MainWindow()
 {
@@ -236,108 +252,6 @@ void MainWindow::on_actionLint_triggered()
     //startLint(false);
 }
 
-/*
-void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept
-{
-
-    auto createTreeNode = [](QTreeWidgetItem* parentItem, const PCLint::LintMessage& message)
-    {
-        auto* treeItem = new QTreeWidgetItem(parentItem);
-        treeItem->setText(PCLint::LINT_TABLE_FILE_COLUMN, QFileInfo(message.file).fileName());
-        treeItem->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::UserRole, message.file);
-        treeItem->setText(PCLint::LINT_TABLE_NUMBER_COLUMN, QString::number(message.number));
-        treeItem->setText(PCLint::LINT_TABLE_DESCRIPTION_COLUMN, message.description);
-        treeItem->setText(PCLint::LINT_TABLE_LINE_COLUMN, QString::number(message.line));
-
-        auto const icon = PCLint::Lint::associateMessageTypeWithIcon(message.type);
-        treeItem->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
-        return treeItem;
-    };
-
-    for (const auto& groupMessage : lintMessageGroup)
-    {
-        // Every vector must be at least 1 otherwise something went wrong
-        Q_ASSERT(groupMessage.size() >= 1);
-
-        // Create the top-level item
-        const auto messageTop = groupMessage.front();
-
-        // Group together items under the same file
-        auto const messageTopFileName = QFileInfo(messageTop.file).fileName();
-        auto const treeList = m_ui->lintTable->findItems(messageTopFileName,Qt::MatchExactly, PCLint::LINT_TABLE_FILE_COLUMN);
-
-        QTreeWidgetItem* fileDetailsItemTop = nullptr;
-
-        if (treeList.size())
-        {
-            // Should only ever be 1 file name, unless there are mutiple files with the same name but different path?
-            // Already exists, use this one
-            Q_ASSERT(treeList.size() == 1);
-            fileDetailsItemTop = treeList.first();
-        }
-        else
-        {
-            // New file entry
-            fileDetailsItemTop = new QTreeWidgetItem(m_ui->lintTable);
-            fileDetailsItemTop->setText(PCLint::LINT_TABLE_FILE_COLUMN, messageTopFileName);
-            fileDetailsItemTop->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
-        }
-
-        // Filter
-        if (filterMessageType(messageTop.type))
-        {
-            continue;
-        }
-
-        // If it's just a single entry
-        if (groupMessage.size() == 1)
-        {
-            createTreeNode(fileDetailsItemTop, messageTop);
-            // Skip next
-            continue;
-        }
-
-        // Create a child level item
-        auto fileDetailsItem = createTreeNode(fileDetailsItemTop, messageTop);
-
-        Q_ASSERT(groupMessage.size() > 1);
-
-        // Otherwise grab the rest of the group
-        for (auto cit = groupMessage.cbegin()+1; cit != groupMessage.cend(); cit++)
-        {
-            auto message = *cit;
-
-            // Filter
-            // TODO: Should this be message.type?!
-            if (filterMessageType(messageTop.type))
-            {
-                continue;
-            }
-
-            // Check if the file exists (absolute path given)
-            // Check if it exists in the project file's directory
-            if (!QFile(message.file).exists())
-            {
-                // TODO: Optimise this
-                const auto relativeFile = QFileInfo(m_preferences->getLinterLintFilePath().trimmed()).canonicalPath() + '/' + message.file;
-                if (!QFile(relativeFile).exists())
-                {
-                    message.file = "";
-                }
-                else
-                {
-                    message.file = relativeFile;
-                }
-            }
-            // The sticky details
-            createTreeNode(fileDetailsItem, message);
-        }
-    }
-
-
-}
-*/
-
 void MainWindow::clearLintTree() noexcept
 {
     // Clear all entries
@@ -410,8 +324,8 @@ void MainWindow::testLintTreeFilter() noexcept
     Q_ASSERT(lintChunk.size() > 0);
     dataFile.close();
 
-    PCLint::Lint lint;
-    auto lintResponse = lint.testLintProcessMessages(lintChunk);
+    //PCLint::Lint lint;
+    //auto lintResponse = lint.testLintProcessMessages(lintChunk);
 
     //slotProcessLintMessages(lintResponse);
 }
@@ -484,6 +398,14 @@ void MainWindow::slotLintComplete(const PCLint::LintStatus& lintStatus, const QS
 
 void MainWindow::startLint(QString)
 {
+    m_numberOfErrors = 0;
+    m_numberOfWarnings = 0;
+    m_numberOfInformations = 0;
+
+    m_actionError->setText("Errors:" + QString::number(m_numberOfErrors));
+    m_actionWarning->setText("Warnings:" + QString::number(m_numberOfWarnings));
+    m_actionInformation->setText("Information:" + QString::number(m_numberOfInformations));
+
     clearLintTree();
     m_lintTreeMessages.clear();
 
@@ -491,10 +413,7 @@ void MainWindow::startLint(QString)
     Qt::WindowFlags flags = progressWindow.windowFlags();
     progressWindow.setWindowFlags(flags | Qt::Tool);
 
-    PCLint::Lint lint;
-    lint.setLintExecutable(m_preferences->getLintExecutablePath().trimmed());
-    lint.setLintFile(m_preferences->getLintFilePath().trimmed());
-
+    PCLint::Lint lint(m_preferences->getLintExecutablePath().trimmed(), m_preferences->getLintFilePath().trimmed());
 
     QObject::connect(&lint, &PCLint::Lint::signalLintFinished, &progressWindow, &ProgressWindow::slotLintFinished);
     QObject::connect(&lint, &PCLint::Lint::signalLintComplete, &progressWindow, &ProgressWindow::slotLintComplete);
@@ -509,28 +428,18 @@ void MainWindow::startLint(QString)
     // Lint passes processed chunk to ProgressWindow
     QObject::connect(&lint, &PCLint::Lint::signalProcessLintMessageGroup, this, &MainWindow::slotProcessLintMessageGroup);
 
+
+    QObject::connect(&lint, &PCLint::Lint::signalUpdateWarnings, this, &MainWindow::slotUpdateWarnings);
+    QObject::connect(&lint, &PCLint::Lint::signalUpdateErrors, this, &MainWindow::slotUpdateErrors);
+    QObject::connect(&lint, &PCLint::Lint::signalUpdateInformations, this, &MainWindow::slotUpdateInformations);
+
     QObject::connect(this, &MainWindow::signalPointerToLintTree, &lint, &PCLint::Lint::slotPointerToLintTree);
 
-
-    // ProgressWindow asks MainWindow for lint data
-    // MainWindow gives ProgressWindow lint data
-    // ProgressWindow gives lint data to LintManager which starts the process
-    // Start lint
-    // Lint object gives LintManager lint responses
-    // LintManager gives ProgressWindow progress data
-    // ...
-    // LintManager finishes and gives ProgressWindow the data
-    // ProgressWindow gives MainWindow the output data
-
-    // ProgressWindow asks MainWindow for lint data
-    // MainWindow gives ProgressWindow lint data
-    // ProgressWindow gives lint data to LintManager which starts the process
-    // Start lint
-    // LintManager gives ProgressWindow progress data
-    // ...
-    // ProgressWindow gives MainWindow the output data
-
+    // TODO: This can be a method
     emit signalPointerToLintTree(m_ui->lintTable);
+
+    // Lint will spit out the messages so do the toggling here
+    lint.toggleMessages(m_toggleError, m_toggleWarning, m_toggleInformation);
     lint.lint();
 
     progressWindow.exec();
@@ -604,25 +513,6 @@ void MainWindow::on_actionLog_triggered()
     }
 }
 
-QSet<QString> MainWindow::recursiveBuildSourceFileSet(const QString& directory)
-{
-    qDebug() << "Scanning directory: " << directory;
-    QSet<QString> directoryFiles;
-    // Add any of these file types (e.g .C, .cc, .cpp, .CPP, .c++, .cp, or .cxx.)
-
-    const QStringList extensions[] = {{"*.c"},{"*.C"}, {"*.cc"}, {"*.cpp"}, {"*.CPP"}, {"*.c++"}, {"*.cp"}, {"*.cxx"}};
-    for (const QStringList& stringList : extensions)
-    {
-        QDirIterator dirIterator(directory, stringList, QDir::Files, QDirIterator::Subdirectories);
-        while (dirIterator.hasNext())
-        {
-            directoryFiles.insert(dirIterator.next());
-        }
-    }
-    qDebug() << "Total files scanned: " << directoryFiles.size();
-    return directoryFiles;
-}
-
 void MainWindow::on_actionLintProject_triggered()
 {
    startLint("");
@@ -679,22 +569,3 @@ void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
     }
 }
 
-/*
-bool MainWindow::filterMessageType(const QString& type) const noexcept
-{
-    bool filter = false;
-
-    if (!m_toggleError && (type == PCLint::Type::TYPE_ERROR))
-    {
-        filter = true;
-    }
-    else if (!m_toggleWarning && (type == PCLint::Type::TYPE_WARNING))
-    {
-        filter = true;
-    }
-    else if (!m_toggleInformation && (type == PCLint::Type::TYPE_INFO))
-    {
-        filter = true;
-    }
-    return filter;
-}*/

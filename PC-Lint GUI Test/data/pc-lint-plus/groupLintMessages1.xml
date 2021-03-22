@@ -1,0 +1,47 @@
+<doc>
+ <m><f>file1</f><l>1</l><t>warning</t><n>1</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>20</l><t>warning</t><n>2</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>21</l><t>supplemental</t><n>2</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>3</l><t>warning</t><n>3</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>40</l><t>info</t><n>4</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>41</l><t>supplemental</t><n>4</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>42</l><t>supplemental</t><n>4</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>43</l><t>supplemental</t><n>4</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>50</l><t>error</t><n>5</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>51</l><t>supplemental</t><n>5</n><d>ignoring return value of function</d></m>
+ 
+ <!-- Duplicate messages-->
+ <m><f>file1</f><l>60</l><t>warning</t><n>6</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>60</l><t>warning</t><n>6</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>60</l><t>warning</t><n>6</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>60</l><t>warning</t><n>6</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>60</l><t>warning</t><n>6</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>70</l><t>error</t><n>7</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>71</l><t>supplemental</t><n>7</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>72</l><t>supplemental</t><n>7</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>80</l><t>warning</t><n>8</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>90</l><t>warning</t><n>9</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>91</l><t>supplemental</t><n>9</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>100</l><t>warning</t><n>10</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>110</l><t>info</t><n>11</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>111</l><t>supplemental</t><n>11</n><d>ignoring return value of function</d></m>
+ 
+ <m><f>file1</f><l>12</l><t>info</t><n>12</n><d>ignoring return value of function</d></m>
+ 
+ <!-- Duplicate messages at end!-->
+ <m><f>file1</f><l>130</l><t>info</t><n>13</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>130</l><t>info</t><n>13</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>130</l><t>info</t><n>13</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>130</l><t>info</t><n>13</n><d>ignoring return value of function</d></m>
+ <m><f>file1</f><l>130</l><t>info</t><n>13</n><d>ignoring return value of function</d></m>
+ 
+</doc>
