@@ -288,7 +288,7 @@ private:
     bool m_toggleWarning;
     bool m_toggleInformation;
 
-    QFile m_testFile;
+    QFile m_lintStdOut;
 };
 
 // For QSet

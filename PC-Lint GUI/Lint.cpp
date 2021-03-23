@@ -376,9 +376,16 @@ void Lint::lint() noexcept
         Q_ASSERT(false);
     }
 
-    m_stdOutFile.remove();
     m_stdOutFile.setFileName(R"(D:\Users\Ayman\Desktop\PC-Lint GUI\test\stdout.xml)");
+    m_stdOutFile.remove();
     if (!m_stdOutFile.open(QIODevice::WriteOnly | QIODevice::Append))
+    {
+        Q_ASSERT(false);
+    }
+
+    m_lintStdOut.setFileName(R"(D:\Users\Ayman\Desktop\PC-Lint GUI\test\lintout.xml)");
+    m_lintStdOut.remove();
+    if (!m_lintStdOut.open(QIODevice::WriteOnly | QIODevice::Append))
     {
         Q_ASSERT(false);
     }
@@ -446,7 +453,7 @@ void Lint::lint() noexcept
         {
             // On large projects, there's a good chance we'll get a bad_alloc thrown
             auto readStdOut = m_process->readAllStandardOutput();
-
+            m_lintStdOut.write(readStdOut);
             // Lock free queue needed
             // This section must never block otherwise the GUI will hang
             m_dataQueue->enqueue(std::move(readStdOut));
@@ -555,8 +562,16 @@ void Lint::consumeLintChunk() noexcept
             // No more data left to process, exit
             if (modules.size() == 0)
             {
-                m_stdOutFile.write(m_stdOut);
-                break;
+
+                if (!m_stdOut.contains("</doc>"))
+                {
+                    m_stdOut.append("</doc>");
+                }
+                else
+                {
+                    m_stdOutFile.write(m_stdOut);
+                    break;
+                }
             }
 
             processModules(modules);
@@ -825,8 +840,9 @@ std::vector<QByteArray> Lint::stitchModule(const QByteArray& data)
         // Each module chunk will need a pair of <doc>/<doc> tags
         // wrapped around them for the XML stream reader to work
 
-        Q_ASSERT(!module.contains("<doc>"));
-        Q_ASSERT(!module.contains("</doc>"));
+
+        module.replace("<doc>", "");
+        module.replace("</doc>", "");
 
         module.prepend("<doc>");
         module.append("</doc>");
