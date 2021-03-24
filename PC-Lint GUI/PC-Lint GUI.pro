@@ -7,7 +7,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 QMAKE_CXXFLAGS += -Wunused -Wpointer-arith -Wlogical-op
 
-QT += xml widgets
+QT += xml widgets concurrent
 
 SOURCES += \
     About.cpp \

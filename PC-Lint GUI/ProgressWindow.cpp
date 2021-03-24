@@ -36,9 +36,6 @@ ProgressWindow::ProgressWindow(QWidget *parent) :
 {
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
-    //m_lintManager->moveToThread(m_workerThread.get());
-    //m_workerThread->start();
-
     m_ui->setupUi(this);
     m_ui->lintProgressBar->setValue(0);
     m_ui->lintProgressBar->setMaximum(0);
@@ -86,11 +83,6 @@ void ProgressWindow::slotUpdateTime() noexcept
     {
         m_ui->eta->setText(QDateTime::fromTime_t(m_eta--).toUTC().toString("hh:mm:ss"));
     }
-}
-
-void ProgressWindow::slotLintFinished(const PCLint::LintResponse& lintResponse) noexcept
-{
-    emit signalLintFinished(lintResponse);
 }
 
 void ProgressWindow::slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept

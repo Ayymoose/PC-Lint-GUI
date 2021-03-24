@@ -29,11 +29,14 @@
 #include <QTreeWidget>
 #include <QDir>
 #include <QFile>
+#include <QFuture>
+#include <QtConcurrent>
 #include <mutex>
 #include <memory>
 #include <chrono>
 #include <vector>
 #include <algorithm>
+#include <atomic>
 #include <condition_variable>
 #include "atomicops.h"
 #include "readerwriterqueue.h"
@@ -114,14 +117,14 @@ constexpr int LINT_TABLE_NUMBER_COLUMN = 1;
 constexpr int LINT_TABLE_DESCRIPTION_COLUMN = 2;
 constexpr int LINT_TABLE_LINE_COLUMN = 3;
 
-typedef struct
+struct LintMessage
 {
     QString file;        // File associated with message
     int line;            // Source code line number
     QString type;        // Message type ("error", "warning", "information", "supplemental")
     int number;          // Message number
     QString description; // Message description
-} LintMessage;
+};
 
 
 using LintMessages = std::vector<LintMessage>;
@@ -130,21 +133,21 @@ using LintMessageGroup = std::vector<LintMessages>;
 
 using namespace moodycamel;
 
-typedef struct
+struct LintData
 {
     QString linterExecutable;
     QString lintOptionFile;
     QSet<QString> lintFiles;
-} LintData;
+};
 
 // Data from a processed lint chunk
-typedef struct
+struct LintResponse
 {
     LintMessages lintMessages;
     int numberOfErrors;
     int numberOfWarnings;
     int numberOfInformation;
-} LintResponse;
+};
 
 class Lint : public QObject
 {
@@ -157,40 +160,25 @@ public:
     void setLintExecutable(const QString& linterExecutable) noexcept;
     // Set the lint file (.lnt) to use
     void setLintFile(const QString& lintFile) noexcept;
-    // Set the source files (.c .cpp etc) to lint
-    void setSourceFiles(const QSet<QString>& files) noexcept;
-
-    void setLintData(const LintData& lintData) noexcept;
-
-
 
     // Set the working directory for the lint executable
     void setWorkingDirectory(const QString& directory) noexcept;
 
     // Gets the set of lintMessage returned after a lint
     LintMessages getLintMessages() const noexcept;
-    void setLintMessages(const LintMessages& lintMessages) noexcept;
 
     // Clear all messages and information
     void resetLinter() noexcept;
 
     int numberOfErrors() const noexcept;
     int numberOfWarnings() const noexcept;
-    int numberOfInfo() const noexcept;
+    int numberOfInformations() const noexcept;
     QString errorMessage() const noexcept;
-
-    void setNumberOfErrors(int numberOfErrors) noexcept;
-    void setNumberOfWarnings(int numberOfWarnings) noexcept;
-    void setNumberOfInfo(int numberOfInfo) noexcept;
-    void setErrorMessage(const QString& errorMessage) noexcept;
 
     void setVersion(const Version& version) noexcept
     {
         m_version = version;
     }
-
-
-    void toggleMessages(bool toggleErrors, bool toggleWarnings, bool toggleInformation) noexcept;
 
     // Return path to the lint file used (.lnt)
     QString getLintFile() const noexcept;
@@ -207,13 +195,7 @@ public:
 public slots:
 
     void slotAbortLint() noexcept;
-
     void lint() noexcept;
-
-    void slotPointerToLintTree(QTreeWidget *treeTable) noexcept;
-
-private slots:
-    void slotConsumerFinished() noexcept;
 
 signals:
     void signalUpdateProgress(int value);
@@ -221,20 +203,15 @@ signals:
     void signalUpdateETA(int eta);
     void signalUpdateProcessedFiles(int processedFiles);
     void signalLintProgress(int value);
-    void signalLintFinished(const LintResponse& lintResponse);
 
 
     void signalLintComplete(const LintStatus& lintStatus, const QString& errorMessage);
     void signalProcessLintMessages(const LintResponse& lintResponse);
 
-    void signalProcessLintMessageGroup(const LintMessageGroup& lintMessageGroup);
-
-
-    void signalUpdateErrors();
-    void signalUpdateWarnings();
-    void signalUpdateInformations();
-
     void signalConsumerFinished();
+
+    void signalAddTreeMessageGroup(const LintMessageGroup& lintMessageGroup);
+
 
 private:
     QString m_lintDirectory;
@@ -268,26 +245,16 @@ private:
     void consumeLintChunk() noexcept;
 
 
-    void addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
-    bool filterMessageType(const QString& type) const noexcept;
-
     void processModules(std::vector<QByteArray> modules);
 
     LintMessagesSet m_messageSet;
 
-    bool m_finished;
+    std::atomic<bool> m_finished;
 
     std::unique_ptr<ReaderWriterQueue<QByteArray>> m_dataQueue;
-    std::mutex m_consumerMutex;
-    std::condition_variable m_consumerConditionVariable;
-    std::unique_ptr<std::thread> m_consumerThread;
-
-    QTreeWidget* m_treeTable;
-
-    bool m_toggleError;
-    bool m_toggleWarning;
-    bool m_toggleInformation;
-
+    std::mutex m_mutex;
+    std::condition_variable m_conditionVariable;
+    QFuture<void> m_future;
     QFile m_lintStdOut;
 };
 

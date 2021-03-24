@@ -31,11 +31,7 @@ Lint::Lint() :
     m_version(VERSION_UNKNOWN),
     m_status(STATUS_UNKNOWN),
     m_numberOfLintedFiles(0),
-    m_finished(false),
-    m_treeTable(nullptr),
-    m_toggleError(false),
-    m_toggleWarning(false),
-    m_toggleInformation(false)
+    m_finished(false)
 {
 
 }
@@ -49,173 +45,18 @@ Lint::Lint(const QString& lintExecutable, const QString& lintFile) :
     m_version(VERSION_UNKNOWN),
     m_status(STATUS_UNKNOWN),
     m_numberOfLintedFiles(0),
-    m_finished(false),
-    m_treeTable(nullptr),
-    m_toggleError(false),
-    m_toggleWarning(false),
-    m_toggleInformation(false)
+    m_finished(false)
 {
-
-}
-
-// If this message type should be filtered then returns true, false otherwise
-bool Lint::filterMessageType(const QString& type) const noexcept
-{
-    bool filter = false;
-    if (!m_toggleError && (type == Type::TYPE_ERROR))
-    {
-        filter = true;
-    }
-    else if (!m_toggleWarning && (type == Type::TYPE_WARNING))
-    {
-        filter = true;
-    }
-    else if (!m_toggleInformation && (type == Type::TYPE_INFO))
-    {
-        filter = true;
-    }
-    return filter;
-}
-
-
-void Lint::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept
-{
-    Q_ASSERT(m_treeTable);
-
-    // Create a new node in the lint tree table
-    auto createTreeNode = [this](QTreeWidgetItem* parentItem, const PCLint::LintMessage& message)
-    {
-        auto* treeItem = new QTreeWidgetItem(parentItem);
-        treeItem->setText(LINT_TABLE_FILE_COLUMN, QFileInfo(message.file).fileName());
-        treeItem->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, message.file);
-        treeItem->setText(LINT_TABLE_NUMBER_COLUMN, QString::number(message.number));
-        treeItem->setText(LINT_TABLE_DESCRIPTION_COLUMN, message.description);
-        treeItem->setText(LINT_TABLE_LINE_COLUMN, QString::number(message.line));
-
-        QImage icon;
-
-        if (message.type == Type::TYPE_ERROR)
-        {
-            icon.load(":/images/error.png");
-            emit signalUpdateErrors();
-        }
-        else if (message.type == Type::TYPE_WARNING)
-        {
-            icon.load(":/images/warning.png");
-            emit signalUpdateWarnings();
-        }
-        else if (message.type == Type::TYPE_INFO)
-        {
-            icon.load(":/images/info.png");
-            emit signalUpdateInformations();
-        }
-        else if (message.type == Type::TYPE_SUPPLEMENTAL)
-        {
-            icon.load(":/images/info.png");
-        }
-        else
-        {
-            Q_ASSERT(false);
-        }
-
-        treeItem->setData(LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
-        return treeItem;
-    };
-
-    for (const auto& groupMessage : lintMessageGroup)
-    {
-        // Every vector must be at least 1 otherwise something went wrong
-        Q_ASSERT(groupMessage.size() >= 1);
-
-        // Create the top-level item
-        const auto messageTop = groupMessage.front();
-
-        // Group together items under the same file
-        auto const messageTopFileName = QFileInfo(messageTop.file).fileName();
-        auto const treeList = m_treeTable->findItems(messageTopFileName,Qt::MatchExactly, LINT_TABLE_FILE_COLUMN);
-
-        QTreeWidgetItem* fileDetailsItemTop;
-
-        if (treeList.size())
-        {
-            // Should only ever be 1 file name, unless there are mutiple files with the same name but different path?
-            // Already exists, use this one
-            Q_ASSERT(treeList.size() == 1);
-            fileDetailsItemTop = treeList.first();
-        }
-        else
-        {
-            // New top level file entry
-            fileDetailsItemTop = new QTreeWidgetItem(m_treeTable);
-            fileDetailsItemTop->setText(LINT_TABLE_FILE_COLUMN, messageTopFileName);
-            fileDetailsItemTop->setData(LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
-        }
-
-        // Filter
-        if (filterMessageType(messageTop.type))
-        {
-            continue;
-        }
-
-        // If it's just a single entry
-        if (groupMessage.size() == 1)
-        {
-            createTreeNode(fileDetailsItemTop, messageTop);
-            // Skip next
-            continue;
-        }
-
-        // Create a child level item
-        auto fileDetailsItem = createTreeNode(fileDetailsItemTop, messageTop);
-
-        Q_ASSERT(groupMessage.size() > 1);
-
-        // Otherwise grab the rest of the group
-        for (auto cit = groupMessage.cbegin()+1; cit != groupMessage.cend(); cit++)
-        {
-            auto message = *cit;
-
-            // Filter
-            // TODO: Should this be message.type?!
-            if (filterMessageType(messageTop.type))
-            {
-                continue;
-            }
-
-            // Check if the file exists (absolute path given)
-            // Check if it exists in the project file's directory
-            if (!QFile(message.file).exists())
-            {
-                // TODO: Optimise this
-                const auto relativeFile = QFileInfo(m_lintFile).canonicalPath() + '/' + message.file;
-                if (!QFile(relativeFile).exists())
-                {
-                    message.file = "";
-                }
-                else
-                {
-                    message.file = relativeFile;
-                }
-            }
-            // The sticky details
-            createTreeNode(fileDetailsItem, message);
-        }
-    }
-
-}
-
-void Lint::slotPointerToLintTree(QTreeWidget* treeTable) noexcept
-{
-    m_treeTable = treeTable;
+    QObject::connect(this, &Lint::signalConsumerFinished, this, &Lint::slotAbortLint);
 }
 
 void Lint::slotAbortLint() noexcept
 {
-    if (m_consumerThread->joinable())
+    if (m_future.isRunning())
     {
         m_finished = true;
-        m_consumerConditionVariable.notify_one();
-        m_consumerThread->join();
+        m_conditionVariable.notify_one();
+        m_future.waitForFinished();
     }
     m_process->closeReadChannel(QProcess::StandardOutput);
     m_process->closeReadChannel(QProcess::StandardError);
@@ -237,12 +78,7 @@ void Lint::setLintExecutable(const QString& linterExecutable) noexcept
     m_lintExecutable = linterExecutable;
 }
 
-void Lint::setSourceFiles(const QSet<QString>& files) noexcept
-{
-    m_filesToLint = files;
-}
-
-int Lint::numberOfInfo() const noexcept
+int Lint::numberOfInformations() const noexcept
 {
     return m_numberOfInfo;
 }
@@ -257,48 +93,15 @@ int Lint::numberOfErrors() const noexcept
     return m_numberOfErrors;
 }
 
-void Lint::setLintMessages(const LintMessages& lintMessages) noexcept
-{
-    m_messages = lintMessages;
-}
-
-void Lint::setNumberOfErrors(int numberOfErrors) noexcept
-{
-    m_numberOfErrors = numberOfErrors;
-}
-
-void Lint::setNumberOfWarnings(int numberOfWarnings) noexcept
-{
-    m_numberOfWarnings = numberOfWarnings;
-}
-
-void Lint::setNumberOfInfo(int numberOfInfo) noexcept
-{
-    m_numberOfInfo = numberOfInfo;
-}
-
-void Lint::setErrorMessage(const QString& errorMessage) noexcept
-{
-    m_errorMessage = errorMessage;
-}
-
 QString Lint::errorMessage() const noexcept
 {
     return m_errorMessage;
-}
-
-void Lint::toggleMessages(bool toggleErrors, bool toggleWarnings, bool toggleInformation) noexcept
-{
-    m_toggleError = toggleErrors;
-    m_toggleWarning = toggleWarnings;
-    m_toggleInformation = toggleInformation;
 }
 
 void Lint::lint() noexcept
 {
     Q_ASSERT(m_lintFile.size());
     Q_ASSERT(m_lintExecutable.size());
-    Q_ASSERT(m_treeTable);
 
     auto const workingDirectory = QFileInfo(m_lintFile).canonicalPath();
     qDebug() << "Setting working directory to: " << workingDirectory;
@@ -394,7 +197,8 @@ void Lint::lint() noexcept
     m_dataQueue = std::make_unique<ReaderWriterQueue<QByteArray>>();
 
     // Start consumer thread here
-    m_consumerThread = std::make_unique<std::thread>(&Lint::consumeLintChunk, this);
+    m_future = QtConcurrent::run(this, &Lint::consumeLintChunk);
+            //std::make_unique<std::thread>(&Lint::consumeLintChunk, this);
 
     m_process->setProgram(m_lintExecutable);
     m_process->setArguments(m_arguments);
@@ -415,8 +219,10 @@ void Lint::lint() noexcept
     {
         qDebug() << "Lint process finished with exit code:" << QString::number(exitCode) << "and exit status:" << exitStatus;
         slotAbortLint();
+
         if (m_status & (STATUS_PROCESS_ERROR | STATUS_PROCESS_TIMEOUT | STATUS_ABORT | STATUS_LICENSE_ERROR))
         {
+            Q_ASSERT(!m_errorMessage.isEmpty());
             emit signalLintComplete(m_status, m_errorMessage);
             return;
         }
@@ -441,7 +247,7 @@ void Lint::lint() noexcept
     {
         if (m_status != STATUS_ABORT)
         {
-            qWarning() << __FUNCTION__ << " error occurred: " << error;
+            qWarning() << __FUNCTION__ << "error occurred:" << error;
             m_status = STATUS_PROCESS_ERROR;
         }
     });
@@ -454,19 +260,22 @@ void Lint::lint() noexcept
             // On large projects, there's a good chance we'll get a bad_alloc thrown
             auto readStdOut = m_process->readAllStandardOutput();
             m_lintStdOut.write(readStdOut);
-            // Lock free queue needed
+
+            // Lock free queue needed here
             // This section must never block otherwise the GUI will hang
             m_dataQueue->enqueue(std::move(readStdOut));
-            m_consumerConditionVariable.notify_one();
+            m_conditionVariable.notify_one();
         }
         catch (const std::exception& e)
         {
-            qWarning() << __FUNCTION__ << e.what();
+            qCritical() << __FUNCTION__ << "Exception caught:" << e.what();
+            m_errorMessage = e.what();
             slotAbortLint();
         }
         catch (...)
         {
-            qWarning() << "Caught unknown exception";
+            qCritical() << __FUNCTION__ << "unknown exception caught";
+            m_errorMessage = "Unknown exception caught when processing data";
             slotAbortLint();
         }
 
@@ -513,8 +322,8 @@ void Lint::consumeLintChunk() noexcept
     for (;;)
     {
         // TODO: Is it possible to deadlock here?
-        std::unique_lock<std::mutex> lock(m_consumerMutex);
-        m_consumerConditionVariable.wait(lock,[this]{ return (m_dataQueue->size_approx() != 0 || m_finished);});
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_conditionVariable.wait(lock,[this]{ return (m_dataQueue->size_approx() != 0 || m_finished);});
 
         if (m_finished)
         {
@@ -536,16 +345,19 @@ void Lint::consumeLintChunk() noexcept
             // Process module data
             auto modules = stitchModule(lintChunk);
             processModules(modules);
-
         }
         catch (const std::exception& e)
         {
-            qCritical() << e.what();
+            qCritical() << __FUNCTION__ << '(' << __LINE__ << ')' << "Exception caught:" << e.what();
+            m_errorMessage = "Exception caught when processing module: ";
+            m_errorMessage += e.what();
             m_status = STATUS_PROCESS_ERROR;
             return;
         }
 
     }
+
+    qInfo() << __FUNCTION__ << "processing last remaining data";
 
     // Producer processed finished before consumer did
     // Deqeue all items and process them
@@ -569,28 +381,23 @@ void Lint::consumeLintChunk() noexcept
                 }
                 else
                 {
+                    // Debug only
                     m_stdOutFile.write(m_stdOut);
                     break;
                 }
             }
 
             processModules(modules);
-
         }
         catch (const std::exception& e)
         {
-            qCritical() << e.what();
+            qCritical() << __FUNCTION__ << '(' << __LINE__ << ')' << "Exception caught:" << e.what();
+            m_errorMessage = "Exception caught when processing module: ";
+            m_errorMessage += e.what();
             m_status = STATUS_PROCESS_ERROR;
             return;
         }
     }
-
-    emit signalConsumerFinished();
-}
-
-void Lint::slotConsumerFinished() noexcept
-{
-
 }
 
 LintMessages Lint::parseLintMessages(const QByteArray& data)
@@ -640,19 +447,16 @@ LintMessages Lint::parseLintMessages(const QByteArray& data)
             {
                 // <t> tag
                 message.type = lintXML.readElementText();
-                Q_ASSERT(message.type.length() > 0);
             }
             else if (lintXML.name() == Xml::XML_ELEMENT_MESSAGE_NUMBER)
             {
                 // <n> tag
                 message.number = lintXML.readElementText().toInt();
-                Q_ASSERT(message.number > 0);
             }
             else if (lintXML.name() == Xml::XML_ELEMENT_DESCRIPTION)
             {
                 // <d> tag
                 message.description = lintXML.readElementText();
-                Q_ASSERT(message.description.length() > 0);
             }
 
         }
@@ -677,7 +481,6 @@ LintMessages Lint::parseLintMessages(const QByteArray& data)
 
     if (lintXML.hasError())
     {
-        // TODO: Test
         qCritical() << "XML parser error";
         qCritical() << "Error String:" << lintXML.errorString();
         qCritical() << "Line Number:" << QString::number(lintXML.lineNumber());
@@ -685,7 +488,7 @@ LintMessages Lint::parseLintMessages(const QByteArray& data)
         qCritical() << "Character Offset:" << QString::number(lintXML.characterOffset());
         m_stdOutFile.write(data);
         m_stdOutFile.flush();
-        throw;
+        throw std::runtime_error("XML parser error occurred");
     }
 
     return lintMessages;
@@ -705,7 +508,7 @@ void Lint::processModules(std::vector<QByteArray> modules)
          auto groupedLintMessages = groupLintMessages(std::move(lintMessages));
 
          // Send chunk of data to be processed
-         addTreeMessageGroup(groupedLintMessages);
+         emit signalAddTreeMessageGroup(groupedLintMessages);
     }
 }
 

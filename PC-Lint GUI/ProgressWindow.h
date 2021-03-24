@@ -51,8 +51,6 @@ public slots:
     void slotUpdateProgressMax(int value) noexcept;
     void slotUpdateETA(int eta) noexcept;
     void slotUpdateProcessedFiles(int processedFiles) noexcept;
-    void slotLintFinished(const PCLint::LintResponse& lintResponse) noexcept;
-
 
     void slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept;
 
@@ -62,8 +60,6 @@ private slots:
 
 signals:
     void signalLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage);
-
-    void signalLintFinished(const PCLint::LintResponse& lintResponse);
     void signalAbortLint();
 
 private:

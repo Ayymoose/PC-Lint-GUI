@@ -59,21 +59,9 @@ signals:
     void signalStartLint();
 
 
-
-
-    void signalPointerToLintTree(QTreeWidget* treeTable);
-
 public slots:
     void handleContextMenu(const QPoint& pos);
     void slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept;
-
-    void slotProcessLintMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
-
-
-    void slotUpdateErrors() noexcept;
-    void slotUpdateWarnings() noexcept;
-    void slotUpdateInformations() noexcept;
-
 
 private slots:
     void save();
@@ -117,12 +105,14 @@ private:
 
     void clearLintTree() noexcept;
     void applyLintTreeFilter() noexcept;
-    //void addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
+
+    void addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
+    bool filterMessageType(const QString& type) const noexcept;
+
 
     bool verifyLint();
     QSet<QString> recursiveBuildSourceFileSet(const QString& directory);
     PCLint::About m_about;
 
-    void testLintTreeFilter() noexcept;
 
 };
