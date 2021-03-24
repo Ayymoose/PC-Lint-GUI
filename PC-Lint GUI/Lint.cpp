@@ -130,7 +130,7 @@ void Lint::lint() noexcept
     m_arguments << ("-max_threads=8");
 
     // For testing, does 1 pass only
-    m_arguments << ("-unit_check");
+    //m_arguments << ("-unit_check");
 
     // Extra arguments to produce XML output
     // Enable verbosity and module information displayed so we know progress

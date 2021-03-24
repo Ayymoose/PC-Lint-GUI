@@ -55,10 +55,6 @@ void CodeEditor::setLineNumberBackgroundColour(const QColor& colour) noexcept
     m_lineNumberBackgroundColour = colour;
 }
 
-CodeEditor::~CodeEditor()
-{
-}
-
 QString CodeEditor::loadedFile() const noexcept
 {
     return m_currentFile;

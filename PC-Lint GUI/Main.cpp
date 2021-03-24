@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(PCLint::SETTINGS_APPLICATION_NAME);
     QCoreApplication::setApplicationName(PCLint::SETTINGS_APPLICATION_NAME);
 
-   // qInstallMessageHandler(customMessageHandler);
+    //qInstallMessageHandler(customMessageHandler);
     QLoggingCategory::defaultCategory()->setEnabled(QtDebugMsg, true);
 
     qDebug() << "------------------------------ Starting" <<

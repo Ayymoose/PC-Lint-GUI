@@ -103,7 +103,8 @@ private:
     int m_numberOfWarnings;
     int m_numberOfInformations;
 
-    void clearLintTree() noexcept;
+    void clearOrphanedTreeNodes() const noexcept;
+    void clearTreeNodes() const noexcept;
     void applyLintTreeFilter() noexcept;
 
     void addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
@@ -114,5 +115,8 @@ private:
     QSet<QString> recursiveBuildSourceFileSet(const QString& directory);
     PCLint::About m_about;
 
+
+    std::unique_ptr<PCLint::Lint> m_lint;
+    std::unique_ptr<ProgressWindow> m_progressWindow;
 
 };

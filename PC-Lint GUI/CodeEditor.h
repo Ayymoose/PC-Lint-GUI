@@ -40,7 +40,7 @@ class CodeEditor : public QPlainTextEdit
 
 public:
     CodeEditor(QWidget *parent = nullptr);
-    ~CodeEditor();
+    ~CodeEditor() = default;
     void lineNumberAreaPaintEvent(QPaintEvent *event) noexcept;
     int lineNumberAreaWidth() noexcept;
     bool loadFile(const QString& file) noexcept;

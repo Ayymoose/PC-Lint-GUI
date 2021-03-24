@@ -233,7 +233,7 @@ void MainWindow::on_actionLint_triggered()
     m_ui->lintTable->setSortingEnabled(false);
 }
 
-void MainWindow::clearLintTree() noexcept
+void MainWindow::clearTreeNodes() const noexcept
 {
     // Clear all entries
     while (m_ui->lintTable->topLevelItemCount())
@@ -246,30 +246,8 @@ void MainWindow::clearLintTree() noexcept
     }
 }
 
-void MainWindow::applyLintTreeFilter() noexcept
+void MainWindow::clearOrphanedTreeNodes() const noexcept
 {
-    auto startLintTime = std::chrono::steady_clock::now();
-
-    // Purge tree
-    clearLintTree();
-
-    auto endLintTime = std::chrono::steady_clock::now();
-    auto totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
-    qDebug() << "applyLintTreeFilter/clearLintTree" << totalElapsedTime / 1000.f << "s elapsed";
-
-
-    startLintTime = std::chrono::steady_clock::now();
-
-    // Apply filter to tree
-    // TODO: May be faster to apply filter to single type than check all 3
-    //groupLintTreeMessages(m_lintTreeMessages);
-
-    endLintTime = std::chrono::steady_clock::now();
-    totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
-    qDebug() << "applyLintTreeFilter/groupLintTreeMessages" << totalElapsedTime / 1000.f << "s elapsed";
-
-    startLintTime = std::chrono::steady_clock::now();
-
     // Clear any orphaned nodes
     QTreeWidgetItemIterator treeItr(m_ui->lintTable);
     while (*treeItr)
@@ -283,10 +261,42 @@ void MainWindow::applyLintTreeFilter() noexcept
             treeItr++;
         }
     }
+}
 
-    endLintTime = std::chrono::steady_clock::now();
-    totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
-    qDebug() << "applyLintTreeFilter/clearOrphanedNodes" << totalElapsedTime / 1000.f << "s elapsed";
+void MainWindow::applyLintTreeFilter() noexcept
+{
+    // Purge tree
+    clearTreeNodes();
+
+    // Get messages we stored from lint and group them
+    auto lintMessages = m_lint->getLintMessages();
+    auto groupedLintMessages = m_lint->groupLintMessages(std::move(lintMessages));
+
+    auto startLintTime = std::chrono::steady_clock::now();
+
+    if (m_toggleError)
+    {
+        m_numberOfErrors = 0;
+    }
+    if (m_toggleWarning)
+    {
+        m_numberOfWarnings = 0;
+    }
+    if (m_toggleInformation)
+    {
+        m_numberOfInformations = 0;
+    }
+
+    // Apply filter to tree
+    // TODO: May be faster to apply filter to single type than check all 3
+    addTreeMessageGroup(std::move(groupedLintMessages));
+
+    // Clear any orphaned nodes
+    clearOrphanedTreeNodes();
+
+    auto endLintTime = std::chrono::steady_clock::now();
+    auto totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
+    qDebug() << "applyLintTreeFilter/addTreeMessageGroup" << totalElapsedTime / 1000.f << "s elapsed";
 
 
     // Update message types
@@ -298,7 +308,6 @@ void MainWindow::slotLintComplete(const PCLint::LintStatus& lintStatus, const QS
 {
     // Lint complete. Now update the table
     qInfo() << "Lint finished with" << lintStatus;
-
 
     switch (lintStatus)
     {
@@ -322,6 +331,7 @@ void MainWindow::slotLintComplete(const PCLint::LintStatus& lintStatus, const QS
     break;
     case PCLint::LintStatus::STATUS_UNKNOWN:
         // Unknown lint status
+        Q_ASSERT(false);
     break;
     }
     m_ui->lintTable->setSortingEnabled(true);
@@ -338,29 +348,25 @@ void MainWindow::startLint(QString)
     m_actionWarning->setText("Warnings:" + QString::number(m_numberOfWarnings));
     m_actionInformation->setText("Information:" + QString::number(m_numberOfInformations));
 
-    clearLintTree();
+    clearTreeNodes();
     m_lintTreeMessages.clear();
 
-    ProgressWindow progressWindow(this);
-    Qt::WindowFlags flags = progressWindow.windowFlags();
-    progressWindow.setWindowFlags(flags | Qt::Tool);
+    m_progressWindow = std::make_unique<ProgressWindow>(this);
+    m_lint = std::make_unique<PCLint::Lint>(m_preferences->getLintExecutablePath().trimmed(), m_preferences->getLintFilePath().trimmed());
 
-    PCLint::Lint lint(m_preferences->getLintExecutablePath().trimmed(), m_preferences->getLintFilePath().trimmed());
-
-    QObject::connect(&progressWindow, &ProgressWindow::signalLintComplete, this, &MainWindow::slotLintComplete);
-    QObject::connect(&lint, &PCLint::Lint::signalLintComplete, &progressWindow, &ProgressWindow::slotLintComplete);
-    QObject::connect(&progressWindow, &ProgressWindow::signalAbortLint, &lint, &PCLint::Lint::slotAbortLint);
+    QObject::connect(m_progressWindow.get(), &ProgressWindow::signalLintComplete, this, &MainWindow::slotLintComplete);
+    QObject::connect(m_lint.get(), &PCLint::Lint::signalLintComplete, m_progressWindow.get(), &ProgressWindow::slotLintComplete);
+    QObject::connect(m_progressWindow.get(), &ProgressWindow::signalAbortLint, m_lint.get(), &PCLint::Lint::slotAbortLint);
 
     // Currently only supporting PC-Lint Plus
-    QObject::connect(&lint, &PCLint::Lint::signalUpdateProgress, &progressWindow, &ProgressWindow::slotUpdateProgress);
-    QObject::connect(&lint, &PCLint::Lint::signalUpdateProgressMax, &progressWindow, &ProgressWindow::slotUpdateProgressMax);
-    QObject::connect(&lint, &PCLint::Lint::signalUpdateProcessedFiles, &progressWindow, &ProgressWindow::slotUpdateProcessedFiles);
+    QObject::connect(m_lint.get(), &PCLint::Lint::signalUpdateProgress, m_progressWindow.get(), &ProgressWindow::slotUpdateProgress);
+    QObject::connect(m_lint.get(), &PCLint::Lint::signalUpdateProgressMax, m_progressWindow.get(), &ProgressWindow::slotUpdateProgressMax);
+    QObject::connect(m_lint.get(), &PCLint::Lint::signalUpdateProcessedFiles, m_progressWindow.get(), &ProgressWindow::slotUpdateProcessedFiles);
 
-    QObject::connect(&lint, &PCLint::Lint::signalAddTreeMessageGroup, this, &MainWindow::addTreeMessageGroup, Qt::ConnectionType::QueuedConnection);
+    QObject::connect(m_lint.get(), &PCLint::Lint::signalAddTreeMessageGroup, this, &MainWindow::addTreeMessageGroup);
 
-    lint.lint();
-
-    progressWindow.exec();
+    m_lint->lint();
+    m_progressWindow->show();
 }
 
 bool MainWindow::filterMessageType(const QString& type) const noexcept
@@ -381,14 +387,36 @@ bool MainWindow::filterMessageType(const QString& type) const noexcept
     return filter;
 }
 
+// TODO: This function is very slow
 void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept
 {
+
+    auto addFullFilePath = [this](const QString& file)
+    {
+        // TODO: Test with various file paths
+
+        // Check if the file exists (absolute path given)
+        // Check if it exists relative to the lint file
+        auto const lintFilePath = QFileInfo(m_lint->getLintFile()).canonicalPath() + '/' + file;
+        auto const canonFilePath = QFileInfo(lintFilePath).canonicalFilePath();
+
+        if (!QFile(canonFilePath).exists())
+        {
+            qInfo() << "Unknown file:" << canonFilePath;
+            return QString();
+        }
+        else
+        {
+           return canonFilePath;
+        }
+    };
+
     // Create a new node in the lint tree table
-    auto createTreeNode = [this](QTreeWidgetItem* parentItem, const PCLint::LintMessage& message)
+    auto createTreeNode = [this, addFullFilePath](QTreeWidgetItem* parentItem, const PCLint::LintMessage& message)
     {
         auto* treeItem = new QTreeWidgetItem(parentItem);
         treeItem->setText(PCLint::LINT_TABLE_FILE_COLUMN, QFileInfo(message.file).fileName());
-        treeItem->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::UserRole, message.file);
+        treeItem->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::UserRole, addFullFilePath(message.file));
         treeItem->setText(PCLint::LINT_TABLE_NUMBER_COLUMN, QString::number(message.number));
         treeItem->setText(PCLint::LINT_TABLE_DESCRIPTION_COLUMN, message.description);
         treeItem->setText(PCLint::LINT_TABLE_LINE_COLUMN, QString::number(message.line));
@@ -452,7 +480,7 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
             // New top level file entry
             fileDetailsItemTop = new QTreeWidgetItem( m_ui->lintTable);
             fileDetailsItemTop->setText(PCLint::LINT_TABLE_FILE_COLUMN, messageTopFileName);
-            fileDetailsItemTop->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::UserRole, messageTop.file);
+            fileDetailsItemTop->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::UserRole, addFullFilePath(messageTop.file));
         }
 
         // Filter
@@ -486,27 +514,11 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
                 continue;
             }
 
-            // Check if the file exists (absolute path given)
-            // Check if it exists in the project file's directory
-            if (!QFile(message.file).exists())
-            {
-                // TODO: Optimise this
-                /*const auto relativeFile = QFileInfo(m_lintFile).canonicalPath() + '/' + message.file;
-                if (!QFile(relativeFile).exists())
-                {
-                    message.file = "";
-                }
-                else
-                {
-                    message.file = relativeFile;
-                }*/
-            }
             // The sticky details
             createTreeNode(fileDetailsItem, message);
         }
     }
 }
-
 
 void MainWindow::on_aboutLinty_triggered()
 {
@@ -614,7 +626,7 @@ void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
             else
             {
                 // TODO: Reason for failure
-                QMessageBox::critical(this, "Error", "Unable to open file: " + fileToLoad);
+                QMessageBox::critical(this, "Error", "1 Unable to open file: " + fileToLoad);
             }
         }
         else
