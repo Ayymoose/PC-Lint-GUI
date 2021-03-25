@@ -128,19 +128,19 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_actionError.get(), &QAction::triggered, this, [this](bool checked)
     {
         m_toggleError = checked;
-        applyLintTreeFilter();
+        applyTreeFilter(m_toggleError, PCLint::Type::TYPE_ERROR);
     });
 
     QObject::connect(m_actionInformation.get(), &QAction::triggered, this, [this](bool checked)
     {
         m_toggleInformation = checked;
-        applyLintTreeFilter();
+        applyTreeFilter(m_toggleInformation, PCLint::Type::TYPE_INFO);
     });
 
     QObject::connect(m_actionWarning.get(), &QAction::triggered, this, [this](bool checked)
     {
         m_toggleWarning = checked;
-        applyLintTreeFilter();
+        applyTreeFilter(m_toggleWarning, PCLint::Type::TYPE_WARNING);
     });
 
     QObject::connect(this, &MainWindow::signalUpdateTypes, this, [this]()
@@ -263,45 +263,26 @@ void MainWindow::clearOrphanedTreeNodes() const noexcept
     }
 }
 
-void MainWindow::applyLintTreeFilter() noexcept
+void MainWindow::applyTreeFilter(bool filter, const QString& type) noexcept
 {
-    // Purge tree
-    clearTreeNodes();
-
-    // Get messages we stored from lint and group them
-    auto lintMessages = m_lint->getLintMessages();
-    auto groupedLintMessages = m_lint->groupLintMessages(std::move(lintMessages));
-
-    auto startLintTime = std::chrono::steady_clock::now();
-
-    if (m_toggleError)
+    QTreeWidgetItemIterator treeItr(m_ui->lintTable);
+    while (*treeItr)
     {
-        m_numberOfErrors = 0;
-    }
-    if (m_toggleWarning)
-    {
-        m_numberOfWarnings = 0;
-    }
-    if (m_toggleInformation)
-    {
-        m_numberOfInformations = 0;
+        auto const treeNode = (*treeItr);
+        // TODO: Optimise and use enum type instead of string
+        auto const data = treeNode->data(PCLint::LINT_TABLE_DESCRIPTION_COLUMN, Qt::UserRole).value<QString>();
+        if (filter && (data == type))
+        {
+            treeNode->setHidden(false);
+        }
+        else if (!filter && (data == type))
+        {
+            treeNode->setHidden(true);
+        }
+        treeItr++;
     }
 
-    // Apply filter to tree
-    // TODO: May be faster to apply filter to single type than check all 3
-    addTreeMessageGroup(std::move(groupedLintMessages));
-
-    // Clear any orphaned nodes
-    clearOrphanedTreeNodes();
-
-    auto endLintTime = std::chrono::steady_clock::now();
-    auto totalElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endLintTime - startLintTime).count();
-    qDebug() << "applyLintTreeFilter/addTreeMessageGroup" << totalElapsedTime / 1000.f << "s elapsed";
-
-
-    // Update message types
-    emit signalUpdateTypes();
-
+    // TODO: Hide orphaned parents
 }
 
 void MainWindow::slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept
@@ -372,7 +353,11 @@ void MainWindow::startLint(QString)
 bool MainWindow::filterMessageType(const QString& type) const noexcept
 {
     bool filter = false;
-    if (!m_toggleError && (type == PCLint::Type::TYPE_ERROR))
+    if (!m_toggleInformation && (type == PCLint::Type::TYPE_INFO))
+    {
+        filter = true;
+    }
+    else if (!m_toggleError && (type == PCLint::Type::TYPE_ERROR))
     {
         filter = true;
     }
@@ -380,14 +365,10 @@ bool MainWindow::filterMessageType(const QString& type) const noexcept
     {
         filter = true;
     }
-    else if (!m_toggleInformation && (type == PCLint::Type::TYPE_INFO))
-    {
-        filter = true;
-    }
     return filter;
 }
 
-// TODO: This function is very slow
+// TODO: Optimise this function is very slow
 void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept
 {
 
@@ -402,7 +383,10 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
 
         if (!QFile(canonFilePath).exists())
         {
-            qInfo() << "Unknown file:" << canonFilePath;
+            if (!canonFilePath.isEmpty())
+            {
+                qInfo() << "Unknown file:" << canonFilePath;
+            }
             return QString();
         }
         else
@@ -422,34 +406,40 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
         treeItem->setText(PCLint::LINT_TABLE_LINE_COLUMN, QString::number(message.line));
 
         QImage icon;
+        PCLint::Message messageType = PCLint::MESSAGE_UNKNOWN;
 
         if (message.type == PCLint::Type::TYPE_ERROR)
         {
             icon.load(":/images/error.png");
             m_numberOfErrors++;
             m_actionError->setText("Errors:" + QString::number(m_numberOfErrors));
+            messageType = PCLint::MESSAGE_ERROR;
         }
         else if (message.type == PCLint::Type::TYPE_WARNING)
         {
             icon.load(":/images/warning.png");
             m_numberOfWarnings++;
             m_actionWarning->setText("Warnings:" + QString::number(m_numberOfWarnings));
+            messageType = PCLint::MESSAGE_WARNING;
         }
         else if (message.type == PCLint::Type::TYPE_INFO)
         {
             icon.load(":/images/info.png");
             m_numberOfInformations++;
             m_actionInformation->setText("Information:" + QString::number(m_numberOfInformations));
+            messageType = PCLint::MESSAGE_INFORMATION;
         }
         else if (message.type == PCLint::Type::TYPE_SUPPLEMENTAL)
         {
             icon.load(":/images/info.png");
+            messageType = PCLint::MESSAGE_SUPPLEMENTAL;
         }
         else
         {
             Q_ASSERT(false);
         }
 
+        treeItem->setData(PCLint::LINT_TABLE_DESCRIPTION_COLUMN, Qt::UserRole, message.type);
         treeItem->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
         return treeItem;
     };

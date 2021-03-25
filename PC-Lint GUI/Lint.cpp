@@ -47,7 +47,7 @@ Lint::Lint(const QString& lintExecutable, const QString& lintFile) :
     m_numberOfLintedFiles(0),
     m_finished(false)
 {
-    QObject::connect(this, &Lint::signalConsumerFinished, this, &Lint::slotAbortLint);
+
 }
 
 void Lint::slotAbortLint() noexcept
@@ -63,11 +63,6 @@ void Lint::slotAbortLint() noexcept
     m_process->close();
 }
 
-LintMessages Lint::getLintMessages() const noexcept
-{
-    return m_messages;
-}
-
 void Lint::setLintFile(const QString& lintFile) noexcept
 {
     m_lintFile = lintFile;
@@ -76,21 +71,6 @@ void Lint::setLintFile(const QString& lintFile) noexcept
 void Lint::setLintExecutable(const QString& linterExecutable) noexcept
 {
     m_lintExecutable = linterExecutable;
-}
-
-int Lint::numberOfInformations() const noexcept
-{
-    return m_numberOfInfo;
-}
-
-int Lint::numberOfWarnings() const noexcept
-{
-    return m_numberOfWarnings;
-}
-
-int Lint::numberOfErrors() const noexcept
-{
-    return m_numberOfErrors;
 }
 
 QString Lint::errorMessage() const noexcept
@@ -123,7 +103,6 @@ void Lint::lint() noexcept
     m_numberOfLintedFiles = 0;
     m_finished = false;
     m_messageSet.clear();
-    m_messages.clear();
     m_stdOut.clear();
 
     // TODO: Put in function to process and parse lint arguments
@@ -210,7 +189,7 @@ void Lint::lint() noexcept
     {
         //lintStartTime = std::chrono::steady_clock::now();
         // Tell ProgressWindow the maximum number of files we have
-        emit signalUpdateProgressMax(m_filesToLint.size());
+        //emit signalUpdateProgressMax(m_filesToLint.size());
         //emit signalUpdateProcessedFiles(m_numberOfLintedFiles);
     });
 
@@ -227,8 +206,11 @@ void Lint::lint() noexcept
             return;
         }
 
+
+        // TODO: Fix successful lint
+        m_status = STATUS_COMPLETE;
         // if -env_push is used we'll lint "more" files than we have since it does multiple passes
-        if (m_numberOfLintedFiles >= m_filesToLint.size())
+        /*if (m_numberOfLintedFiles >= m_filesToLint.size())
         {
             qDebug() << "Successfully linted all files";
             m_status = STATUS_COMPLETE;
@@ -237,7 +219,7 @@ void Lint::lint() noexcept
         {
             qDebug() << "Linted only" << m_numberOfLintedFiles << '/' << m_filesToLint.size() << "files";
             m_status = STATUS_PARTIAL_COMPLETE;
-        }
+        }*/
 
         emit signalLintComplete(m_status, m_errorMessage);
 
@@ -501,9 +483,6 @@ void Lint::processModules(std::vector<QByteArray> modules)
          // Grab lint messages from data
          LintMessages lintMessages = parseLintMessages(module);
 
-         // Append messages together, we must keep track of this for the lint table message filtering
-         m_messages.insert(m_messages.end(),lintMessages.begin(), lintMessages.end());
-
          // Group lint messages together
          auto groupedLintMessages = groupLintMessages(std::move(lintMessages));
 
@@ -574,7 +553,7 @@ std::vector<QString> Lint::parseSourceFileInformation(const QByteArray& data) no
     size_t from = 0;
     for (;;)
     {
-        // Might be easier to use split
+        // TODO: Might be easier/more efficent to use split on "--- Module:   "
         int firstIndex = data.indexOf("--- Module:   ", from);
         if (firstIndex == -1)
         {

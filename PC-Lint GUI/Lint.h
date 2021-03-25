@@ -96,7 +96,7 @@ enum Message
     MESSAGE_WARNING,
     MESSAGE_INFORMATION,
     MESSAGE_SUPPLEMENTAL,
-    MESSAGE_UNKNOWN,
+    MESSAGE_UNKNOWN
 };
 
 enum Version
@@ -152,6 +152,7 @@ struct LintResponse
 class Lint : public QObject
 {
     Q_OBJECT
+    Q_ENUM(Message)
 public:
     Lint();
     Lint(const QString& lintExecutable, const QString& lintFile);
@@ -160,19 +161,9 @@ public:
     void setLintExecutable(const QString& linterExecutable) noexcept;
     // Set the lint file (.lnt) to use
     void setLintFile(const QString& lintFile) noexcept;
-
     // Set the working directory for the lint executable
     void setWorkingDirectory(const QString& directory) noexcept;
 
-    // Gets the set of lintMessage returned after a lint
-    LintMessages getLintMessages() const noexcept;
-
-    // Clear all messages and information
-    void resetLinter() noexcept;
-
-    int numberOfErrors() const noexcept;
-    int numberOfWarnings() const noexcept;
-    int numberOfInformations() const noexcept;
     QString errorMessage() const noexcept;
 
     void setVersion(const Version& version) noexcept
@@ -204,11 +195,7 @@ signals:
     void signalUpdateProcessedFiles(int processedFiles);
     void signalLintProgress(int value);
 
-
     void signalLintComplete(const LintStatus& lintStatus, const QString& errorMessage);
-    void signalProcessLintMessages(const LintResponse& lintResponse);
-
-    void signalConsumerFinished();
 
     void signalAddTreeMessageGroup(const LintMessageGroup& lintMessageGroup);
 
@@ -218,8 +205,6 @@ private:
     QStringList m_arguments;
     QString m_lintExecutable;
     QString m_lintFile;
-    QSet<QString> m_filesToLint;
-    LintMessages m_messages;
     int m_numberOfErrors;
     int m_numberOfWarnings;
     int m_numberOfInfo;

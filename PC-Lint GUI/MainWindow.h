@@ -105,7 +105,7 @@ private:
 
     void clearOrphanedTreeNodes() const noexcept;
     void clearTreeNodes() const noexcept;
-    void applyLintTreeFilter() noexcept;
+    void applyTreeFilter(bool filter, const QString& type) noexcept;
 
     void addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
     bool filterMessageType(const QString& type) const noexcept;
