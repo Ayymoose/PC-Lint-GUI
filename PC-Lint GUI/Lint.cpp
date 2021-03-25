@@ -29,6 +29,7 @@ Lint::Lint() :
     m_numberOfWarnings(0),
     m_numberOfInfo(0),
     m_version(VERSION_UNKNOWN),
+    m_hardwareThreads(1),
     m_status(STATUS_UNKNOWN),
     m_numberOfLintedFiles(0),
     m_finished(false)
@@ -43,6 +44,7 @@ Lint::Lint(const QString& lintExecutable, const QString& lintFile) :
     m_numberOfWarnings(0),
     m_numberOfInfo(0),
     m_version(VERSION_UNKNOWN),
+    m_hardwareThreads(1),
     m_status(STATUS_UNKNOWN),
     m_numberOfLintedFiles(0),
     m_finished(false)
@@ -78,35 +80,20 @@ QString Lint::errorMessage() const noexcept
     return m_errorMessage;
 }
 
-void Lint::lint() noexcept
+void Lint::setHardwareThreads(const int threads) noexcept
+{
+    Q_ASSERT(threads > 0);
+    m_hardwareThreads = threads;
+}
+
+void Lint::parseLintFile() noexcept
 {
     Q_ASSERT(m_lintFile.size());
-    Q_ASSERT(m_lintExecutable.size());
 
-    auto const workingDirectory = QFileInfo(m_lintFile).canonicalPath();
-    qDebug() << "Setting working directory to: " << workingDirectory;
-
-    m_process = std::make_unique<QProcess>();
-
-    m_process->setWorkingDirectory(workingDirectory);
-
-    // stderr has the module (file lint) progress
-    // sttout has the actual data
-    QString cmdString = m_lintExecutable;
-
-    // Reset
     m_arguments.clear();
-    m_status = STATUS_UNKNOWN;
-    m_numberOfErrors = 0;
-    m_numberOfInfo = 0;
-    m_numberOfWarnings = 0;
-    m_numberOfLintedFiles = 0;
-    m_finished = false;
-    m_messageSet.clear();
-    m_stdOut.clear();
 
-    // TODO: Put in function to process and parse lint arguments
-    m_arguments << ("-max_threads=8");
+    // -max_threads must be the first argument to the lint
+    m_arguments << (QString("-max_threads=%1").arg(m_hardwareThreads));
 
     // For testing, does 1 pass only
     //m_arguments << ("-unit_check");
@@ -127,12 +114,40 @@ void Lint::lint() noexcept
     // Surpress specific walk messages
     m_arguments << ("-format_specific= ");
 
-    // TODO: Support multiple passes ("-passes(6)");
-    // TODO: Support -env_push
+
     // TODO: Test with various lint files
 
     // Add the lint file
     m_arguments << (m_lintFile);
+}
+
+void Lint::lint() noexcept
+{
+
+    Q_ASSERT(m_lintExecutable.size());
+
+    auto const workingDirectory = QFileInfo(m_lintFile).canonicalPath();
+    qDebug() << "Setting working directory to: " << workingDirectory;
+
+    m_process = std::make_unique<QProcess>();
+
+    m_process->setWorkingDirectory(workingDirectory);
+
+    // stderr has the module (file lint) progress
+    // sttout has the actual data
+    QString cmdString = R"(")" + m_lintExecutable + R"(")";
+
+    // Reset
+    m_status = STATUS_UNKNOWN;
+    m_numberOfErrors = 0;
+    m_numberOfInfo = 0;
+    m_numberOfWarnings = 0;
+    m_numberOfLintedFiles = 0;
+    m_finished = false;
+    m_messageSet.clear();
+    m_stdOut.clear();
+
+    parseLintFile();
 
     for (const auto& str : m_arguments)
     {
@@ -197,6 +212,8 @@ void Lint::lint() noexcept
     [this](int exitCode, QProcess::ExitStatus exitStatus)
     {
         qDebug() << "Lint process finished with exit code:" << QString::number(exitCode) << "and exit status:" << exitStatus;
+
+        qInfo() << "Total files linted:" << m_numberOfLintedFiles;
         slotAbortLint();
 
         if (m_status & (STATUS_PROCESS_ERROR | STATUS_PROCESS_TIMEOUT | STATUS_ABORT | STATUS_LICENSE_ERROR))

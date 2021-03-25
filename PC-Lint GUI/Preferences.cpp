@@ -73,9 +73,9 @@ QString Preferences::getLintFilePath() const noexcept
     return m_ui->lintFileLineEdit->text();
 }
 
-int Preferences::getLinterHardwareThreads() const noexcept
+int Preferences::getLintHardwareThreads() const noexcept
 {
-    return m_ui->lintUsingThreadsComboBox->currentIndex();
+    return m_ui->lintUsingThreadsComboBox->currentText().toUInt();
 }
 
 void Preferences::on_lintPathFileOpen_clicked()

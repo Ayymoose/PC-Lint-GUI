@@ -44,7 +44,7 @@ public:
     ~Preferences();
     QString getLintExecutablePath() const noexcept;
     QString getLintFilePath() const noexcept;
-    int getLinterHardwareThreads() const noexcept;
+    int getLintHardwareThreads() const noexcept;
     static QString m_lastDirectory;
     //void reject() override;
 

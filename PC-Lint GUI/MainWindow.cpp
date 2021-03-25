@@ -246,7 +246,7 @@ void MainWindow::clearTreeNodes() const noexcept
     }
 }
 
-void MainWindow::clearOrphanedTreeNodes() const noexcept
+/*void MainWindow::clearOrphanedTreeNodes() const noexcept
 {
     // Clear any orphaned nodes
     QTreeWidgetItemIterator treeItr(m_ui->lintTable);
@@ -261,7 +261,7 @@ void MainWindow::clearOrphanedTreeNodes() const noexcept
             treeItr++;
         }
     }
-}
+}*/
 
 void MainWindow::applyTreeFilter(bool filter, const QString& type) noexcept
 {
@@ -330,10 +330,11 @@ void MainWindow::startLint(QString)
     m_actionInformation->setText("Information:" + QString::number(m_numberOfInformations));
 
     clearTreeNodes();
-    m_lintTreeMessages.clear();
 
     m_progressWindow = std::make_unique<ProgressWindow>(this);
     m_lint = std::make_unique<PCLint::Lint>(m_preferences->getLintExecutablePath().trimmed(), m_preferences->getLintFilePath().trimmed());
+
+    m_lint->setHardwareThreads(m_preferences->getLintHardwareThreads());
 
     QObject::connect(m_progressWindow.get(), &ProgressWindow::signalLintComplete, this, &MainWindow::slotLintComplete);
     QObject::connect(m_lint.get(), &PCLint::Lint::signalLintComplete, m_progressWindow.get(), &ProgressWindow::slotLintComplete);
@@ -468,7 +469,7 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
         else
         {
             // New top level file entry
-            fileDetailsItemTop = new QTreeWidgetItem( m_ui->lintTable);
+            fileDetailsItemTop = new QTreeWidgetItem(m_ui->lintTable);
             fileDetailsItemTop->setText(PCLint::LINT_TABLE_FILE_COLUMN, messageTopFileName);
             fileDetailsItemTop->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::UserRole, addFullFilePath(messageTop.file));
         }

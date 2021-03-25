@@ -164,6 +164,8 @@ public:
     // Set the working directory for the lint executable
     void setWorkingDirectory(const QString& directory) noexcept;
 
+    void setHardwareThreads(const int threads) noexcept;
+
     QString errorMessage() const noexcept;
 
     void setVersion(const Version& version) noexcept
@@ -182,6 +184,8 @@ public:
     LintMessages parseLintMessages(const QByteArray& data);
 
     std::vector<QByteArray> stitchModule(const QByteArray& data);
+
+    void parseLintFile() noexcept;
 
 public slots:
 
@@ -211,6 +215,8 @@ private:
     QString m_errorMessage;
     Version m_version;
 
+    int m_hardwareThreads;
+
     // stderr has the module (file lint) progress
     // stdout has the actual data
 
@@ -219,6 +225,7 @@ private:
 
     QFile m_stdOutFile;
     QFile m_stdErrFile;
+    QFile m_lintStdOut;
 
 
     QByteArray m_stdOut;
@@ -240,7 +247,6 @@ private:
     std::mutex m_mutex;
     std::condition_variable m_conditionVariable;
     QFuture<void> m_future;
-    QFile m_lintStdOut;
 };
 
 // For QSet
