@@ -264,8 +264,6 @@ void MainWindow::applyTreeFilter(bool filter, const QString& type) const noexcep
         }
         treeItr++;
     }
-
-    // TODO: Hide orphaned parents
 }
 
 void MainWindow::slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept
@@ -358,17 +356,22 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
 
     auto addFullFilePath = [this](const QString& file)
     {
-        // TODO: Test if the file exists (absolute path given)
+        // Check if the file exists (absolute path given)
+        if (QFileInfo(file).exists())
+        {
+            return file;
+        }
 
         // Check if it exists relative to the lint file
         auto const lintFilePath = QFileInfo(m_lint->getLintFile()).canonicalPath() + '/' + file;
         auto const canonFilePath = QFileInfo(lintFilePath).canonicalFilePath();
 
+        // If canonical file path doesn't exist, it means the path we constructed failed and it returned ""
         if (!QFile(canonFilePath).exists())
         {
-            if (!canonFilePath.isEmpty())
+            if (!file.isEmpty())
             {
-                qInfo() << "Unknown file:" << canonFilePath;
+                //qInfo() << "Unknown file:" << file;
             }
             return QString();
         }
