@@ -15,13 +15,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "CodeEditor.h"
-
-#include <QPainter>
-#include <QTextBlock>
-#include <QMessageBox>
-#include <QTextStream>
-#include <QApplication>
-#include <QScrollBar>
 #include "Log.h"
 
 CodeEditor::CodeEditor(QWidget *parent) :

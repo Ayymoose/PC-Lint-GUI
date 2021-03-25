@@ -18,6 +18,12 @@
 
 #include "Lint.h"
 #include <QDialog>
+#include <QFileDialog>
+#include <QSettings>
+#include <QDebug>
+#include <QThread>
+#include <QProcess>
+
 #include <QSettings>
 
 namespace PCLint

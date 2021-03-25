@@ -246,24 +246,7 @@ void MainWindow::clearTreeNodes() const noexcept
     }
 }
 
-/*void MainWindow::clearOrphanedTreeNodes() const noexcept
-{
-    // Clear any orphaned nodes
-    QTreeWidgetItemIterator treeItr(m_ui->lintTable);
-    while (*treeItr)
-    {
-        if ((*treeItr)->parent() == nullptr && (*treeItr)->childCount() == 0)
-        {
-            delete *treeItr;
-        }
-        else
-        {
-            treeItr++;
-        }
-    }
-}*/
-
-void MainWindow::applyTreeFilter(bool filter, const QString& type) noexcept
+void MainWindow::applyTreeFilter(bool filter, const QString& type) const noexcept
 {
     QTreeWidgetItemIterator treeItr(m_ui->lintTable);
     while (*treeItr)
@@ -375,9 +358,8 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
 
     auto addFullFilePath = [this](const QString& file)
     {
-        // TODO: Test with various file paths
+        // TODO: Test if the file exists (absolute path given)
 
-        // Check if the file exists (absolute path given)
         // Check if it exists relative to the lint file
         auto const lintFilePath = QFileInfo(m_lint->getLintFile()).canonicalPath() + '/' + file;
         auto const canonFilePath = QFileInfo(lintFilePath).canonicalFilePath();
@@ -442,16 +424,23 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
 
         treeItem->setData(PCLint::LINT_TABLE_DESCRIPTION_COLUMN, Qt::UserRole, message.type);
         treeItem->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
+
+        // Filter if needed
+        if (filterMessageType(message.type))
+        {
+            treeItem->setHidden(true);
+        }
+
         return treeItem;
     };
 
-    for (const auto& groupMessage : lintMessageGroup)
+    for (const auto& messageGroup : lintMessageGroup)
     {
         // Every vector must be at least 1 otherwise something went wrong
-        Q_ASSERT(groupMessage.size() >= 1);
+        Q_ASSERT(messageGroup.size() >= 1);
 
         // Create the top-level item
-        const auto messageTop = groupMessage.front();
+        const auto messageTop = messageGroup.front();
 
         // Group together items under the same file
         auto const messageTopFileName = QFileInfo(messageTop.file).fileName();
@@ -461,6 +450,7 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
 
         if (treeList.size())
         {
+            // TODO: Test with duplicate file names under different paths
             // Should only ever be 1 file name, unless there are mutiple files with the same name but different path?
             // Already exists, use this one
             Q_ASSERT(treeList.size() == 1);
@@ -474,14 +464,8 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
             fileDetailsItemTop->setData(PCLint::LINT_TABLE_FILE_COLUMN, Qt::UserRole, addFullFilePath(messageTop.file));
         }
 
-        // Filter
-        if (filterMessageType(messageTop.type))
-        {
-            continue;
-        }
-
         // If it's just a single entry
-        if (groupMessage.size() == 1)
+        if (messageGroup.size() == 1)
         {
             createTreeNode(fileDetailsItemTop, messageTop);
             // Skip next
@@ -491,22 +475,13 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
         // Create a child level item
         auto fileDetailsItem = createTreeNode(fileDetailsItemTop, messageTop);
 
-        Q_ASSERT(groupMessage.size() > 1);
+        Q_ASSERT(messageGroup.size() > 1);
 
         // Otherwise grab the rest of the group
-        for (auto cit = groupMessage.cbegin()+1; cit != groupMessage.cend(); cit++)
+        for (auto cit = messageGroup.cbegin()+1; cit != messageGroup.cend(); cit++)
         {
-            auto message = *cit;
-
-            // Filter
-            // TODO: Should this be message.type?!
-            if (filterMessageType(messageTop.type))
-            {
-                continue;
-            }
-
             // The sticky details
-            createTreeNode(fileDetailsItem, message);
+            createTreeNode(fileDetailsItem, *cit);
         }
     }
 }

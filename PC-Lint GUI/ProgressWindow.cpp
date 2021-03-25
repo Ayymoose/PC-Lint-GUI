@@ -19,10 +19,6 @@
 #include "Lint.h"
 #include "Jenkins.h"
 
-#include <QDebug>
-#include <QTimer>
-#include <QThread>
-
 ProgressWindow::ProgressWindow(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::ProgressWindow),

@@ -15,15 +15,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "MainWindow.h"
-#include <QApplication>
-#include <QScreen>
 #include "Log.h"
 #include "CodeEditor.h"
 #include "Preferences.h"
 #include "Jenkins.h"
-#include <QObject>
-#include <QProcess>
-#include <QLoggingCategory>
 
 int main(int argc, char *argv[])
 {

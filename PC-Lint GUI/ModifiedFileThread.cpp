@@ -15,11 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "ModifiedFileThread.h"
-#include <QDebug>
-#include <QDateTime>
-#include <QFileInfo>
-#include <QThread>
-#include <QMutexLocker>
+
 
 
 // TODO: Change this to QFileSystemWatcher

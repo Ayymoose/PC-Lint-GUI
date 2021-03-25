@@ -18,8 +18,11 @@
 
 #include <QList>
 #include <QString>
-#include <QXmlStreamReader>
 #include <QDebug>
+#include <stdexcept>
+#include <QXmlStreamReader>
+#include <QFile>
+#include <QFileInfo>
 
 namespace PCLint
 {

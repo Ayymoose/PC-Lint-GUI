@@ -16,6 +16,8 @@
 
 #pragma once
 
+// TODO: Need more macros defined to support other platforms
+
 #if _WIN64
     // 64 bit build
     #define BUILD_ARCHITECTURE "(64-bit)"

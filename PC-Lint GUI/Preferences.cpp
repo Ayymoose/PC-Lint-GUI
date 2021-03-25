@@ -19,12 +19,6 @@
 #include "Log.h"
 #include "MainWindow.h"
 
-#include <QFileDialog>
-#include <QSettings>
-#include <QDebug>
-#include <QThread>
-#include <QProcess>
-
 QString Preferences::m_lastDirectory = "";
 
 Preferences::Preferences(QWidget *parent) :

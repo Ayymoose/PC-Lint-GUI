@@ -19,6 +19,10 @@
 #include "Compiler.h"
 #include "Jenkins.h"
 
+#include <QApplication>
+#include <QClipboard>
+#include <QMessageBox>
+
 namespace PCLint
 {
 

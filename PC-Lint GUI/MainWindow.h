@@ -25,6 +25,11 @@
 #include <QMap>
 #include <QTreeWidgetItem>
 #include <memory>
+#include <QObject>
+#include <QProcess>
+#include <QLoggingCategory>
+#include <QApplication>
+#include <QScreen>
 
 #include "ProgressWindow.h"
 #include "Preferences.h"
@@ -103,9 +108,8 @@ private:
     int m_numberOfWarnings;
     int m_numberOfInformations;
 
-    void clearOrphanedTreeNodes() const noexcept;
     void clearTreeNodes() const noexcept;
-    void applyTreeFilter(bool filter, const QString& type) noexcept;
+    void applyTreeFilter(bool filter, const QString& type) const noexcept;
 
     void addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
     bool filterMessageType(const QString& type) const noexcept;

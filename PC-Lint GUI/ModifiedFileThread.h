@@ -23,6 +23,11 @@
 #include <QThread>
 #include <QMutex>
 #include <QPair>
+#include <QDebug>
+#include <QDateTime>
+#include <QFileInfo>
+#include <QThread>
+#include <QMutexLocker>
 
 namespace PCLint
 {

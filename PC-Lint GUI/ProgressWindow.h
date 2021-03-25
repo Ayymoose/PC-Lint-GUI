@@ -24,6 +24,9 @@
 #include <QSet>
 #include <vector>
 #include <memory>
+#include <QDebug>
+#include <QTimer>
+#include <QThread>
 
 
 namespace PCLint

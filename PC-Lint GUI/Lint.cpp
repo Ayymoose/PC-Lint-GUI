@@ -25,10 +25,6 @@ namespace PCLint
 
 
 Lint::Lint() :
-    m_numberOfErrors(0),
-    m_numberOfWarnings(0),
-    m_numberOfInfo(0),
-    m_version(VERSION_UNKNOWN),
     m_hardwareThreads(1),
     m_status(STATUS_UNKNOWN),
     m_numberOfLintedFiles(0),
@@ -40,10 +36,6 @@ Lint::Lint() :
 Lint::Lint(const QString& lintExecutable, const QString& lintFile) :
     m_lintExecutable(lintExecutable),
     m_lintFile(lintFile),
-    m_numberOfErrors(0),
-    m_numberOfWarnings(0),
-    m_numberOfInfo(0),
-    m_version(VERSION_UNKNOWN),
     m_hardwareThreads(1),
     m_status(STATUS_UNKNOWN),
     m_numberOfLintedFiles(0),
@@ -127,7 +119,7 @@ void Lint::lint() noexcept
     Q_ASSERT(m_lintExecutable.size());
 
     auto const workingDirectory = QFileInfo(m_lintFile).canonicalPath();
-    qDebug() << "Setting working directory to: " << workingDirectory;
+    qDebug() << "Setting working directory to:" << workingDirectory;
 
     m_process = std::make_unique<QProcess>();
 
@@ -139,9 +131,6 @@ void Lint::lint() noexcept
 
     // Reset
     m_status = STATUS_UNKNOWN;
-    m_numberOfErrors = 0;
-    m_numberOfInfo = 0;
-    m_numberOfWarnings = 0;
     m_numberOfLintedFiles = 0;
     m_finished = false;
     m_messageSet.clear();
@@ -154,8 +143,8 @@ void Lint::lint() noexcept
         cmdString += " \"" + str + "\"";
     }
 
-    qInfo() << "Lint path: " << m_lintExecutable;
-    qInfo() << "Lint file: " << m_lintFile;
+    qInfo() << "Lint path:" << m_lintExecutable;
+    qInfo() << "Lint file:" << m_lintFile;
 
     // Temporary debug information
     QFile commandFileDebug(R"(D:\Users\Ayman\Desktop\PC-Lint GUI\test\cmdline.xml)");
@@ -180,19 +169,11 @@ void Lint::lint() noexcept
         Q_ASSERT(false);
     }
 
-    m_lintStdOut.setFileName(R"(D:\Users\Ayman\Desktop\PC-Lint GUI\test\lintout.xml)");
-    m_lintStdOut.remove();
-    if (!m_lintStdOut.open(QIODevice::WriteOnly | QIODevice::Append))
-    {
-        Q_ASSERT(false);
-    }
-
     // New data queue
     m_dataQueue = std::make_unique<ReaderWriterQueue<QByteArray>>();
 
     // Start consumer thread here
     m_future = QtConcurrent::run(this, &Lint::consumeLintChunk);
-            //std::make_unique<std::thread>(&Lint::consumeLintChunk, this);
 
     m_process->setProgram(m_lintExecutable);
     m_process->setArguments(m_arguments);
@@ -258,7 +239,7 @@ void Lint::lint() noexcept
         {
             // On large projects, there's a good chance we'll get a bad_alloc thrown
             auto readStdOut = m_process->readAllStandardOutput();
-            m_lintStdOut.write(readStdOut);
+            m_stdOutFile.write(readStdOut);
 
             // Lock free queue needed here
             // This section must never block otherwise the GUI will hang
@@ -381,7 +362,7 @@ void Lint::consumeLintChunk() noexcept
                 else
                 {
                     // Debug only
-                    m_stdOutFile.write(m_stdOut);
+                    //m_stdOutFile.write(m_stdOut);
                     break;
                 }
             }
@@ -485,8 +466,6 @@ LintMessages Lint::parseLintMessages(const QByteArray& data)
         qCritical() << "Line Number:" << QString::number(lintXML.lineNumber());
         qCritical() << "Column Number:" << QString::number(lintXML.columnNumber());
         qCritical() << "Character Offset:" << QString::number(lintXML.characterOffset());
-        m_stdOutFile.write(data);
-        m_stdOutFile.flush();
         throw std::runtime_error("XML parser error occurred");
     }
 

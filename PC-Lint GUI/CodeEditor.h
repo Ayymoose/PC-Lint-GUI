@@ -17,6 +17,12 @@
 #pragma once
 
 #include <QPlainTextEdit>
+#include <QPainter>
+#include <QTextBlock>
+#include <QMessageBox>
+#include <QTextStream>
+#include <QApplication>
+#include <QScrollBar>
 #include <QColor>
 #include <QLabel>
 #include <memory>

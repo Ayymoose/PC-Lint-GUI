@@ -168,11 +168,6 @@ public:
 
     QString errorMessage() const noexcept;
 
-    void setVersion(const Version& version) noexcept
-    {
-        m_version = version;
-    }
-
     // Return path to the lint file used (.lnt)
     QString getLintFile() const noexcept;
 
@@ -209,11 +204,7 @@ private:
     QStringList m_arguments;
     QString m_lintExecutable;
     QString m_lintFile;
-    int m_numberOfErrors;
-    int m_numberOfWarnings;
-    int m_numberOfInfo;
     QString m_errorMessage;
-    Version m_version;
 
     int m_hardwareThreads;
 
@@ -225,8 +216,6 @@ private:
 
     QFile m_stdOutFile;
     QFile m_stdErrFile;
-    QFile m_lintStdOut;
-
 
     QByteArray m_stdOut;
 
@@ -235,14 +224,11 @@ private:
 
     void emitLintComplete() noexcept;
     void consumeLintChunk() noexcept;
-
-
     void processModules(std::vector<QByteArray> modules);
 
     LintMessagesSet m_messageSet;
 
     std::atomic<bool> m_finished;
-
     std::unique_ptr<ReaderWriterQueue<QByteArray>> m_dataQueue;
     std::mutex m_mutex;
     std::condition_variable m_conditionVariable;

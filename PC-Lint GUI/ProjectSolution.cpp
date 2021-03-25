@@ -14,14 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <QXmlStreamReader>
-#include <QFile>
-#include <QFileInfo>
-#include <QDebug>
 #include "ProjectSolution.h"
 #include <windows.h>
 #include "Log.h"
-#include <stdexcept>
 
 namespace PCLint
 {
