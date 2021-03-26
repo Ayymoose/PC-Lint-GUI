@@ -54,17 +54,11 @@ MainWindow::MainWindow(QWidget *parent) :
     m_toggleInformation(true),
     m_preferences(std::make_unique<Preferences>(this)),
     m_lintTableMenu(std::make_unique<QMenu>(this)),
-    m_linterStatus(0),
     m_numberOfErrors(0),
     m_numberOfWarnings(0),
     m_numberOfInformations(0)
 {
     qRegisterMetaType<PCLint::LintStatus>("Status");
-    qRegisterMetaType<QSet<PCLint::LintMessage>>("QSet<LintMessage>");
-    qRegisterMetaType<PCLint::LintData>("LintData");
-    qRegisterMetaType<PCLint::LintResponse>("LintResponse");
-    qRegisterMetaType<PCLint::LintData>("PCLint::LintData");
-    qRegisterMetaType<PCLint::Version>("PCLint::Version");
     qRegisterMetaType<PCLint::LintMessageGroup>("LintMessageGroup");
     qRegisterMetaType<QVector<int>>("QVector<int>");
 
@@ -195,42 +189,45 @@ void MainWindow::on_actionPreferences_triggered()
     m_preferences->exec();
 }
 
-bool MainWindow::verifyLint()
+bool MainWindow::checkLint()
 {
-    QDir path;
     QFileInfo fileInfo;
 
     // Check if executable exists
-    QString linterExecutable = m_preferences->getLintExecutablePath().trimmed();
-    fileInfo.setFile(linterExecutable);
-
+    auto const lintExecutable = m_preferences->getLintExecutablePath().trimmed();
+    if (lintExecutable.isEmpty())
+    {
+        QMessageBox::critical(this,"Error", "No PC-Lint/PC-Lint Plus executable specified in Preferences");
+        return false;
+    }
+    fileInfo.setFile(lintExecutable);
     if (!fileInfo.exists())
     {
-        QMessageBox::critical(this,"Error", "PC-Lint/PC-Lint Plus executable does not exist: '" + linterExecutable + "'");
+        QMessageBox::critical(this,"Error", "PC-Lint/PC-Lint Plus executable does not exist: '" + lintExecutable + "'");
         return false;
     }
 
     if (!fileInfo.isExecutable())
     {
-        QMessageBox::critical(this,"Error", "Non-executable file specified: '" + linterExecutable + "'");
+        QMessageBox::critical(this,"Error", "Non-executable file specified: '" + lintExecutable + "'");
         return false;
     }
 
     // Check if lint file exists
-    QString linterLintFile = m_preferences->getLintFilePath().trimmed();
-    fileInfo.setFile(linterLintFile);
+    auto const lintFile = m_preferences->getLintFilePath().trimmed();
+    if (lintFile.isEmpty())
+    {
+        QMessageBox::critical(this,"Error", "No lint file (.lnt) specified in Preferences");
+        return false;
+    }
+    fileInfo.setFile(lintFile);
     if (!fileInfo.exists())
     {
-        QMessageBox::critical(this,"Error", "PC-Lint file (.lnt) does not exist: '" + linterLintFile + "'");
+        QMessageBox::critical(this,"Error", "Lint file (.lnt) does not exist: '" + lintFile + "'");
         return false;
     }
 
     return true;
-}
-
-void MainWindow::on_actionLint_triggered()
-{
-    m_ui->lintTable->setSortingEnabled(false);
 }
 
 void MainWindow::clearTreeNodes() const noexcept
@@ -329,7 +326,7 @@ void MainWindow::startLint(QString)
     QObject::connect(m_lint.get(), &PCLint::Lint::signalAddTreeMessageGroup, this, &MainWindow::addTreeMessageGroup);
 
     m_lint->lint();
-    m_progressWindow->show();
+    m_progressWindow->exec();
 }
 
 bool MainWindow::filterMessageType(const QString& type) const noexcept
@@ -489,7 +486,7 @@ void MainWindow::addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessage
     }
 }
 
-void MainWindow::on_aboutLinty_triggered()
+void MainWindow::on_aboutLint_triggered()
 {
     m_about.display();
 }
@@ -554,9 +551,12 @@ void MainWindow::on_actionLog_triggered()
     }
 }
 
-void MainWindow::on_actionLintProject_triggered()
+void MainWindow::on_actionLint_triggered()
 {
-   startLint("");
+    if (checkLint())
+    {
+        startLint("");
+    }
 }
 
 void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)

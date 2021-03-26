@@ -70,10 +70,9 @@ public slots:
 
 private slots:
     void save();
-    void on_aboutLinty_triggered();
+    void on_aboutLint_triggered();
     void on_actionRefresh_triggered();
     void on_actionLog_triggered();
-    void on_actionLintProject_triggered();
     void on_actionPreferences_triggered();
     void on_actionLint_triggered();
     void on_lintTable_itemClicked(QTreeWidgetItem *item, int column);
@@ -94,16 +93,11 @@ private:
     bool m_toggleWarning;
     bool m_toggleInformation;
     QString m_lastProjectLoaded;
-    QSet<QString> m_directoryFiles;
     std::unique_ptr<Preferences> m_preferences;
     std::unique_ptr<PCLint::Highlighter> m_highlighter;
 
     std::unique_ptr<QMenu> m_lintTableMenu;
-    QMap<QString, QString> m_projectLintMap;
-    int m_linterStatus;
 
-
-    PCLint::LintMessages m_lintTreeMessages;
     int m_numberOfErrors;
     int m_numberOfWarnings;
     int m_numberOfInformations;
@@ -115,8 +109,7 @@ private:
     bool filterMessageType(const QString& type) const noexcept;
 
 
-    bool verifyLint();
-    QSet<QString> recursiveBuildSourceFileSet(const QString& directory);
+    bool checkLint();
     PCLint::About m_about;
 
 

@@ -133,22 +133,6 @@ using LintMessageGroup = std::vector<LintMessages>;
 
 using namespace moodycamel;
 
-struct LintData
-{
-    QString linterExecutable;
-    QString lintOptionFile;
-    QSet<QString> lintFiles;
-};
-
-// Data from a processed lint chunk
-struct LintResponse
-{
-    LintMessages lintMessages;
-    int numberOfErrors;
-    int numberOfWarnings;
-    int numberOfInformation;
-};
-
 class Lint : public QObject
 {
     Q_OBJECT

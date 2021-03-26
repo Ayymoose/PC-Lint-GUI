@@ -109,7 +109,6 @@ selection-color: rgb(0, 0, 0);</string>
     </property>
     <addaction name="separator"/>
     <addaction name="actionLint"/>
-    <addaction name="actionLintProject"/>
     <addaction name="actionPreferences"/>
     <addaction name="separator"/>
    </widget>
@@ -134,7 +133,7 @@ selection-color: rgb(0, 0, 0);</string>
    <addaction name="actionRefresh"/>
    <addaction name="separator"/>
    <addaction name="separator"/>
-   <addaction name="aboutLinty"/>
+   <addaction name="aboutLint"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -165,7 +164,7 @@ selection-color: rgb(0, 0, 0);</string>
     <string>Refresh</string>
    </property>
   </action>
-  <action name="aboutLinty">
+  <action name="aboutLint">
    <property name="icon">
     <iconset resource="PC-Lint GUI.qrc">
      <normaloff>:/images/info.png</normaloff>:/images/info.png</iconset>
@@ -177,22 +176,17 @@ selection-color: rgb(0, 0, 0);</string>
     <string>About PC-Lint GUI</string>
    </property>
   </action>
-  <action name="actionLint">
-   <property name="text">
-    <string>Lint directory</string>
-   </property>
-   <property name="toolTip">
-    <string>Lint directory</string>
-   </property>
-  </action>
   <action name="actionPreferences">
    <property name="text">
     <string>Preferences</string>
    </property>
   </action>
-  <action name="actionLintProject">
+  <action name="actionLint">
    <property name="text">
-    <string>Lint project</string>
+    <string>Lint</string>
+   </property>
+   <property name="toolTip">
+    <string>Lint</string>
    </property>
   </action>
   <action name="actionLog">

@@ -115,7 +115,6 @@ void Lint::parseLintFile() noexcept
 
 void Lint::lint() noexcept
 {
-
     Q_ASSERT(m_lintExecutable.size());
 
     auto const workingDirectory = QFileInfo(m_lintFile).canonicalPath();
