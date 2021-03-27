@@ -17,6 +17,6 @@
 #pragma once
 
 #define APPLICATION_NAME "PC-Lint GUI" 
-#define BUILD_VERSION "DEV"
+#define BUILD_VERSION "Developer build"
 #define BUILD_DATE __DATE__
-#define BUILD_COMMIT "N/A"
+#define BUILD_COMMIT "-"

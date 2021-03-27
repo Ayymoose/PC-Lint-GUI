@@ -25,16 +25,21 @@ void About::display() const noexcept
     versionMessageBox.setIcon(QMessageBox::Information);
     versionMessageBox.addButton("Copy to clipboard", QMessageBox::AcceptRole);
     versionMessageBox.setWindowTitle("Information");
-    char buildCompiler[64];
 
-    sprintf(buildCompiler,"%s %s\n", COMPILER_NAME, COMPILER_VERSION);
-
-    QString applicationInfo =
-            "Qt version: " QT_VERSION_STR "\n"
-            "Build version: " BUILD_ARCHITECTURE " " APPLICATION_NAME " " BUILD_VERSION "\n"
-            "Build date: " BUILD_DATE "\n"
-            "Build commit: " BUILD_COMMIT "\n"
-            "Build compiler: " + QString(buildCompiler) + "\n";
+    auto const applicationInfo = QString(
+                "Qt version: %1\n"
+                "Build version: %2 %3 %4\n"
+                "Build date: %5\n"
+                "Build commit: %6\n"
+                "Build compiler: %7 %8").arg(
+                QT_VERSION_STR,
+                APPLICATION_NAME,
+                BUILD_VERSION,
+                BUILD_ARCHITECTURE,
+                BUILD_DATE,
+                BUILD_COMMIT,
+                COMPILER_NAME,
+                COMPILER_VERSION);
 
     versionMessageBox.setText(applicationInfo);
     switch (versionMessageBox.exec())
