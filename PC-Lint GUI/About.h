@@ -23,7 +23,7 @@
 #include <QClipboard>
 #include <QMessageBox>
 
-namespace PCLint
+namespace Lint
 {
 
 class About

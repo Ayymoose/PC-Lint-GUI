@@ -16,12 +16,12 @@
 
 #include "About.h"
 
-namespace PCLint
+namespace Lint
 {
 
 void About::display() const noexcept
 {
-    QMessageBox versionMessageBox(nullptr);
+    QMessageBox versionMessageBox;
     versionMessageBox.setIcon(QMessageBox::Information);
     versionMessageBox.addButton("Copy to clipboard", QMessageBox::AcceptRole);
     versionMessageBox.setWindowTitle("Information");

@@ -16,7 +16,7 @@
 
 #include "ProgressWindow.h"
 #include "ui_ProgressWindow.h"
-#include "Lint.h"
+#include "PCLintPlus.h"
 #include "Jenkins.h"
 
 ProgressWindow::ProgressWindow(QWidget *parent) :
@@ -81,7 +81,7 @@ void ProgressWindow::slotUpdateTime() noexcept
     }
 }
 
-void ProgressWindow::slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept
+void ProgressWindow::slotLintComplete(const Lint::Status& lintStatus, const QString& errorMessage) noexcept
 {
     // TODO: Crash here sometimes on exec?!
     // Close this window first to prevent the main window

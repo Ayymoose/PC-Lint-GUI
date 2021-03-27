@@ -33,7 +33,7 @@
 
 #include "ProgressWindow.h"
 #include "Preferences.h"
-#include "Lint.h"
+#include "PCLintPlus.h"
 #include "Log.h"
 #include "CodeEditor.h"
 #include "Highlighter.h"
@@ -57,7 +57,7 @@ public:
     ~MainWindow();
 
 public slots:
-    void slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept;
+    void slotLintComplete(const Lint::Status& lintStatus, const QString& errorMessage) noexcept;
 
 private slots:
     void save();
@@ -85,7 +85,7 @@ private:
     bool m_toggleInformation;
     QString m_lastProjectLoaded;
     std::unique_ptr<Preferences> m_preferences;
-    std::unique_ptr<PCLint::Highlighter> m_highlighter;
+    std::unique_ptr<Lint::Highlighter> m_highlighter;
 
     std::unique_ptr<QMenu> m_lintTableMenu;
 
@@ -96,15 +96,15 @@ private:
     void clearTreeNodes() const noexcept;
     void applyTreeFilter(bool filter, const QString& type) const noexcept;
 
-    void addTreeMessageGroup(const PCLint::LintMessageGroup& lintMessageGroup) noexcept;
+    void addTreeMessageGroup(const Lint::LintMessageGroup& lintMessageGroup) noexcept;
     bool filterMessageType(const QString& type) const noexcept;
 
 
     bool checkLint();
-    PCLint::About m_about;
+    Lint::About m_about;
 
 
-    std::unique_ptr<PCLint::Lint> m_lint;
+    std::unique_ptr<Lint::PCLintPlus> m_lint;
     std::unique_ptr<ProgressWindow> m_progressWindow;
 
 };

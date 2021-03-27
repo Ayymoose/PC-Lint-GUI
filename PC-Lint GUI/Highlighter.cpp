@@ -16,7 +16,7 @@
 
 #include "Highlighter.h"
 
-namespace PCLint
+namespace Lint
 {
 
 Highlighter::Highlighter(QTextDocument *parent)

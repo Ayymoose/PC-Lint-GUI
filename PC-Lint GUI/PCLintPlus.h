@@ -41,7 +41,7 @@
 #include "atomicops.h"
 #include "readerwriterqueue.h"
 
-namespace PCLint
+namespace Lint
 {
 
 namespace Xml
@@ -72,7 +72,7 @@ namespace Type
 };
 
 
-enum LintStatus
+enum Status
 {
     // Lint completed successfully
     STATUS_COMPLETE = 0x0,
@@ -97,13 +97,6 @@ enum Message
     MESSAGE_INFORMATION,
     MESSAGE_SUPPLEMENTAL,
     MESSAGE_UNKNOWN
-};
-
-enum Version
-{
-    VERSION_PC_LINT,
-    VERSION_PC_LINT_PLUS,
-    VERSION_UNKNOWN
 };
 
 constexpr int MAX_PROCESS_CHARACTERS = 8192;
@@ -133,13 +126,12 @@ using LintMessageGroup = std::vector<LintMessages>;
 
 using namespace moodycamel;
 
-class Lint : public QObject
+class PCLintPlus : public QObject
 {
     Q_OBJECT
-    Q_ENUM(Message)
 public:
-    Lint();
-    Lint(const QString& lintExecutable, const QString& lintFile);
+    PCLintPlus();
+    PCLintPlus(const QString& lintExecutable, const QString& lintFile);
 
     // Set the path to the lint.exe
     void setLintExecutable(const QString& linterExecutable) noexcept;
@@ -178,7 +170,7 @@ signals:
     void signalUpdateProcessedFiles(int processedFiles);
     void signalLintProgress(int value);
 
-    void signalLintComplete(const LintStatus& lintStatus, const QString& errorMessage);
+    void signalLintComplete(const Status& lintStatus, const QString& errorMessage);
 
     void signalAddTreeMessageGroup(const LintMessageGroup& lintMessageGroup);
 
@@ -195,7 +187,7 @@ private:
     // stderr has the module (file lint) progress
     // stdout has the actual data
 
-    LintStatus m_status;
+    Status m_status;
     int m_numberOfLintedFiles;
 
     QFile m_stdOutFile;

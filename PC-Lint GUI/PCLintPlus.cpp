@@ -14,17 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Lint.h"
+#include "PCLintPlus.h"
 #include "Log.h"
 
 
-
 // TODO: Make namespace Lint and this class PCLintPlus
-namespace PCLint
+namespace Lint
 {
 
 
-Lint::Lint() :
+PCLintPlus::PCLintPlus() :
     m_hardwareThreads(1),
     m_status(STATUS_UNKNOWN),
     m_numberOfLintedFiles(0),
@@ -33,7 +32,7 @@ Lint::Lint() :
 
 }
 
-Lint::Lint(const QString& lintExecutable, const QString& lintFile) :
+PCLintPlus::PCLintPlus(const QString& lintExecutable, const QString& lintFile) :
     m_lintExecutable(lintExecutable),
     m_lintFile(lintFile),
     m_hardwareThreads(1),
@@ -44,7 +43,7 @@ Lint::Lint(const QString& lintExecutable, const QString& lintFile) :
 
 }
 
-void Lint::slotAbortLint() noexcept
+void PCLintPlus::slotAbortLint() noexcept
 {
     if (m_future.isRunning())
     {
@@ -57,28 +56,28 @@ void Lint::slotAbortLint() noexcept
     m_process->close();
 }
 
-void Lint::setLintFile(const QString& lintFile) noexcept
+void PCLintPlus::setLintFile(const QString& lintFile) noexcept
 {
     m_lintFile = lintFile;
 }
 
-void Lint::setLintExecutable(const QString& linterExecutable) noexcept
+void PCLintPlus::setLintExecutable(const QString& linterExecutable) noexcept
 {
     m_lintExecutable = linterExecutable;
 }
 
-QString Lint::errorMessage() const noexcept
+QString PCLintPlus::errorMessage() const noexcept
 {
     return m_errorMessage;
 }
 
-void Lint::setHardwareThreads(const int threads) noexcept
+void PCLintPlus::setHardwareThreads(const int threads) noexcept
 {
     Q_ASSERT(threads > 0);
     m_hardwareThreads = threads;
 }
 
-void Lint::parseLintFile() noexcept
+void PCLintPlus::parseLintFile() noexcept
 {
     Q_ASSERT(m_lintFile.size());
 
@@ -113,7 +112,7 @@ void Lint::parseLintFile() noexcept
     m_arguments << (m_lintFile);
 }
 
-void Lint::lint() noexcept
+void PCLintPlus::lint() noexcept
 {
     Q_ASSERT(m_lintExecutable.size());
 
@@ -172,7 +171,7 @@ void Lint::lint() noexcept
     m_dataQueue = std::make_unique<ReaderWriterQueue<QByteArray>>();
 
     // Start consumer thread here
-    m_future = QtConcurrent::run(this, &Lint::consumeLintChunk);
+    m_future = QtConcurrent::run(this, &PCLintPlus::consumeLintChunk);
 
     m_process->setProgram(m_lintExecutable);
     m_process->setArguments(m_arguments);
@@ -293,7 +292,7 @@ void Lint::lint() noexcept
     });
 }
 
-void Lint::consumeLintChunk() noexcept
+void PCLintPlus::consumeLintChunk() noexcept
 {
     // While the queue isn't empty or we haven't finished, dequeues items for processing
     // Producer will enqueue items while there is data
@@ -379,7 +378,7 @@ void Lint::consumeLintChunk() noexcept
     }
 }
 
-LintMessages Lint::parseLintMessages(const QByteArray& data)
+LintMessages PCLintPlus::parseLintMessages(const QByteArray& data)
 {
     // Ordering of messages is now important (was QSet)
     QXmlStreamReader lintXML(data);
@@ -471,7 +470,7 @@ LintMessages Lint::parseLintMessages(const QByteArray& data)
     return lintMessages;
 }
 
-void Lint::processModules(std::vector<QByteArray> modules)
+void PCLintPlus::processModules(std::vector<QByteArray> modules)
 {
     for (auto const& module : modules)
     {
@@ -486,7 +485,7 @@ void Lint::processModules(std::vector<QByteArray> modules)
     }
 }
 
-QString Lint::getLintFile() const noexcept
+QString PCLintPlus::getLintFile() const noexcept
 {
     return m_lintFile;
 }
@@ -494,7 +493,7 @@ QString Lint::getLintFile() const noexcept
 // Group together lint messages (PC-Lint Plus only)
 // So that supplemental messages are tied together with error/info/warnings
 
-LintMessageGroup Lint::groupLintMessages(LintMessages&& lintMessages) noexcept
+LintMessageGroup PCLintPlus::groupLintMessages(LintMessages&& lintMessages) noexcept
 {
     // Spit out a LintMessageGroup
     LintMessageGroup messageGroup;
@@ -535,13 +534,13 @@ LintMessageGroup Lint::groupLintMessages(LintMessages&& lintMessages) noexcept
     return messageGroup;
 }
 
-void Lint::setWorkingDirectory(const QString& directory) noexcept
+void PCLintPlus::setWorkingDirectory(const QString& directory) noexcept
 {
     m_lintDirectory = directory;
 }
 
 // Parse the byte array of data for the source files in the PC-Lint Plus output
-std::vector<QString> Lint::parseSourceFileInformation(const QByteArray& data) noexcept
+std::vector<QString> PCLintPlus::parseSourceFileInformation(const QByteArray& data) noexcept
 {
     std::vector<QString> sourceFiles;
 
@@ -584,7 +583,7 @@ std::vector<QString> Lint::parseSourceFileInformation(const QByteArray& data) no
 }
 
 // Process a chunk of data if possible?
-std::vector<QByteArray> Lint::stitchModule(const QByteArray& data)
+std::vector<QByteArray> PCLintPlus::stitchModule(const QByteArray& data)
 {
     std::vector<QByteArray> modules;
 

@@ -167,10 +167,10 @@
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;PC-Lint/PC-Lint Plus options&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;PC-Lint Plus options&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
-  <widget class="QTreeWidget" name="preferencesTree">
+  <widget class="QListWidget" name="preferencesTree">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -179,11 +179,21 @@
      <height>411</height>
     </rect>
    </property>
-   <column>
+   <item>
     <property name="text">
-     <string notr="true">PC-Lint/PC-Lint Plus</string>
+     <string>PC-Lint Plus</string>
     </property>
-   </column>
+   </item>
+   <item>
+    <property name="text">
+     <string>PC-Lint</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Editor</string>
+    </property>
+   </item>
   </widget>
  </widget>
  <resources/>

@@ -29,7 +29,7 @@ QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
 
-namespace PCLint
+namespace Lint
 {
 
 class Highlighter : public QSyntaxHighlighter

@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "Lint.h"
+#include "PCLintPlus.h"
 #include <QDialog>
 #include <QFileDialog>
 #include <QSettings>
@@ -26,7 +26,7 @@
 
 #include <QSettings>
 
-namespace PCLint
+namespace Lint
 {
 const QString SETTINGS_APPLICATION_NAME = "PC-Lint GUI";
 const QString SETTINGS_GROUP_NAME = "Settings";
@@ -53,9 +53,6 @@ public:
     int getLintHardwareThreads() const noexcept;
     static QString m_lastDirectory;
     //void reject() override;
-
-signals:
-    void signalLintVersion(const PCLint::Version& version);
 
 private slots:
     void on_lintPathFileOpen_clicked();

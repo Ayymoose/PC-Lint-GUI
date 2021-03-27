@@ -13,9 +13,9 @@ SOURCES += \
     About.cpp \
     CodeEditor.cpp \
     Highlighter.cpp \
-    Lint.cpp \
     Log.cpp \
     MainWindow.cpp \
+    PCLintPlus.cpp \
     Preferences.cpp \
     ProgressWindow.cpp \
     Main.cpp
@@ -26,9 +26,9 @@ HEADERS += \
     Compiler.h \
     Highlighter.h \
     Jenkins.h \
-    Lint.h \
     Log.h \
     MainWindow.h \
+    PCLintPlus.h \
     Preferences.h \
     ProgressWindow.h \
     atomicops.h \

@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "Lint.h"
+#include "PCLintPlus.h"
 #include "MainWindow.h"
 
 #include <QTime>
@@ -29,7 +29,7 @@
 #include <QThread>
 
 
-namespace PCLint
+namespace Lint
 {
 class LintManager;
 }
@@ -55,14 +55,14 @@ public slots:
     void slotUpdateETA(int eta) noexcept;
     void slotUpdateProcessedFiles(int processedFiles) noexcept;
 
-    void slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept;
+    void slotLintComplete(const Lint::Status& lintStatus, const QString& errorMessage) noexcept;
 
 private slots:
     void on_lintCancel_clicked();
     void slotUpdateTime() noexcept;
 
 signals:
-    void signalLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage);
+    void signalLintComplete(const Lint::Status& lintStatus, const QString& errorMessage);
     void signalAbortLint();
 
 private:
