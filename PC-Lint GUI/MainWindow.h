@@ -37,7 +37,6 @@
 #include "Log.h"
 #include "CodeEditor.h"
 #include "Highlighter.h"
-#include "ModifiedFileThread.h"
 #include "About.h"
 
 class ProgressWindow;
@@ -57,15 +56,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-signals:
-    void signalUpdateTypes();
-    void signalRemoveFile(const QString& deletedFile);
-    void signalKeepFile(const QString& keepFile);
-    void signalStartLint();
-
-
 public slots:
-    void handleContextMenu(const QPoint& pos);
     void slotLintComplete(const PCLint::LintStatus& lintStatus, const QString& errorMessage) noexcept;
 
 private slots:

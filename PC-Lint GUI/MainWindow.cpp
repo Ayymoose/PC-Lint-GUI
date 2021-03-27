@@ -34,7 +34,6 @@
 #include "ui_MainWindow.h"
 #include "Lint.h"
 #include "ProgressWindow.h"
-#include "ProjectSolution.h"
 #include "About.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -136,16 +135,6 @@ MainWindow::MainWindow(QWidget *parent) :
         m_toggleWarning = checked;
         applyTreeFilter(m_toggleWarning, PCLint::Type::TYPE_WARNING);
     });
-
-    QObject::connect(this, &MainWindow::signalUpdateTypes, this, [this]()
-    {
-        m_actionError->setText("Errors:" + QString::number(m_numberOfErrors));
-        m_actionWarning->setText("Warnings:" + QString::number(m_numberOfWarnings));
-        m_actionInformation->setText("Information:" + QString::number(m_numberOfInformations));
-    });
-
-    m_ui->lintTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    QObject::connect(m_ui->lintTable, &QTreeWidget::customContextMenuRequested, this, &MainWindow::handleContextMenu);
 
     // With syntax highlighting
     m_highlighter = std::make_unique<PCLint::Highlighter>(m_ui->codeEditor->document());
@@ -499,46 +488,6 @@ void MainWindow::on_actionRefresh_triggered()
     {
         startLint(QFileInfo(m_lastProjectLoaded).fileName());
     }
-}
-
-void MainWindow::handleContextMenu(const QPoint& )
-{
-  /*  auto *item = m_ui->lintTable->itemAt(pos);
-
-    if (item)
-    {
-        // Get the associated widgets
-        auto* codeWidget = m_ui->lintTable->item(item->row(), 1);
-        auto* fileWidget = m_ui->lintTable->item(item->row(), 3);
-
-        m_lintTableMenu->clear();
-        m_lintTableMenu->popup(m_ui->lintTable->horizontalHeader()->viewport()->mapToGlobal(pos));
-
-        QAction* actionRemoveFile = m_lintTableMenu->addAction("Remove file from messages");
-        QAction* actionHideMessages = m_lintTableMenu->addAction("Hide messages of this type");
-        // QAction* actionSurpressMessages = m_lintTableMenu->addAction("Surpress this message in lint file");
-
-        QObject::connect(actionRemoveFile, &QAction::triggered, this, [=]()
-        {
-            QString file = fileWidget->data(Qt::UserRole).value<QString>();
-            m_linter.removeAssociatedMessages(file);
-            displayLintTable();
-        });
-
-        QObject::connect(actionHideMessages, &QAction::triggered, this, [=]()
-        {
-            QString code = codeWidget->data(Qt::DisplayRole).value<QString>();
-            m_linter.removeMessagesWithNumber(code);
-            displayLintTable();
-        });*/
-
-        /*QObject::connect(actionSurpressMessages, &QAction::triggered, this, [=]()
-        {
-            // TODO: Write to lint file the surpression
-            //auto s = fileWidget->data(Qt::DisplayRole).value<QString>();
-            //DEBUG_LOG("Surpressing messages: " + QString(s));
-        });*/
-    //}
 }
 
 void MainWindow::on_actionLog_triggered()

@@ -16,10 +16,8 @@ SOURCES += \
     Lint.cpp \
     Log.cpp \
     MainWindow.cpp \
-    ModifiedFileThread.cpp \
     Preferences.cpp \
     ProgressWindow.cpp \
-    ProjectSolution.cpp \
     Main.cpp
 
 HEADERS += \
@@ -31,10 +29,8 @@ HEADERS += \
     Lint.h \
     Log.h \
     MainWindow.h \
-    ModifiedFileThread.h \
     Preferences.h \
     ProgressWindow.h \
-    ProjectSolution.h \
     atomicops.h \
     readerwriterqueue.h
 
