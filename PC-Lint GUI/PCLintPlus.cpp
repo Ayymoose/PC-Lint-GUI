@@ -171,7 +171,7 @@ void PCLintPlus::lint() noexcept
     m_dataQueue = std::make_unique<ReaderWriterQueue<QByteArray>>();
 
     // Start consumer thread here
-    m_future = QtConcurrent::run(this, &PCLintPlus::consumeLintChunk);
+    m_future = QtConcurrent::run(this, &PCLintPlus::consumerThread);
 
     m_process->setProgram(m_lintExecutable);
     m_process->setArguments(m_arguments);
@@ -179,20 +179,20 @@ void PCLintPlus::lint() noexcept
 
     // No local variables beyond this point
 
-    QObject::connect(m_process.get(), &QProcess::started, this, [this]()
+    /*QObject::connect(m_process.get(), &QProcess::started, this, [this]()
     {
         //lintStartTime = std::chrono::steady_clock::now();
         // Tell ProgressWindow the maximum number of files we have
         //emit signalUpdateProgressMax(m_filesToLint.size());
         //emit signalUpdateProcessedFiles(m_numberOfLintedFiles);
-    });
+    });*/
 
     QObject::connect(m_process.get(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
     [this](int exitCode, QProcess::ExitStatus exitStatus)
     {
         qDebug() << "Lint process finished with exit code:" << QString::number(exitCode) << "and exit status:" << exitStatus;
-
         qInfo() << "Total files linted:" << m_numberOfLintedFiles;
+
         slotAbortLint();
 
         if (m_status & (STATUS_PROCESS_ERROR | STATUS_PROCESS_TIMEOUT | STATUS_ABORT | STATUS_LICENSE_ERROR))
@@ -292,7 +292,7 @@ void PCLintPlus::lint() noexcept
     });
 }
 
-void PCLintPlus::consumeLintChunk() noexcept
+void PCLintPlus::consumerThread() noexcept
 {
     // While the queue isn't empty or we haven't finished, dequeues items for processing
     // Producer will enqueue items while there is data
@@ -316,7 +316,7 @@ void PCLintPlus::consumeLintChunk() noexcept
         }
 
         // PC-Lint Plus process will spit out chunks of data, not complete module processed output but parts
-        // We must piece them together by extracting data between pairs of "--- Module:   " tags
+        // We must piece them together by extracting data between pairs of DATA_MODULE_STRING tags
 
         try
         {
@@ -412,8 +412,10 @@ LintMessages PCLintPlus::parseLintMessages(const QByteArray& data)
                 // <f> tag
                 message.file = lintXML.readElementText();
                 // Why does PC-Lint Plus mess with the directory separator?
-                // It spits out '/' and '\' in the same path which messages with the hash for QSet
+                // It spits out '/' and '\' in the same path which messes with the hash result for QSet
+
                 // TODO: I still see some duplicate output in the tree; investigate
+                // TODO: I think this may be a result of two files having the same name in the tree
                 message.file = QDir::toNativeSeparators(message.file);
             }
             else if (lintXML.name() == Xml::XML_ELEMENT_LINE)
@@ -470,6 +472,33 @@ LintMessages PCLintPlus::parseLintMessages(const QByteArray& data)
     return lintMessages;
 }
 
+QString PCLintPlus::addFullFilePath(const QString& file) const noexcept
+{
+    // Check if the file exists (absolute path given)
+    if (QFileInfo(file).exists())
+    {
+        return file;
+    }
+
+    // Check if it exists relative to the lint file
+    auto const lintFilePath = QFileInfo(m_lintFile).canonicalPath() + '/' + file;
+    auto const canonFilePath = QFileInfo(lintFilePath).canonicalFilePath();
+
+    // If canonical file path doesn't exist, it means the path we constructed failed and it returned ""
+    if (!QFile(canonFilePath).exists())
+    {
+        if (!file.isEmpty())
+        {
+            //qInfo() << "Unknown file:" << file;
+        }
+        return QString();
+    }
+    else
+    {
+       return canonFilePath;
+    }
+};
+
 void PCLintPlus::processModules(std::vector<QByteArray> modules)
 {
     for (auto const& module : modules)
@@ -481,7 +510,31 @@ void PCLintPlus::processModules(std::vector<QByteArray> modules)
          auto groupedLintMessages = groupLintMessages(std::move(lintMessages));
 
          // Send chunk of data to be processed
-         emit signalAddTreeMessageGroup(groupedLintMessages);
+         for (const auto& messageGroup : groupedLintMessages)
+         {
+             // Every vector must be at least 1 otherwise something went wrong
+             Q_ASSERT(messageGroup.size() > 0);
+
+             // Create the top-level item
+             auto messageTop = messageGroup.front();
+             messageTop.file = addFullFilePath(messageTop.file);
+
+             // Otherwise add the children under a new node
+             emit signalAddTreeParent(messageTop);
+             QThread::msleep(50);
+
+             // Otherwise grab the rest of the group
+             for (auto cit = messageGroup.cbegin()+1; cit != messageGroup.cend(); ++cit)
+             {
+                 // The sticky details
+                 auto message = *cit;
+                 message.file = addFullFilePath(message.file);
+
+                 emit signalAddTreeChild(message);
+                 QThread::msleep(50);
+
+             }
+         }
     }
 }
 
@@ -490,9 +543,8 @@ QString PCLintPlus::getLintFile() const noexcept
     return m_lintFile;
 }
 
-// Group together lint messages (PC-Lint Plus only)
+// Group together lint messages
 // So that supplemental messages are tied together with error/info/warnings
-
 LintMessageGroup PCLintPlus::groupLintMessages(LintMessages&& lintMessages) noexcept
 {
     // Spit out a LintMessageGroup
@@ -547,8 +599,8 @@ std::vector<QString> PCLintPlus::parseSourceFileInformation(const QByteArray& da
     size_t from = 0;
     for (;;)
     {
-        // TODO: Might be easier/more efficent to use split on "--- Module:   "
-        int firstIndex = data.indexOf("--- Module:   ", from);
+        // TODO: Might be easier/more efficent to use split on DATA_MODULE_STRING
+        int firstIndex = data.indexOf(DATA_MODULE_STRING, from);
         if (firstIndex == -1)
         {
             break;
@@ -558,17 +610,17 @@ std::vector<QString> PCLintPlus::parseSourceFileInformation(const QByteArray& da
         {
             break;
         }
-        auto sourceFile = data.mid(firstIndex + QString("--- Module:   ").length(),
-                                         secondIndex-firstIndex-QString("--- Module:   ").length());
+        auto sourceFile = data.mid(firstIndex + sizeof(DATA_MODULE_STRING),
+                                         secondIndex-firstIndex-sizeof(DATA_MODULE_STRING));
 
 
-        if (sourceFile.endsWith(" (C++)"))
+        if (sourceFile.endsWith(DATA_CPP_STRING))
         {
-            sourceFile.chop(QString(" (C++)").length());
+            sourceFile.chop(sizeof(DATA_CPP_STRING));
         }
-        else if (sourceFile.endsWith(" (C)"))
+        else if (sourceFile.endsWith(DATA_C_STRING))
         {
-            sourceFile.chop(QString(" (C)").length());
+            sourceFile.chop(sizeof(DATA_C_STRING));
         }
         else
         {
@@ -591,15 +643,15 @@ std::vector<QByteArray> PCLintPlus::stitchModule(const QByteArray& data)
 
     for (;;)
     {
-        int firstIndex = m_stdOut.indexOf("--- Module:   ");
+        int firstIndex = m_stdOut.indexOf(DATA_MODULE_STRING);
         if (firstIndex == -1)
         {
             return modules;
         }
-        int secondIndex = m_stdOut.indexOf("--- Module:   ", firstIndex+1);
+        int secondIndex = m_stdOut.indexOf(DATA_MODULE_STRING, firstIndex+1);
         if (secondIndex == -1)
         {
-            // It could be the end of the document (ends with "</doc>"
+            // It could be the end of the document (ends with "</doc>")
             secondIndex = m_stdOut.indexOf(Xml::XML_TAG_DOC_CLOSED, firstIndex+1);
             if (secondIndex == -1)
             {
@@ -617,11 +669,11 @@ std::vector<QByteArray> PCLintPlus::stitchModule(const QByteArray& data)
         // wrapped around them for the XML stream reader to work
 
 
-        module.replace("<doc>", "");
-        module.replace("</doc>", "");
+        module.replace(Xml::XML_TAG_DOC_OPEN, "");
+        module.replace(Xml::XML_TAG_DOC_CLOSED, "");
 
-        module.prepend("<doc>");
-        module.append("</doc>");
+        module.prepend(Xml::XML_TAG_DOC_OPEN);
+        module.append(Xml::XML_TAG_DOC_CLOSED);
 
         // Add this to the array
         modules.emplace_back(module);

@@ -17,14 +17,18 @@ echo [APP NAME]: %LINTY_APPNAME%
 echo [MAJOR BUILD]: %LINTY_MAJOR_BUILD%
 echo [MINOR BUILD]: %LINTY_MINOR_BUILD%
 
-if exist "%BUILD_FOLDER%" rd /s /q "%BUILD_FOLDER%"
+:: if exist "%BUILD_FOLDER%" rd /s /q "%BUILD_FOLDER%"
 mkdir "%BUILD_FOLDER%"
+
+if %errorlevel% neq 0 exit /b 1
 
 :: Copy release or debug
 if "%1" == "DEBUG" (
 	copy /B /Y %DEBUG_APP% "%BUILD_FOLDER%"
+	if %errorlevel% neq 0 exit /b 1
 ) else if "%1" == "RELEASE" (
 	copy /B /Y %RELEASE_APP% "%BUILD_FOLDER%"
+	if %errorlevel% neq 0 exit /b 1
 ) else (
 	echo Unknown configuration provided: %1
 	exit /b 1
@@ -32,20 +36,25 @@ if "%1" == "DEBUG" (
 
 echo [BUILDING USING %1 CONFIGURATION]
 %WINDEPLOYQT_APP% "%BUILD_FOLDER%\%APP_EXE%" %WINDEPLOYQT_ARGUMENTS%
+if %errorlevel% neq 0 exit /b 1
 
 :: Rename the file to show version information
 echo [FILE RENAME]
 pushd "%BUILD_FOLDER%"
+if %errorlevel% neq 0 exit /b 1
 ren "%APP_EXE%" "%APP_NAME%_%LINTY_MAJOR_BUILD%.%LINTY_MINOR_BUILD%.exe"
+if %errorlevel% neq 0 exit /b 1
 popd
 
 :: Zip file up
 echo [ZIP UP]
 %ZIP_APP% %ZIP_ARGUMENTS%
+if %errorlevel% neq 0 exit /b 1
 
 :: Move to folder
 echo [FOLDER MOVE]
 move /Y "%APP_NAME%_%LINTY_MAJOR_BUILD%.%LINTY_MINOR_BUILD%.7z" "%BUILD_FOLDER%"
+if %errorlevel% neq 0 exit /b 1
 
 :: Increment minor build number
 echo [NEW BUILD NUMBER]

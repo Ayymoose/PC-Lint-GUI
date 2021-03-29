@@ -77,22 +77,22 @@ class LineNumberArea : public QWidget
 {
 public:
     LineNumberArea(CodeEditor *editor) : QWidget(editor),
-        m_codeEditor(editor)
+        m_m_codeEditor(editor)
     {
 
     }
 
     QSize sizeHint() const noexcept override
     {
-        return QSize(m_codeEditor->lineNumberAreaWidth(), 0);
+        return QSize(m_m_codeEditor->lineNumberAreaWidth(), 0);
     }
 
 protected:
     void paintEvent(QPaintEvent *event) noexcept override
     {
-        m_codeEditor->lineNumberAreaPaintEvent(event);
+        m_m_codeEditor->lineNumberAreaPaintEvent(event);
     }
 
 private:
-    CodeEditor* m_codeEditor;
+    CodeEditor* m_m_codeEditor;
 };

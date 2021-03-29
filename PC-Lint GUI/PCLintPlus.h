@@ -30,6 +30,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFuture>
+#include <QStandardItemModel>
 #include <QtConcurrent>
 #include <mutex>
 #include <memory>
@@ -47,19 +48,17 @@ namespace Lint
 namespace Xml
 {
     // XML tags
-    const QString XML_TAG_DOC_OPEN = "<doc>";
-    const QString XML_TAG_DOC_CLOSED = "</doc>";
-    const QString XML_TAG_MESSAGE_OPEN = "<m>";
-    const QString XML_TAG_DESCRIPTION_CLOSED = "</d>";
+    constexpr const char* XML_TAG_DOC_OPEN = "<doc>";
+    constexpr const char* XML_TAG_DOC_CLOSED = "</doc>";
 
     // XML elements
-    const QString XML_ELEMENT_DOC = "doc";
-    const QString XML_ELEMENT_FILE = "f";
-    const QString XML_ELEMENT_LINE = "l";
-    const QString XML_ELEMENT_MESSAGE_TYPE = "t";
-    const QString XML_ELEMENT_MESSAGE_NUMBER = "n";
-    const QString XML_ELEMENT_MESSAGE = "m";
-    const QString XML_ELEMENT_DESCRIPTION = "d";
+    constexpr const char* XML_ELEMENT_DOC = "doc";
+    constexpr const char* XML_ELEMENT_FILE = "f";
+    constexpr const char* XML_ELEMENT_LINE = "l";
+    constexpr const char* XML_ELEMENT_MESSAGE_TYPE = "t";
+    constexpr const char* XML_ELEMENT_MESSAGE_NUMBER = "n";
+    constexpr const char* XML_ELEMENT_MESSAGE = "m";
+    constexpr const char* XML_ELEMENT_DESCRIPTION = "d";
 };
 
 namespace Type
@@ -109,6 +108,11 @@ constexpr int LINT_TABLE_FILE_COLUMN = 0;
 constexpr int LINT_TABLE_NUMBER_COLUMN = 1;
 constexpr int LINT_TABLE_DESCRIPTION_COLUMN = 2;
 constexpr int LINT_TABLE_LINE_COLUMN = 3;
+
+constexpr char DATA_MODULE_STRING[] = "--- Module:   ";
+constexpr char DATA_CPP_STRING[] = " (C++)";
+constexpr char DATA_C_STRING[] = " (C)";
+
 
 struct LintMessage
 {
@@ -175,6 +179,14 @@ signals:
     void signalAddTreeMessageGroup(const LintMessageGroup& lintMessageGroup);
 
 
+    void signalAppendRow();
+
+
+    void signalAddTreeParent(const LintMessage& parentMessage);
+    void signalAddTreeChild(const LintMessage& childMessage);
+
+
+
 private:
     QString m_lintDirectory;
     QStringList m_arguments;
@@ -199,8 +211,9 @@ private:
 
 
     void emitLintComplete() noexcept;
-    void consumeLintChunk() noexcept;
+    void consumerThread() noexcept;
     void processModules(std::vector<QByteArray> modules);
+    QString addFullFilePath(const QString& file) const noexcept;
 
     LintMessagesSet m_messageSet;
 
@@ -209,6 +222,7 @@ private:
     std::mutex m_mutex;
     std::condition_variable m_conditionVariable;
     QFuture<void> m_future;
+
 };
 
 // For QSet

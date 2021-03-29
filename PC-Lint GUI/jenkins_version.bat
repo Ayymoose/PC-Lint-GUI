@@ -8,6 +8,8 @@ set "YY=%dt:~2,2%" & set "YYYY=%dt:~0,4%" & set "MM=%dt:~4,2%" & set "DD=%dt:~6,
 set "HH=%dt:~8,2%" & set "Min=%dt:~10,2%" & set "Sec=%dt:~12,2%"
 set "FULL_STAMP=%YYYY%-%MM%-%DD%_%HH%-%Min%-%Sec%"
 
+if %errorlevel% neq 0 exit /b 1
+
 set APP_PATH=D:\Users\Ayman\Desktop\PC-Lint GUI\PC-Lint GUI
 
 echo #pragma once > "%APP_PATH%\Jenkins.h"

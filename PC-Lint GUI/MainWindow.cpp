@@ -30,6 +30,7 @@
 #include <QClipboard>
 #include <QTreeWidget>
 
+
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "PCLintPlus.h"
@@ -52,30 +53,28 @@ MainWindow::MainWindow(QWidget *parent) :
     m_toggleWarning(true),
     m_toggleInformation(true),
     m_preferences(std::make_unique<Preferences>(this)),
-    m_lintTableMenu(std::make_unique<QMenu>(this)),
+    m_m_lintTreeMenu(std::make_unique<QMenu>(this)),
     m_numberOfErrors(0),
     m_numberOfWarnings(0),
-    m_numberOfInformations(0)
+    m_numberOfInformations(0),
+    m_parent(nullptr)
 {
     qRegisterMetaType<Lint::Status>("Status");
     qRegisterMetaType<Lint::LintMessageGroup>("LintMessageGroup");
     qRegisterMetaType<QVector<int>>("QVector<int>");
+    qRegisterMetaType<Lint::LintMessage>("LintMessage");
 
     // Turn UI into actual objects
     m_ui->setupUi(this);
 
     QObject::connect(m_ui->actionSave, &QAction::triggered, this, &MainWindow::save);
 
-    // Configure the lint table
-    // Icon column width
-    m_ui->lintTable->setColumnWidth(Lint::LINT_TABLE_FILE_COLUMN,256);
-    m_ui->lintTable->setColumnWidth(Lint::LINT_TABLE_NUMBER_COLUMN,80);
-    m_ui->lintTable->setColumnWidth(Lint::LINT_TABLE_DESCRIPTION_COLUMN,800);
-    m_ui->lintTable->setColumnWidth(Lint::LINT_TABLE_LINE_COLUMN,80);
+    // Setup tree view
+    setupLintTree();
 
     // Configure the code editor
-    m_ui->codeEditor->setLineNumberAreaColour(LINE_NUMBER_AREA_COLOUR);
-    m_ui->codeEditor->setLineNumberBackgroundColour(LINE_CURRENT_BACKGROUND_COLOUR);
+    m_ui->m_codeEditor->setLineNumberAreaColour(LINE_NUMBER_AREA_COLOUR);
+    m_ui->m_codeEditor->setLineNumberBackgroundColour(LINE_CURRENT_BACKGROUND_COLOUR);
 
     // Set the splitter size
     m_ui->splitter->setSizes(QList<int>() << 400 << 200);
@@ -83,30 +82,31 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Status bar labels
     m_ui->statusBar->addPermanentWidget(m_ui->label);
-    m_ui->codeEditor->setLabel(m_ui->label);
+    m_ui->m_codeEditor->setLabel(m_ui->label);
 
     // | Errors: 0 Warnings: 0 Info: 0 |
 
-    m_buttonErrors->setCheckable(true);
     m_buttonErrors->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    m_buttonErrors->setDefaultAction(m_actionError.get());
+
     m_actionError->setIcon(QIcon(":/images/error.png"));
     m_actionError->setText("Errors:" + QString::number(m_numberOfErrors));
-    m_buttonErrors->setDefaultAction(m_actionError.get());
     m_actionError->setCheckable(true);
     m_actionError->setChecked(m_toggleError);
 
     m_buttonWarnings->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    m_buttonWarnings->setDefaultAction(m_actionWarning.get());
+
     m_actionWarning->setIcon(QIcon(":/images/warning.png"));
     m_actionWarning->setText("Warnings:" + QString::number(m_numberOfWarnings));
-    m_buttonWarnings->setDefaultAction(m_actionWarning.get());
     m_actionWarning->setCheckable(true);
     m_actionWarning->setChecked(m_toggleWarning);
 
-    m_buttonInformation->setCheckable(true);
     m_buttonInformation->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    m_buttonInformation->setDefaultAction(m_actionInformation.get());
+
     m_actionInformation->setIcon(QIcon(":/images/info.png"));
     m_actionInformation->setText("Information:" + QString::number(m_numberOfInformations));
-    m_buttonInformation->setDefaultAction(m_actionInformation.get());
     m_actionInformation->setCheckable(true);
     m_actionInformation->setChecked(m_buttonInformation.get());
 
@@ -137,11 +137,133 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     // With syntax highlighting
-    m_highlighter = std::make_unique<Lint::Highlighter>(m_ui->codeEditor->document());
+    m_highlighter = std::make_unique<Lint::Highlighter>(m_ui->m_codeEditor->document());
 
-    // TreeWidget font set to 12
-    m_ui->lintTable->setStyleSheet("QTreeWidget { font-size: 12pt; }");
 
+}
+
+void MainWindow::setupLintTree() noexcept
+{
+    m_treeModel.setHorizontalHeaderItem(Lint::LINT_TABLE_FILE_COLUMN, new QStandardItem("File"));
+    m_treeModel.setHorizontalHeaderItem(Lint::LINT_TABLE_NUMBER_COLUMN, new QStandardItem("Number"));
+    m_treeModel.setHorizontalHeaderItem(Lint::LINT_TABLE_DESCRIPTION_COLUMN, new QStandardItem("Description"));
+    m_treeModel.setHorizontalHeaderItem(Lint::LINT_TABLE_LINE_COLUMN, new QStandardItem("Line"));
+
+    // TODO: Replace with QAbstractItemModel for performance
+    m_ui->m_lintTree->setModel(&m_treeModel);
+
+    m_ui->m_lintTree->setColumnWidth(Lint::LINT_TABLE_FILE_COLUMN,256);
+    m_ui->m_lintTree->setColumnWidth(Lint::LINT_TABLE_NUMBER_COLUMN,80);
+    m_ui->m_lintTree->setColumnWidth(Lint::LINT_TABLE_DESCRIPTION_COLUMN,800);
+    m_ui->m_lintTree->setColumnWidth(Lint::LINT_TABLE_LINE_COLUMN,80);
+}
+
+void MainWindow::slotAppendRow() noexcept
+{
+
+}
+
+auto MainWindow::createTreeNodes(const Lint::LintMessage& message) noexcept
+{
+    QList<QStandardItem*> items;
+
+    auto* treeFileItem = new QStandardItem(QFileInfo(message.file).fileName());
+    treeFileItem->setData(message.file, Qt::UserRole);
+    auto* treeNumberItem = new QStandardItem(QString::number(message.number));
+    auto* treeDescriptionItem = new QStandardItem(message.description);
+    treeDescriptionItem->setData(message.type, Qt::UserRole);
+    auto* treeLineItem = new QStandardItem(QString::number(message.line));
+
+    QImage icon;
+    //PCLint::Message messageType = PCLint::MESSAGE_UNKNOWN;
+
+    if (message.type == Lint::Type::TYPE_ERROR)
+    {
+        icon.load(":/images/error.png");
+        //m_numberOfErrors++;
+        //m_actionError->setText("Errors:" + QString::number(m_numberOfErrors));
+        //messageType = PCLint::MESSAGE_ERROR;
+    }
+    else if (message.type == Lint::Type::TYPE_WARNING)
+    {
+        icon.load(":/images/warning.png");
+        //m_numberOfWarnings++;
+        //m_actionWarning->setText("Warnings:" + QString::number(m_numberOfWarnings));
+        //messageType = PCLint::MESSAGE_WARNING;
+    }
+    else if (message.type == Lint::Type::TYPE_INFO)
+    {
+        icon.load(":/images/info.png");
+        //m_numberOfInformations++;
+        //m_actionInformation->setText("Information:" + QString::number(m_numberOfInformations));
+        //messageType = PCLint::MESSAGE_INFORMATION;
+    }
+    else if (message.type == Lint::Type::TYPE_SUPPLEMENTAL)
+    {
+        icon.load(":/images/info.png");
+        //messageType = PCLint::MESSAGE_SUPPLEMENTAL;
+    }
+    else
+    {
+        Q_ASSERT(false);
+    }
+
+    treeFileItem->setData(QPixmap::fromImage(icon), Qt::DecorationRole);
+
+    // Filter if needed
+    /*if (filterMessageType(message.type))
+    {
+        treeItem->setHidden(true);
+    }*/
+
+    items.append(treeFileItem);
+    items.append(treeNumberItem);
+    items.append(treeDescriptionItem);
+    items.append(treeLineItem);
+
+    return items;
+
+};
+
+
+// This should be in a separate class to handle this logic (TreeModel)
+void MainWindow::slotAddTreeParent(const Lint::LintMessage& parentMessage) noexcept
+{
+    auto const parentName = QFileInfo(parentMessage.file).fileName();
+    auto const parentList = m_treeModel.findItems(parentName, Qt::MatchExactly);
+    QStandardItem* parentNode;
+
+    // Determine if the we added the file to the tree already
+    if (parentList.size() > 0)
+    {
+        Q_ASSERT(parentList.size() == 1);
+        parentNode = parentList.front();
+    }
+    else
+    {
+        // TODO: Free memory
+        parentNode = new QStandardItem(parentName);
+        // TODO: Why is the QModelIndex the QString here?
+        parentNode->setData(parentMessage.file, Qt::UserRole);
+        m_treeModel.appendRow(parentNode);
+    }
+
+    // Duplicate the parent node under itself
+    auto treeItems = createTreeNodes(parentMessage);
+    parentNode->appendRow(treeItems);
+
+    // Set parent to first child
+    m_parent = treeItems.first();
+}
+
+void MainWindow::slotAddTreeChild(const Lint::LintMessage& childMessage) noexcept
+{
+    // This slot must use the correct parent node
+    Q_ASSERT(m_parent);
+
+    // Add children under parent
+    auto treeItems = createTreeNodes(childMessage);
+    m_parent->appendRow(treeItems);
 }
 
 MainWindow::~MainWindow()
@@ -151,7 +273,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::save()
 {
-    QString currentFile = m_ui->codeEditor->loadedFile();
+    QString currentFile = m_ui->m_codeEditor->loadedFile();
 
     // If we have a loaded file then save it
     if (!currentFile.isEmpty())
@@ -164,7 +286,7 @@ void MainWindow::save()
         }
 
         QTextStream out(&file);
-        QString text = m_ui->codeEditor->toPlainText();
+        QString text = m_ui->m_codeEditor->toPlainText();
         out << text;
         file.close();
         m_ui->statusBar->showMessage("Saved " + currentFile + " at " + QDateTime::currentDateTime().toString());
@@ -219,22 +341,16 @@ bool MainWindow::checkLint()
     return true;
 }
 
-void MainWindow::clearTreeNodes() const noexcept
+void MainWindow::clearTreeNodes() noexcept
 {
-    // Clear all entries
-    while (m_ui->lintTable->topLevelItemCount())
-    {
-        QTreeWidgetItemIterator treeItr(m_ui->lintTable, QTreeWidgetItemIterator::NoChildren);
-        while (*treeItr)
-        {
-            delete *treeItr;
-        }
-    }
+    m_treeModel.clear();
+    setupLintTree();
+    m_parent = nullptr;
 }
 
 void MainWindow::applyTreeFilter(bool filter, const QString& type) const noexcept
 {
-    QTreeWidgetItemIterator treeItr(m_ui->lintTable);
+    /*QTreeWidgetItemIterator treeItr(m_ui->m_lintTree);
     while (*treeItr)
     {
         auto const treeNode = (*treeItr);
@@ -249,7 +365,7 @@ void MainWindow::applyTreeFilter(bool filter, const QString& type) const noexcep
             treeNode->setHidden(true);
         }
         treeItr++;
-    }
+    }*/
 }
 
 void MainWindow::slotLintComplete(const Lint::Status& lintStatus, const QString& errorMessage) noexcept
@@ -282,7 +398,7 @@ void MainWindow::slotLintComplete(const Lint::Status& lintStatus, const QString&
         Q_ASSERT(false);
     break;
     }
-    m_ui->lintTable->setSortingEnabled(true);
+    m_ui->m_lintTree->setSortingEnabled(true);
 
 }
 
@@ -314,8 +430,13 @@ void MainWindow::startLint(QString)
 
     QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalAddTreeMessageGroup, this, &MainWindow::addTreeMessageGroup);
 
+    QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalAddTreeParent, this, &MainWindow::slotAddTreeParent);
+    QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalAddTreeChild, this, &MainWindow::slotAddTreeChild);
+
+    m_progressWindow->show();
     m_lint->lint();
-    m_progressWindow->exec();
+    m_progressWindow->setModal(true);
+
 }
 
 bool MainWindow::filterMessageType(const QString& type) const noexcept
@@ -339,7 +460,7 @@ bool MainWindow::filterMessageType(const QString& type) const noexcept
 // TODO: Optimise this function is very slow
 void MainWindow::addTreeMessageGroup(const Lint::LintMessageGroup& lintMessageGroup) noexcept
 {
-
+/*
     auto addFullFilePath = [this](const QString& file)
     {
         // Check if the file exists (absolute path given)
@@ -433,7 +554,7 @@ void MainWindow::addTreeMessageGroup(const Lint::LintMessageGroup& lintMessageGr
 
         // Group together items under the same file
         auto const messageTopFileName = QFileInfo(messageTop.file).fileName();
-        auto const treeList = m_ui->lintTable->findItems(messageTopFileName,Qt::MatchExactly, Lint::LINT_TABLE_FILE_COLUMN);
+        auto const treeList = m_ui->m_lintTree->findItems(messageTopFileName,Qt::MatchExactly, Lint::LINT_TABLE_FILE_COLUMN);
 
         QTreeWidgetItem* fileDetailsItemTop;
 
@@ -448,23 +569,14 @@ void MainWindow::addTreeMessageGroup(const Lint::LintMessageGroup& lintMessageGr
         else
         {
             // New top level file entry
-            fileDetailsItemTop = new QTreeWidgetItem(m_ui->lintTable);
+            fileDetailsItemTop = new QTreeWidgetItem(m_ui->m_lintTree);
             fileDetailsItemTop->setText(Lint::LINT_TABLE_FILE_COLUMN, messageTopFileName);
             fileDetailsItemTop->setData(Lint::LINT_TABLE_FILE_COLUMN, Qt::UserRole, addFullFilePath(messageTop.file));
         }
 
-        // If it's just a single entry
-        if (messageGroup.size() == 1)
-        {
-            createTreeNode(fileDetailsItemTop, messageTop);
-            // Skip next
-            continue;
-        }
 
         // Create a child level item
         auto fileDetailsItem = createTreeNode(fileDetailsItemTop, messageTop);
-
-        Q_ASSERT(messageGroup.size() > 1);
 
         // Otherwise grab the rest of the group
         for (auto cit = messageGroup.cbegin()+1; cit != messageGroup.cend(); cit++)
@@ -472,7 +584,7 @@ void MainWindow::addTreeMessageGroup(const Lint::LintMessageGroup& lintMessageGr
             // The sticky details
             createTreeNode(fileDetailsItem, *cit);
         }
-    }
+    }*/
 }
 
 void MainWindow::on_aboutLint_triggered()
@@ -508,7 +620,7 @@ void MainWindow::on_actionLint_triggered()
     }
 }
 
-void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
+/*void MainWindow::on_m_lintTree_itemClicked(QTreeWidgetItem *item, int)
 {
     // Get the file to load
     QString fileToLoad = item->data(Lint::LINT_TABLE_FILE_COLUMN,Qt::UserRole).value<QString>();
@@ -525,9 +637,9 @@ void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
         //}
 
         // Load the file into the code editor
-        if (m_ui->codeEditor->loadedFile() != fileToLoad)
+        if (m_ui->m_codeEditor->loadedFile() != fileToLoad)
         {
-            if (m_ui->codeEditor->loadFile(fileToLoad))
+            if (m_ui->m_codeEditor->loadFile(fileToLoad))
             {
                 qInfo() << "Loading file: " << fileToLoad;
 
@@ -535,7 +647,7 @@ void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
                 QString lineNumber = item->data(Lint::LINT_TABLE_LINE_COLUMN, Qt::DisplayRole).value<QString>();
                 if (!lineNumber.isEmpty())
                 {
-                    m_ui->codeEditor->selectLine(lineNumber.toUInt());
+                    m_ui->m_codeEditor->selectLine(lineNumber.toUInt());
 
                     // Update the status bar
                     m_ui->statusBar->showMessage("Loaded " + fileToLoad + " at " + QDateTime::currentDateTime().toString());
@@ -553,9 +665,9 @@ void MainWindow::on_lintTable_itemClicked(QTreeWidgetItem *item, int)
             QString lineNumber = item->data(Lint::LINT_TABLE_LINE_COLUMN, Qt::DisplayRole).value<QString>();
             if (!lineNumber.isEmpty())
             {
-                m_ui->codeEditor->selectLine(lineNumber.toUInt());
+                m_ui->m_codeEditor->selectLine(lineNumber.toUInt());
             }
         }
     }
-}
+}*/
 

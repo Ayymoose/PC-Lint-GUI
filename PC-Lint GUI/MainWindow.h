@@ -30,6 +30,7 @@
 #include <QLoggingCategory>
 #include <QApplication>
 #include <QScreen>
+#include <QStandardItemModel>
 
 #include "ProgressWindow.h"
 #include "Preferences.h"
@@ -59,6 +60,14 @@ public:
 public slots:
     void slotLintComplete(const Lint::Status& lintStatus, const QString& errorMessage) noexcept;
 
+
+    void slotAppendRow() noexcept;
+
+
+    void slotAddTreeParent(const Lint::LintMessage& parentMessage) noexcept;
+    void slotAddTreeChild(const Lint::LintMessage& childMessage) noexcept;
+
+
 private slots:
     void save();
     void on_aboutLint_triggered();
@@ -66,7 +75,7 @@ private slots:
     void on_actionLog_triggered();
     void on_actionPreferences_triggered();
     void on_actionLint_triggered();
-    void on_lintTable_itemClicked(QTreeWidgetItem *item, int column);
+    //void on_m_lintTree_itemClicked(QTreeWidgetItem *item, int column);
 
 public:
     void startLint(QString title);
@@ -87,13 +96,13 @@ private:
     std::unique_ptr<Preferences> m_preferences;
     std::unique_ptr<Lint::Highlighter> m_highlighter;
 
-    std::unique_ptr<QMenu> m_lintTableMenu;
+    std::unique_ptr<QMenu> m_m_lintTreeMenu;
 
     int m_numberOfErrors;
     int m_numberOfWarnings;
     int m_numberOfInformations;
 
-    void clearTreeNodes() const noexcept;
+    void clearTreeNodes() noexcept;
     void applyTreeFilter(bool filter, const QString& type) const noexcept;
 
     void addTreeMessageGroup(const Lint::LintMessageGroup& lintMessageGroup) noexcept;
@@ -103,8 +112,16 @@ private:
     bool checkLint();
     Lint::About m_about;
 
+    void setupLintTree() noexcept;
+
+
 
     std::unique_ptr<Lint::PCLintPlus> m_lint;
     std::unique_ptr<ProgressWindow> m_progressWindow;
+
+    auto createTreeNodes(const Lint::LintMessage& message) noexcept;
+    QStandardItemModel m_treeModel;
+    QStandardItem* m_parent;
+
 
 };
