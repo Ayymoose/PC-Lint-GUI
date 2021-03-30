@@ -63,7 +63,7 @@ private slots:
 
 signals:
     void signalLintComplete(const Lint::Status& lintStatus, const QString& errorMessage);
-    void signalAbortLint();
+    void signalAbortLint(bool abort);
 
 private:
     Ui::ProgressWindow *m_ui;

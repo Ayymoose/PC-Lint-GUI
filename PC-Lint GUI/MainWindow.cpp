@@ -158,11 +158,6 @@ void MainWindow::setupLintTree() noexcept
     m_ui->m_lintTree->setColumnWidth(Lint::LINT_TABLE_LINE_COLUMN,80);
 }
 
-void MainWindow::slotAppendRow() noexcept
-{
-
-}
-
 auto MainWindow::createTreeNodes(const Lint::LintMessage& message) noexcept
 {
     QList<QStandardItem*> items;
@@ -427,8 +422,6 @@ void MainWindow::startLint(QString)
     QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalUpdateProgress, m_progressWindow.get(), &ProgressWindow::slotUpdateProgress);
     QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalUpdateProgressMax, m_progressWindow.get(), &ProgressWindow::slotUpdateProgressMax);
     QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalUpdateProcessedFiles, m_progressWindow.get(), &ProgressWindow::slotUpdateProcessedFiles);
-
-    QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalAddTreeMessageGroup, this, &MainWindow::addTreeMessageGroup);
 
     QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalAddTreeParent, this, &MainWindow::slotAddTreeParent);
     QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalAddTreeChild, this, &MainWindow::slotAddTreeChild);

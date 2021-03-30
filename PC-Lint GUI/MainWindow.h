@@ -61,9 +61,6 @@ public slots:
     void slotLintComplete(const Lint::Status& lintStatus, const QString& errorMessage) noexcept;
 
 
-    void slotAppendRow() noexcept;
-
-
     void slotAddTreeParent(const Lint::LintMessage& parentMessage) noexcept;
     void slotAddTreeChild(const Lint::LintMessage& childMessage) noexcept;
 

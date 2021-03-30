@@ -164,7 +164,7 @@ public:
 
 public slots:
 
-    void slotAbortLint() noexcept;
+    void slotAbortLint(bool abort) noexcept;
     void lint() noexcept;
 
 signals:
@@ -175,11 +175,6 @@ signals:
     void signalLintProgress(int value);
 
     void signalLintComplete(const Status& lintStatus, const QString& errorMessage);
-
-    void signalAddTreeMessageGroup(const LintMessageGroup& lintMessageGroup);
-
-
-    void signalAppendRow();
 
 
     void signalAddTreeParent(const LintMessage& parentMessage);
@@ -218,6 +213,8 @@ private:
     LintMessagesSet m_messageSet;
 
     std::atomic<bool> m_finished;
+
+
     std::unique_ptr<ReaderWriterQueue<QByteArray>> m_dataQueue;
     std::mutex m_mutex;
     std::condition_variable m_conditionVariable;

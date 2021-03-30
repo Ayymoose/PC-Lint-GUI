@@ -43,16 +43,20 @@ PCLintPlus::PCLintPlus(const QString& lintExecutable, const QString& lintFile) :
 
 }
 
-void PCLintPlus::slotAbortLint() noexcept
+void PCLintPlus::slotAbortLint(bool abort) noexcept
 {
-    if (m_future.isRunning())
-    {
-        m_finished = true;
-        m_conditionVariable.notify_one();
-        m_future.waitForFinished();
-    }
     m_process->closeReadChannel(QProcess::StandardOutput);
     m_process->closeReadChannel(QProcess::StandardError);
+    {
+        std::scoped_lock lock(m_mutex);
+        m_finished = true;
+        if (abort)
+        {
+            m_status = STATUS_ABORT;
+        }
+    }
+    m_conditionVariable.notify_one();
+    m_future.waitForFinished();
     m_process->close();
 }
 
@@ -193,9 +197,9 @@ void PCLintPlus::lint() noexcept
         qDebug() << "Lint process finished with exit code:" << QString::number(exitCode) << "and exit status:" << exitStatus;
         qInfo() << "Total files linted:" << m_numberOfLintedFiles;
 
-        slotAbortLint();
+        slotAbortLint(false);
 
-        if (m_status & (STATUS_PROCESS_ERROR | STATUS_PROCESS_TIMEOUT | STATUS_ABORT | STATUS_LICENSE_ERROR))
+        if (m_status & (STATUS_PROCESS_ERROR | STATUS_PROCESS_TIMEOUT | STATUS_LICENSE_ERROR))
         {
             Q_ASSERT(!m_errorMessage.isEmpty());
             emit signalLintComplete(m_status, m_errorMessage);
@@ -203,8 +207,11 @@ void PCLintPlus::lint() noexcept
         }
 
 
-        // TODO: Fix successful lint
-        m_status = STATUS_COMPLETE;
+        // TODO: Fix successful whether lint was successful or not
+        if (m_status != STATUS_ABORT)
+        {
+            m_status = STATUS_COMPLETE;
+        }
         // if -env_push is used we'll lint "more" files than we have since it does multiple passes
         /*if (m_numberOfLintedFiles >= m_filesToLint.size())
         {
@@ -248,15 +255,8 @@ void PCLintPlus::lint() noexcept
         {
             qCritical() << __FUNCTION__ << "Exception caught:" << e.what();
             m_errorMessage = e.what();
-            slotAbortLint();
+            slotAbortLint(false);
         }
-        catch (...)
-        {
-            qCritical() << __FUNCTION__ << "unknown exception caught";
-            m_errorMessage = "Unknown exception caught when processing data";
-            slotAbortLint();
-        }
-
     });
 
     QObject::connect(m_process.get(), &QProcess::readyReadStandardError, this,[this]()
@@ -274,7 +274,7 @@ void PCLintPlus::lint() noexcept
             qCritical() << "Lint failed with license error:\n" << stdErrData;
             m_errorMessage = stdErrData;
 
-            slotAbortLint();
+            slotAbortLint(false);
             return;
         }
 
@@ -299,7 +299,6 @@ void PCLintPlus::consumerThread() noexcept
 
     for (;;)
     {
-        // TODO: Is it possible to deadlock here?
         std::unique_lock<std::mutex> lock(m_mutex);
         m_conditionVariable.wait(lock,[this]{ return (m_dataQueue->size_approx() != 0 || m_finished);});
 
@@ -503,6 +502,12 @@ void PCLintPlus::processModules(std::vector<QByteArray> modules)
 {
     for (auto const& module : modules)
     {
+
+         if (m_finished)
+         {
+             return;
+         }
+
          // Grab lint messages from data
          LintMessages lintMessages = parseLintMessages(module);
 
@@ -521,7 +526,7 @@ void PCLintPlus::processModules(std::vector<QByteArray> modules)
 
              // Otherwise add the children under a new node
              emit signalAddTreeParent(messageTop);
-             QThread::msleep(50);
+             QThread::msleep(1);
 
              // Otherwise grab the rest of the group
              for (auto cit = messageGroup.cbegin()+1; cit != messageGroup.cend(); ++cit)
@@ -531,7 +536,12 @@ void PCLintPlus::processModules(std::vector<QByteArray> modules)
                  message.file = addFullFilePath(message.file);
 
                  emit signalAddTreeChild(message);
-                 QThread::msleep(50);
+                 QThread::msleep(1);
+
+                 if (m_finished)
+                 {
+                     return;
+                 }
 
              }
          }
@@ -677,6 +687,11 @@ std::vector<QByteArray> PCLintPlus::stitchModule(const QByteArray& data)
 
         // Add this to the array
         modules.emplace_back(module);
+
+        if (m_finished)
+        {
+            return modules;
+        }
     }
 
 }

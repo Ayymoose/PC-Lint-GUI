@@ -109,5 +109,5 @@ void ProgressWindow::on_lintCancel_clicked()
 {
     // TODO: Cancel must abort right away otherwise we'll get stuck if the lint gets stuck
     m_aborted = true;
-    emit signalAbortLint();
+    emit signalAbortLint(true);
 }
