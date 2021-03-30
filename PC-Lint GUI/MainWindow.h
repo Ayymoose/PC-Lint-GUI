@@ -102,7 +102,6 @@ private:
     void clearTreeNodes() noexcept;
     void applyTreeFilter(bool filter, const QString& type) const noexcept;
 
-    void addTreeMessageGroup(const Lint::LintMessageGroup& lintMessageGroup) noexcept;
     bool filterMessageType(const QString& type) const noexcept;
 
 

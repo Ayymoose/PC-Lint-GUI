@@ -127,7 +127,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_actionInformation.get(), &QAction::triggered, this, [this](bool checked)
     {
         m_toggleInformation = checked;
-        applyTreeFilter(m_toggleInformation, Lint::Type::TYPE_INFO);
+        applyTreeFilter(m_toggleInformation, Lint::Type::TYPE_INFORMATION);
     });
 
     QObject::connect(m_actionWarning.get(), &QAction::triggered, this, [this](bool checked)
@@ -170,27 +170,28 @@ auto MainWindow::createTreeNodes(const Lint::LintMessage& message) noexcept
     auto* treeLineItem = new QStandardItem(QString::number(message.line));
 
     QImage icon;
-    //PCLint::Message messageType = PCLint::MESSAGE_UNKNOWN;
+    // TODO: Use enum Message instead of string for performance so this can be put in the LintMessage struct
+    //Lint::Message messageType = Lint::MESSAGE_UNKNOWN;
 
     if (message.type == Lint::Type::TYPE_ERROR)
     {
         icon.load(":/images/error.png");
-        //m_numberOfErrors++;
-        //m_actionError->setText("Errors:" + QString::number(m_numberOfErrors));
+        m_numberOfErrors++;
+        m_actionError->setText("Errors:" + QString::number(m_numberOfErrors));
         //messageType = PCLint::MESSAGE_ERROR;
     }
     else if (message.type == Lint::Type::TYPE_WARNING)
     {
         icon.load(":/images/warning.png");
-        //m_numberOfWarnings++;
-        //m_actionWarning->setText("Warnings:" + QString::number(m_numberOfWarnings));
+        m_numberOfWarnings++;
+        m_actionWarning->setText("Warnings:" + QString::number(m_numberOfWarnings));
         //messageType = PCLint::MESSAGE_WARNING;
     }
-    else if (message.type == Lint::Type::TYPE_INFO)
+    else if (message.type == Lint::Type::TYPE_INFORMATION)
     {
         icon.load(":/images/info.png");
-        //m_numberOfInformations++;
-        //m_actionInformation->setText("Information:" + QString::number(m_numberOfInformations));
+        m_numberOfInformations++;
+        m_actionInformation->setText("Information:" + QString::number(m_numberOfInformations));
         //messageType = PCLint::MESSAGE_INFORMATION;
     }
     else if (message.type == Lint::Type::TYPE_SUPPLEMENTAL)
@@ -204,12 +205,6 @@ auto MainWindow::createTreeNodes(const Lint::LintMessage& message) noexcept
     }
 
     treeFileItem->setData(QPixmap::fromImage(icon), Qt::DecorationRole);
-
-    // Filter if needed
-    /*if (filterMessageType(message.type))
-    {
-        treeItem->setHidden(true);
-    }*/
 
     items.append(treeFileItem);
     items.append(treeNumberItem);
@@ -236,7 +231,6 @@ void MainWindow::slotAddTreeParent(const Lint::LintMessage& parentMessage) noexc
     }
     else
     {
-        // TODO: Free memory
         parentNode = new QStandardItem(parentName);
         // TODO: Why is the QModelIndex the QString here?
         parentNode->setData(parentMessage.file, Qt::UserRole);
@@ -246,6 +240,12 @@ void MainWindow::slotAddTreeParent(const Lint::LintMessage& parentMessage) noexc
     // Duplicate the parent node under itself
     auto treeItems = createTreeNodes(parentMessage);
     parentNode->appendRow(treeItems);
+
+    // Filter if needed
+    /*if (filterMessageType(message.type))
+    {
+        treeItem->setHidden(true);
+    }*/
 
     // Set parent to first child
     m_parent = treeItems.first();
@@ -435,7 +435,7 @@ void MainWindow::startLint(QString)
 bool MainWindow::filterMessageType(const QString& type) const noexcept
 {
     bool filter = false;
-    if (!m_toggleInformation && (type == Lint::Type::TYPE_INFO))
+    if (!m_toggleInformation && (type == Lint::Type::TYPE_INFORMATION))
     {
         filter = true;
     }
@@ -448,136 +448,6 @@ bool MainWindow::filterMessageType(const QString& type) const noexcept
         filter = true;
     }
     return filter;
-}
-
-// TODO: Optimise this function is very slow
-void MainWindow::addTreeMessageGroup(const Lint::LintMessageGroup& lintMessageGroup) noexcept
-{
-/*
-    auto addFullFilePath = [this](const QString& file)
-    {
-        // Check if the file exists (absolute path given)
-        if (QFileInfo(file).exists())
-        {
-            return file;
-        }
-
-        // Check if it exists relative to the lint file
-        auto const lintFilePath = QFileInfo(m_lint->getLintFile()).canonicalPath() + '/' + file;
-        auto const canonFilePath = QFileInfo(lintFilePath).canonicalFilePath();
-
-        // If canonical file path doesn't exist, it means the path we constructed failed and it returned ""
-        if (!QFile(canonFilePath).exists())
-        {
-            if (!file.isEmpty())
-            {
-                //qInfo() << "Unknown file:" << file;
-            }
-            return QString();
-        }
-        else
-        {
-           return canonFilePath;
-        }
-    };
-
-    // Create a new node in the lint tree table
-    auto createTreeNode = [this, addFullFilePath](QTreeWidgetItem* parentItem, const Lint::LintMessage& message)
-    {
-        auto* treeItem = new QTreeWidgetItem(parentItem);
-        treeItem->setText(Lint::LINT_TABLE_FILE_COLUMN, QFileInfo(message.file).fileName());
-        treeItem->setData(Lint::LINT_TABLE_FILE_COLUMN, Qt::UserRole, addFullFilePath(message.file));
-        treeItem->setText(Lint::LINT_TABLE_NUMBER_COLUMN, QString::number(message.number));
-        treeItem->setText(Lint::LINT_TABLE_DESCRIPTION_COLUMN, message.description);
-        treeItem->setText(Lint::LINT_TABLE_LINE_COLUMN, QString::number(message.line));
-
-        QImage icon;
-        //PCLint::Message messageType = PCLint::MESSAGE_UNKNOWN;
-
-        if (message.type == Lint::Type::TYPE_ERROR)
-        {
-            icon.load(":/images/error.png");
-            m_numberOfErrors++;
-            m_actionError->setText("Errors:" + QString::number(m_numberOfErrors));
-            //messageType = PCLint::MESSAGE_ERROR;
-        }
-        else if (message.type == Lint::Type::TYPE_WARNING)
-        {
-            icon.load(":/images/warning.png");
-            m_numberOfWarnings++;
-            m_actionWarning->setText("Warnings:" + QString::number(m_numberOfWarnings));
-            //messageType = PCLint::MESSAGE_WARNING;
-        }
-        else if (message.type == Lint::Type::TYPE_INFO)
-        {
-            icon.load(":/images/info.png");
-            m_numberOfInformations++;
-            m_actionInformation->setText("Information:" + QString::number(m_numberOfInformations));
-            //messageType = PCLint::MESSAGE_INFORMATION;
-        }
-        else if (message.type == Lint::Type::TYPE_SUPPLEMENTAL)
-        {
-            icon.load(":/images/info.png");
-            //messageType = PCLint::MESSAGE_SUPPLEMENTAL;
-        }
-        else
-        {
-            Q_ASSERT(false);
-        }
-
-        treeItem->setData(Lint::LINT_TABLE_DESCRIPTION_COLUMN, Qt::UserRole, message.type);
-        treeItem->setData(Lint::LINT_TABLE_FILE_COLUMN, Qt::DecorationRole, QPixmap::fromImage(icon));
-
-        // Filter if needed
-        if (filterMessageType(message.type))
-        {
-            treeItem->setHidden(true);
-        }
-
-        return treeItem;
-    };
-
-    for (const auto& messageGroup : lintMessageGroup)
-    {
-        // Every vector must be at least 1 otherwise something went wrong
-        Q_ASSERT(messageGroup.size() >= 1);
-
-        // Create the top-level item
-        const auto messageTop = messageGroup.front();
-
-        // Group together items under the same file
-        auto const messageTopFileName = QFileInfo(messageTop.file).fileName();
-        auto const treeList = m_ui->m_lintTree->findItems(messageTopFileName,Qt::MatchExactly, Lint::LINT_TABLE_FILE_COLUMN);
-
-        QTreeWidgetItem* fileDetailsItemTop;
-
-        if (treeList.size())
-        {
-            // TODO: Test with duplicate file names under different paths
-            // Should only ever be 1 file name, unless there are mutiple files with the same name but different path?
-            // Already exists, use this one
-            Q_ASSERT(treeList.size() == 1);
-            fileDetailsItemTop = treeList.first();
-        }
-        else
-        {
-            // New top level file entry
-            fileDetailsItemTop = new QTreeWidgetItem(m_ui->m_lintTree);
-            fileDetailsItemTop->setText(Lint::LINT_TABLE_FILE_COLUMN, messageTopFileName);
-            fileDetailsItemTop->setData(Lint::LINT_TABLE_FILE_COLUMN, Qt::UserRole, addFullFilePath(messageTop.file));
-        }
-
-
-        // Create a child level item
-        auto fileDetailsItem = createTreeNode(fileDetailsItemTop, messageTop);
-
-        // Otherwise grab the rest of the group
-        for (auto cit = messageGroup.cbegin()+1; cit != messageGroup.cend(); cit++)
-        {
-            // The sticky details
-            createTreeNode(fileDetailsItem, *cit);
-        }
-    }*/
 }
 
 void MainWindow::on_aboutLint_triggered()

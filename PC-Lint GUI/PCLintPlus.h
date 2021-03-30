@@ -65,7 +65,7 @@ namespace Type
 {
     // PC-Lint Plus types
     const QString TYPE_ERROR = "error";
-    const QString TYPE_INFO = "info";
+    const QString TYPE_INFORMATION = "info";
     const QString TYPE_WARNING = "warning";
     const QString TYPE_SUPPLEMENTAL = "supplemental";
 };
@@ -112,7 +112,7 @@ constexpr int LINT_TABLE_LINE_COLUMN = 3;
 constexpr char DATA_MODULE_STRING[] = "--- Module:   ";
 constexpr char DATA_CPP_STRING[] = " (C++)";
 constexpr char DATA_C_STRING[] = " (C)";
-
+constexpr char DATA_LICENCE_ERROR_STRING[] = "License Error";
 
 struct LintMessage
 {
@@ -155,7 +155,7 @@ public:
     // So that supplemental messages are tied together with error/info/warnings
     LintMessageGroup groupLintMessages(LintMessages&& lintMessages) noexcept;
 
-    std::vector<QString> parseSourceFileInformation(const QByteArray& data) noexcept;
+    std::vector<QString> processSourceFiles(const QByteArray& data) noexcept;
     LintMessages parseLintMessages(const QByteArray& data);
 
     std::vector<QByteArray> stitchModule(const QByteArray& data);
@@ -208,7 +208,7 @@ private:
     void emitLintComplete() noexcept;
     void consumerThread() noexcept;
     void processModules(std::vector<QByteArray> modules);
-    QString addFullFilePath(const QString& file) const noexcept;
+    QString addFullFilePath(QStringView file) const noexcept;
 
     LintMessagesSet m_messageSet;
 

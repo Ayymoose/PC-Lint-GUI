@@ -50,10 +50,10 @@ void PCLintPlus::slotAbortLint(bool abort) noexcept
     {
         std::scoped_lock lock(m_mutex);
         m_finished = true;
-        if (abort)
-        {
-            m_status = STATUS_ABORT;
-        }
+    }
+    if (abort)
+    {
+        m_status = STATUS_ABORT;
     }
     m_conditionVariable.notify_one();
     m_future.waitForFinished();
@@ -183,13 +183,13 @@ void PCLintPlus::lint() noexcept
 
     // No local variables beyond this point
 
-    /*QObject::connect(m_process.get(), &QProcess::started, this, [this]()
+    QObject::connect(m_process.get(), &QProcess::started, this, [this]()
     {
-        //lintStartTime = std::chrono::steady_clock::now();
+        qDebug() << __FUNCTION__ << "lint process started";
         // Tell ProgressWindow the maximum number of files we have
         //emit signalUpdateProgressMax(m_filesToLint.size());
         //emit signalUpdateProcessedFiles(m_numberOfLintedFiles);
-    });*/
+    });
 
     QObject::connect(m_process.get(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
     [this](int exitCode, QProcess::ExitStatus exitStatus)
@@ -197,21 +197,26 @@ void PCLintPlus::lint() noexcept
         qDebug() << "Lint process finished with exit code:" << QString::number(exitCode) << "and exit status:" << exitStatus;
         qInfo() << "Total files linted:" << m_numberOfLintedFiles;
 
+        // Wait for consumer thread to finish
         slotAbortLint(false);
 
         if (m_status & (STATUS_PROCESS_ERROR | STATUS_PROCESS_TIMEOUT | STATUS_LICENSE_ERROR))
         {
             Q_ASSERT(!m_errorMessage.isEmpty());
             emit signalLintComplete(m_status, m_errorMessage);
-            return;
+        }
+        else
+        {
+            if (m_status != STATUS_ABORT)
+            {
+                m_status = STATUS_COMPLETE;
+            }
+            emit signalLintComplete(m_status, m_errorMessage);
         }
 
 
         // TODO: Fix successful whether lint was successful or not
-        if (m_status != STATUS_ABORT)
-        {
-            m_status = STATUS_COMPLETE;
-        }
+
         // if -env_push is used we'll lint "more" files than we have since it does multiple passes
         /*if (m_numberOfLintedFiles >= m_filesToLint.size())
         {
@@ -224,7 +229,6 @@ void PCLintPlus::lint() noexcept
             m_status = STATUS_PARTIAL_COMPLETE;
         }*/
 
-        emit signalLintComplete(m_status, m_errorMessage);
 
     });
 
@@ -267,7 +271,7 @@ void PCLintPlus::lint() noexcept
 
         // Check if license is valid
         // PC-Lint Plus version is always the first line included in stderr
-        if (stdErrData.contains("License Error"))
+        if (stdErrData.contains(DATA_LICENCE_ERROR_STRING))
         {
             m_status = STATUS_LICENSE_ERROR;
 
@@ -278,7 +282,7 @@ void PCLintPlus::lint() noexcept
             return;
         }
 
-        auto const sourceFiles = parseSourceFileInformation(stdErrData);
+        auto const sourceFiles = processSourceFiles(stdErrData);
         for (auto const& sourceFile : sourceFiles)
         {
             qInfo() << "Linted:" << sourceFile;
@@ -342,6 +346,7 @@ void PCLintPlus::consumerThread() noexcept
     {
         try
         {
+
             QByteArray lintChunk;
             m_dataQueue->try_dequeue(lintChunk);
 
@@ -352,9 +357,9 @@ void PCLintPlus::consumerThread() noexcept
             if (modules.size() == 0)
             {
 
-                if (!m_stdOut.contains("</doc>"))
+                if (!m_stdOut.contains(Xml::XML_TAG_DOC_CLOSED))
                 {
-                    m_stdOut.append("</doc>");
+                    m_stdOut.append(Xml::XML_TAG_DOC_CLOSED);
                 }
                 else
                 {
@@ -471,16 +476,16 @@ LintMessages PCLintPlus::parseLintMessages(const QByteArray& data)
     return lintMessages;
 }
 
-QString PCLintPlus::addFullFilePath(const QString& file) const noexcept
+QString PCLintPlus::addFullFilePath(QStringView file) const noexcept
 {
     // Check if the file exists (absolute path given)
-    if (QFileInfo(file).exists())
+    if (QFileInfo(file.toString()).exists())
     {
-        return file;
+        return file.toString();
     }
 
     // Check if it exists relative to the lint file
-    auto const lintFilePath = QFileInfo(m_lintFile).canonicalPath() + '/' + file;
+    auto const lintFilePath = QFileInfo(m_lintFile).canonicalPath() + '/' + file.toString();
     auto const canonFilePath = QFileInfo(lintFilePath).canonicalFilePath();
 
     // If canonical file path doesn't exist, it means the path we constructed failed and it returned ""
@@ -502,12 +507,6 @@ void PCLintPlus::processModules(std::vector<QByteArray> modules)
 {
     for (auto const& module : modules)
     {
-
-         if (m_finished)
-         {
-             return;
-         }
-
          // Grab lint messages from data
          LintMessages lintMessages = parseLintMessages(module);
 
@@ -537,12 +536,6 @@ void PCLintPlus::processModules(std::vector<QByteArray> modules)
 
                  emit signalAddTreeChild(message);
                  QThread::msleep(1);
-
-                 if (m_finished)
-                 {
-                     return;
-                 }
-
              }
          }
     }
@@ -602,7 +595,7 @@ void PCLintPlus::setWorkingDirectory(const QString& directory) noexcept
 }
 
 // Parse the byte array of data for the source files in the PC-Lint Plus output
-std::vector<QString> PCLintPlus::parseSourceFileInformation(const QByteArray& data) noexcept
+std::vector<QString> PCLintPlus::processSourceFiles(const QByteArray& data) noexcept
 {
     std::vector<QString> sourceFiles;
 
@@ -688,10 +681,6 @@ std::vector<QByteArray> PCLintPlus::stitchModule(const QByteArray& data)
         // Add this to the array
         modules.emplace_back(module);
 
-        if (m_finished)
-        {
-            return modules;
-        }
     }
 
 }
