@@ -644,11 +644,7 @@ private:
 	}
 
 
-	// Disable copying
-	ReaderWriterQueue(ReaderWriterQueue const&) {  }
 
-	// Disable assignment
-	ReaderWriterQueue& operator=(ReaderWriterQueue const&) {  }
 
 
 	AE_FORCEINLINE static size_t ceilToPow2(size_t x)
@@ -671,6 +667,12 @@ private:
 		const std::size_t alignment = std::alignment_of<U>::value;
 		return ptr + (alignment - (reinterpret_cast<std::uintptr_t>(ptr) % alignment)) % alignment;
 	}
+
+public:
+    // Disable copying
+    ReaderWriterQueue(ReaderWriterQueue const&) = delete;
+    // Disable assignment
+    ReaderWriterQueue& operator=(ReaderWriterQueue const&) = delete;
 private:
 #ifndef NDEBUG
 	struct ReentrantGuard
@@ -962,10 +964,10 @@ public:
 		return inner.max_capacity();
 	}
 
-private:
+public:
 	// Disable copying & assignment
-	BlockingReaderWriterQueue(BlockingReaderWriterQueue const&) {  }
-	BlockingReaderWriterQueue& operator=(BlockingReaderWriterQueue const&) {  }
+    BlockingReaderWriterQueue(BlockingReaderWriterQueue const&) = delete;
+    BlockingReaderWriterQueue& operator=(BlockingReaderWriterQueue const&) = delete;
 	
 private:
 	ReaderWriterQueue inner;
