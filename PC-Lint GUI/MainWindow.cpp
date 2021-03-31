@@ -483,10 +483,18 @@ void MainWindow::on_actionLint_triggered()
     }
 }
 
-/*void MainWindow::on_m_lintTree_itemClicked(QTreeWidgetItem *item, int)
+
+void MainWindow::on_m_lintTree_clicked(const QModelIndex&)
 {
-    // Get the file to load
-    QString fileToLoad = item->data(Lint::LINT_TABLE_FILE_COLUMN,Qt::UserRole).value<QString>();
+    QModelIndexList selection = m_ui->m_lintTree->selectionModel()->selectedIndexes();
+    // 4 columns only
+    Q_ASSERT(selection.size() == 4);
+
+    // Get the file to load and line number
+    auto const fileToLoad = selection[0].data(Qt::UserRole).value<QString>();
+    auto const lineNumber = selection[3].data(Qt::DisplayRole).value<QString>();
+
+    qDebug() << fileToLoad;
 
     if (!fileToLoad.isEmpty())
     {
@@ -507,30 +515,26 @@ void MainWindow::on_actionLint_triggered()
                 qInfo() << "Loading file: " << fileToLoad;
 
                 // Select the line number
-                QString lineNumber = item->data(Lint::LINT_TABLE_LINE_COLUMN, Qt::DisplayRole).value<QString>();
                 if (!lineNumber.isEmpty())
                 {
                     m_ui->m_codeEditor->selectLine(lineNumber.toUInt());
-
-                    // Update the status bar
-                    m_ui->statusBar->showMessage("Loaded " + fileToLoad + " at " + QDateTime::currentDateTime().toString());
                 }
+                // Update the status bar
+                m_ui->statusBar->showMessage("Loaded " + fileToLoad + " at " + QDateTime::currentDateTime().toString());
             }
             else
             {
                 // TODO: Reason for failure
-                QMessageBox::critical(this, "Error", "1 Unable to open file: " + fileToLoad);
+                QMessageBox::critical(this, "Error", "Unable to open file: " + fileToLoad);
             }
         }
         else
         {
             // Select the line number
-            QString lineNumber = item->data(Lint::LINT_TABLE_LINE_COLUMN, Qt::DisplayRole).value<QString>();
             if (!lineNumber.isEmpty())
             {
                 m_ui->m_codeEditor->selectLine(lineNumber.toUInt());
             }
         }
     }
-}*/
-
+}

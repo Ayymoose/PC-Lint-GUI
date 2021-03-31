@@ -74,6 +74,8 @@ private slots:
     void on_actionLint_triggered();
     //void on_m_lintTree_itemClicked(QTreeWidgetItem *item, int column);
 
+    void on_m_lintTree_clicked(const QModelIndex &index);
+
 public:
     void startLint(QString title);
 

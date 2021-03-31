@@ -160,7 +160,7 @@ public:
 
     std::vector<QByteArray> stitchModule(const QByteArray& data);
 
-    void parseLintFile() noexcept;
+    bool parseLintFile() noexcept;
 
 public slots:
 

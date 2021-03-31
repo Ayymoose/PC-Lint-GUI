@@ -81,7 +81,7 @@ void PCLintPlus::setHardwareThreads(const int threads) noexcept
     m_hardwareThreads = threads;
 }
 
-void PCLintPlus::parseLintFile() noexcept
+bool PCLintPlus::parseLintFile() noexcept
 {
     Q_ASSERT(m_lintFile.size());
 
@@ -114,6 +114,17 @@ void PCLintPlus::parseLintFile() noexcept
 
     // Add the lint file
     m_arguments << (m_lintFile);
+
+
+
+    // Read the lint file and check for and source files
+    // Supported source files are
+    // .c, .cc, .cpp, .c++, .cp, .cxx
+    // Ignore all files within comments // or /* */ blocks
+    // Check if file parsed exists and add to set
+
+
+    return true;
 }
 
 void PCLintPlus::lint() noexcept
