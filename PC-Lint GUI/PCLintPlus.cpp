@@ -60,12 +60,14 @@ void PCLintPlus::slotAbortLint(bool abort) noexcept
 
 void PCLintPlus::setLintFile(const QString& lintFile) noexcept
 {
+    Q_ASSERT(QFileInfo(lintFile).exists());
     m_lintFile = lintFile;
 }
 
-void PCLintPlus::setLintExecutable(const QString& linterExecutable) noexcept
+void PCLintPlus::setLintExecutable(const QString& lintExecutable) noexcept
 {
-    m_lintExecutable = linterExecutable;
+    Q_ASSERT(QFileInfo(lintExecutable).exists());
+    m_lintExecutable = lintExecutable;
 }
 
 QString PCLintPlus::errorMessage() const noexcept
@@ -323,7 +325,7 @@ void PCLintPlus::consumerThread() noexcept
 
     for (;;)
     {
-        std::unique_lock<std::mutex> lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         m_conditionVariable.wait(lock,[this]{ return (m_dataQueue->size_approx() != 0 || m_finished);});
 
         if (m_finished)
@@ -611,6 +613,7 @@ LintMessageGroup PCLintPlus::groupLintMessages(LintMessages&& lintMessages) noex
 
 void PCLintPlus::setWorkingDirectory(const QString& directory) noexcept
 {
+    Q_ASSERT(QFileInfo(directory).exists());
     m_lintDirectory = directory;
 }
 
