@@ -190,12 +190,12 @@ private:
     QString m_errorMessage;
 
     int m_hardwareThreads;
+    QSet<QString> m_lintedFiles;
 
     // stderr has the module (file lint) progress
     // stdout has the actual data
 
     Status m_status;
-    int m_numberOfLintedFiles;
 
     QFile m_stdOutFile;
     QFile m_stdErrFile;
@@ -213,8 +213,6 @@ private:
     LintMessagesSet m_messageSet;
 
     std::atomic<bool> m_finished;
-
-
     std::unique_ptr<ReaderWriterQueue<QByteArray>> m_dataQueue;
     std::mutex m_mutex;
     std::condition_variable m_conditionVariable;

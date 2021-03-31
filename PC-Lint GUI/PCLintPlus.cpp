@@ -26,7 +26,6 @@ namespace Lint
 PCLintPlus::PCLintPlus() :
     m_hardwareThreads(1),
     m_status(STATUS_UNKNOWN),
-    m_numberOfLintedFiles(0),
     m_finished(false)
 {
 
@@ -37,7 +36,6 @@ PCLintPlus::PCLintPlus(const QString& lintExecutable, const QString& lintFile) :
     m_lintFile(lintFile),
     m_hardwareThreads(1),
     m_status(STATUS_UNKNOWN),
-    m_numberOfLintedFiles(0),
     m_finished(false)
 {
 
@@ -144,12 +142,15 @@ void PCLintPlus::lint() noexcept
 
     // Reset
     m_status = STATUS_UNKNOWN;
-    m_numberOfLintedFiles = 0;
     m_finished = false;
     m_messageSet.clear();
     m_stdOut.clear();
+    m_lintedFiles.clear();
 
-    parseLintFile();
+    if (!parseLintFile())
+    {
+        Q_ASSERT(false);
+    }
 
     for (const auto& str : m_arguments)
     {
@@ -206,7 +207,7 @@ void PCLintPlus::lint() noexcept
     [this](int exitCode, QProcess::ExitStatus exitStatus)
     {
         qDebug() << "Lint process finished with exit code:" << QString::number(exitCode) << "and exit status:" << exitStatus;
-        qInfo() << "Total files linted:" << m_numberOfLintedFiles;
+        qInfo() << "Total files linted:" << m_lintedFiles.size();
 
         // Wait for consumer thread to finish
         slotAbortLint(false);
@@ -296,12 +297,20 @@ void PCLintPlus::lint() noexcept
         auto const sourceFiles = processSourceFiles(stdErrData);
         for (auto const& sourceFile : sourceFiles)
         {
-            qInfo() << "Linted:" << sourceFile;
-            m_numberOfLintedFiles++;
 
-            // Update ProgressWindow
-            emit signalUpdateProgress(1);
-            emit signalUpdateProcessedFiles(1);
+            // TODO: We can lint the same file multiple times so the message printed here
+            // will only fire for the first ever lint of a file
+            if (m_lintedFiles.find(sourceFile) == m_lintedFiles.end())
+            {
+                m_lintedFiles.insert(sourceFile);
+
+                qInfo() << "Linted:" << sourceFile;
+
+                // Update ProgressWindow
+                emit signalUpdateProgress(1);
+                emit signalUpdateProcessedFiles(1);
+            }
+
         }
 
     });
