@@ -40,6 +40,55 @@
 #include "Highlighter.h"
 #include "About.h"
 
+
+class LintSortFilterProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    void setFilter(bool toggleError, bool toggleWarning, bool toggleInformation)
+    {
+        m_toggleError = toggleError;
+        m_toggleWarning = toggleWarning;
+        m_toggleInformation = toggleInformation;
+    }
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const noexcept override
+    {
+        // Taken from StackOverflow
+        QStandardItemModel* source = static_cast<QStandardItemModel*>(sourceModel());
+        QModelIndex modelIndex = source->index(sourceRow, Lint::LINT_TABLE_DESCRIPTION_COLUMN, sourceParent);
+        QStandardItem* item = source->itemFromIndex(modelIndex);
+
+        auto const messageType = item->data(Qt::UserRole).value<QString>();
+
+        // Filter messages as needed
+        bool filter = true;
+        if (!m_toggleInformation && (messageType == Lint::Type::TYPE_INFORMATION))
+        {
+            filter = false;
+        }
+        else if (!m_toggleError && (messageType == Lint::Type::TYPE_ERROR))
+        {
+            filter = false;
+        }
+        else if (!m_toggleWarning && (messageType == Lint::Type::TYPE_WARNING))
+        {
+            filter = false;
+        }
+
+        return filter;
+    }
+    LintSortFilterProxyModel() : m_toggleError(false), m_toggleWarning(false), m_toggleInformation(false)
+    {
+
+    }
+private:
+    bool m_toggleError;
+    bool m_toggleWarning;
+    bool m_toggleInformation;
+
+};
+
+
 class ProgressWindow;
 
 QT_BEGIN_NAMESPACE
@@ -102,17 +151,11 @@ private:
     int m_numberOfInformations;
 
     void clearTreeNodes() noexcept;
-    void applyTreeFilter(bool filter, const QString& type) const noexcept;
-
-    bool filterMessageType(const QString& type) const noexcept;
-
 
     bool checkLint();
     Lint::About m_about;
 
     void setupLintTree() noexcept;
-
-
 
     std::unique_ptr<Lint::PCLintPlus> m_lint;
     std::unique_ptr<ProgressWindow> m_progressWindow;
@@ -120,6 +163,7 @@ private:
     auto createTreeNodes(const Lint::LintMessage& message) noexcept;
     QStandardItemModel m_treeModel;
     QStandardItem* m_parent;
+    LintSortFilterProxyModel m_proxyModel;
 
 
 };

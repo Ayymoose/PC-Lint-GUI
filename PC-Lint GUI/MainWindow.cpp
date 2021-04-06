@@ -121,25 +121,26 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_actionError.get(), &QAction::triggered, this, [this](bool checked)
     {
         m_toggleError = checked;
-        applyTreeFilter(m_toggleError, Lint::Type::TYPE_ERROR);
+        m_proxyModel.invalidate();
+        m_proxyModel.setFilter(m_toggleError, m_toggleWarning, m_toggleInformation);
     });
 
     QObject::connect(m_actionInformation.get(), &QAction::triggered, this, [this](bool checked)
     {
         m_toggleInformation = checked;
-        applyTreeFilter(m_toggleInformation, Lint::Type::TYPE_INFORMATION);
+        m_proxyModel.invalidate();
+        m_proxyModel.setFilter(m_toggleError, m_toggleWarning, m_toggleInformation);
     });
 
     QObject::connect(m_actionWarning.get(), &QAction::triggered, this, [this](bool checked)
     {
         m_toggleWarning = checked;
-        applyTreeFilter(m_toggleWarning, Lint::Type::TYPE_WARNING);
+        m_proxyModel.invalidate();
+        m_proxyModel.setFilter(m_toggleError, m_toggleWarning, m_toggleInformation);
     });
 
     // With syntax highlighting
     m_highlighter = std::make_unique<Lint::Highlighter>(m_ui->m_codeEditor->document());
-
-
 }
 
 void MainWindow::setupLintTree() noexcept
@@ -150,7 +151,9 @@ void MainWindow::setupLintTree() noexcept
     m_treeModel.setHorizontalHeaderItem(Lint::LINT_TABLE_LINE_COLUMN, new QStandardItem("Line"));
 
     // TODO: Replace with QAbstractItemModel for performance
-    m_ui->m_lintTree->setModel(&m_treeModel);
+    m_proxyModel.setSourceModel(&m_treeModel);
+    m_proxyModel.setFilter(m_toggleError, m_toggleWarning, m_toggleInformation);
+    m_ui->m_lintTree->setModel(&m_proxyModel);
 
     m_ui->m_lintTree->setColumnWidth(Lint::LINT_TABLE_FILE_COLUMN,256);
     m_ui->m_lintTree->setColumnWidth(Lint::LINT_TABLE_NUMBER_COLUMN,80);
@@ -163,7 +166,7 @@ auto MainWindow::createTreeNodes(const Lint::LintMessage& message) noexcept
     QList<QStandardItem*> items;
 
     auto* treeFileItem = new QStandardItem(QFileInfo(message.file).fileName());
-    treeFileItem->setData(message.file, Qt::UserRole);
+    treeFileItem->setData(message.file, Qt::UserRole);  
     auto* treeNumberItem = new QStandardItem(QString::number(message.number));
     auto* treeDescriptionItem = new QStandardItem(message.description);
     treeDescriptionItem->setData(message.type, Qt::UserRole);
@@ -240,12 +243,6 @@ void MainWindow::slotAddTreeParent(const Lint::LintMessage& parentMessage) noexc
     // Duplicate the parent node under itself
     auto treeItems = createTreeNodes(parentMessage);
     parentNode->appendRow(treeItems);
-
-    // Filter if needed
-    /*if (filterMessageType(message.type))
-    {
-        treeItem->setHidden(true);
-    }*/
 
     // Set parent to first child
     m_parent = treeItems.first();
@@ -343,26 +340,6 @@ void MainWindow::clearTreeNodes() noexcept
     m_parent = nullptr;
 }
 
-void MainWindow::applyTreeFilter(bool filter, const QString& type) const noexcept
-{
-    /*QTreeWidgetItemIterator treeItr(m_ui->m_lintTree);
-    while (*treeItr)
-    {
-        auto const treeNode = (*treeItr);
-        // TODO: Optimise and use enum type instead of string
-        auto const data = treeNode->data(Lint::LINT_TABLE_DESCRIPTION_COLUMN, Qt::UserRole).value<QString>();
-        if (filter && (data == type))
-        {
-            treeNode->setHidden(false);
-        }
-        else if (!filter && (data == type))
-        {
-            treeNode->setHidden(true);
-        }
-        treeItr++;
-    }*/
-}
-
 void MainWindow::slotLintComplete(const Lint::Status& lintStatus, const QString& errorMessage) noexcept
 {
     // Lint complete. Now update the table
@@ -430,24 +407,6 @@ void MainWindow::startLint(QString)
     m_lint->lint();
     m_progressWindow->setModal(true);
 
-}
-
-bool MainWindow::filterMessageType(const QString& type) const noexcept
-{
-    bool filter = false;
-    if (!m_toggleInformation && (type == Lint::Type::TYPE_INFORMATION))
-    {
-        filter = true;
-    }
-    else if (!m_toggleError && (type == Lint::Type::TYPE_ERROR))
-    {
-        filter = true;
-    }
-    else if (!m_toggleWarning && (type == Lint::Type::TYPE_WARNING))
-    {
-        filter = true;
-    }
-    return filter;
 }
 
 void MainWindow::on_aboutLint_triggered()
