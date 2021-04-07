@@ -38,14 +38,15 @@ ProgressWindow::ProgressWindow(QWidget *parent) :
 
     QObject::connect(m_timer.get(), &QTimer::timeout, this, &ProgressWindow::slotUpdateTime);
     m_ui->eta->setText("Calculating...");
-    m_timer->start(1000);
     //m_ui->lintGroupBox->setTitle(title);
 }
 
-void ProgressWindow::slotUpdateProgress(int progress) noexcept
+void ProgressWindow::slotUpdateProgress() noexcept
 {
-    m_currentProgress += progress;
+    m_currentProgress++;
     m_ui->lintProgressBar->setValue(m_currentProgress);
+    m_ui->filesProcessed->setText(QString::number(m_currentProgress) +
+                                  '/' + QString::number(m_ui->lintProgressBar->maximum()));
 }
 
 void ProgressWindow::slotUpdateProgressMax(int maxProgress) noexcept
@@ -55,12 +56,12 @@ void ProgressWindow::slotUpdateProgressMax(int maxProgress) noexcept
     m_ui->lintProgressBar->setMaximum(maxProgress);
 }
 
-void ProgressWindow::slotUpdateProcessedFiles(int processedFiles) noexcept
+/*void ProgressWindow::slotUpdateProcessedFiles() noexcept
 {
-   m_currentFileProgress += processedFiles;
+   m_currentFileProgress++;
    m_ui->filesProcessed->setText(QString::number(m_currentFileProgress) +
                                  '/' + QString::number(m_ui->lintProgressBar->maximum()));
-}
+}*/
 
 void ProgressWindow::slotUpdateETA(int eta) noexcept
 {

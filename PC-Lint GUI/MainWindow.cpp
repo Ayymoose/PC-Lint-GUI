@@ -402,7 +402,7 @@ void MainWindow::startLint(QString)
     // Currently only supporting PC-Lint Plus
     QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalUpdateProgress, m_progressWindow.get(), &ProgressWindow::slotUpdateProgress);
     QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalUpdateProgressMax, m_progressWindow.get(), &ProgressWindow::slotUpdateProgressMax);
-    QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalUpdateProcessedFiles, m_progressWindow.get(), &ProgressWindow::slotUpdateProcessedFiles);
+    //QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalUpdateProcessedFiles, m_progressWindow.get(), &ProgressWindow::slotUpdateProcessedFiles);
 
     QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalAddTreeParent, this, &MainWindow::slotAddTreeParent);
     QObject::connect(m_lint.get(), &Lint::PCLintPlus::signalAddTreeChild, this, &MainWindow::slotAddTreeChild);

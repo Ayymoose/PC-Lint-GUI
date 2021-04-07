@@ -26,6 +26,7 @@ namespace Lint
 PCLintPlus::PCLintPlus() :
     m_hardwareThreads(1),
     m_status(STATUS_UNKNOWN),
+    m_lintSourceFiles(0),
     m_finished(false)
 {
 
@@ -36,6 +37,7 @@ PCLintPlus::PCLintPlus(const QString& lintExecutable, const QString& lintFile) :
     m_lintFile(lintFile),
     m_hardwareThreads(1),
     m_status(STATUS_UNKNOWN),
+    m_lintSourceFiles(0),
     m_finished(false)
 {
 
@@ -115,16 +117,85 @@ bool PCLintPlus::parseLintFile() noexcept
     // Add the lint file
     m_arguments << (m_lintFile);
 
+    // For PC-Lint GUI we expect the source files will be present in the lint file
+    // Currently nested lint files are not supported
+    processLintSourceFiles();
 
+    return m_lintSourceFiles > 0;
+}
+
+void PCLintPlus::processLintSourceFiles() noexcept
+{
+    Q_ASSERT(m_lintFile.size());
+
+    // Check if file parsed exists and add to set
 
     // Read the lint file and check for and source files
     // Supported source files are
-    // .c, .cc, .cpp, .c++, .cp, .cxx
-    // Ignore all files within comments // or /* */ blocks
-    // Check if file parsed exists and add to set
+    const QStringList supportedFiles = {".c", ".cc", ".cpp", ".c++", ".cp", ".cxx"};
 
+    QFile lintFile(m_lintFile);
+    lintFile.open(QIODevice::ReadOnly);
+    Q_ASSERT(lintFile.isOpen());
+    QTextStream file(&lintFile);
+    while (!file.atEnd())
+    {
+        auto const line = file.readLine().trimmed();
 
-    return true;
+        // Ignore files that are commented out with //
+        if (line.startsWith("//"))
+        {
+            continue;
+        }
+
+        // TODO: Ignore all files within /* */ blocks
+        // If a line starts with /*, mark it as ignored and continue until we reach a */
+        // TODO: Can we have nested /* */ blocks?
+
+        // .c, .cc, .cpp, .c++, .cp, .cxx
+        if (std::any_of(supportedFiles.begin(), supportedFiles.end(),[&line](const QString& type){ return line.contains(type);}))
+        {
+            // Check if the file is wrapped in quotes
+            if (line.endsWith('\"') && line.startsWith('\"'))
+            {
+                // Strip quotes
+                auto const sourceFile = line.mid(1, line.length()-1-1);
+
+                // Check if the absolute file exists
+                if (QFileInfo(sourceFile).exists())
+                {
+                    qDebug() << "Absolute file:" << sourceFile;
+                    m_lintSourceFiles++;
+                }
+                else
+                {
+                    // Otherwise it must be a relative file then
+                    auto const lintWorkingDirectory = QFileInfo(m_lintFile).canonicalPath();
+                    auto const relativePath = lintWorkingDirectory + QDir::separator() + sourceFile;
+                    auto const canonPath = QFileInfo(relativePath).canonicalFilePath();
+
+                    if (QFileInfo(canonPath).exists())
+                    {
+                        qDebug() << "Relative file:" << sourceFile;
+                        m_lintSourceFiles++;
+                    }
+                }
+            }
+        }
+
+    }
+    lintFile.close();
+
+    if (m_lintSourceFiles > 0)
+    {
+        qDebug() << "Found" << m_lintSourceFiles << "source files to lint";
+    }
+    else
+    {
+        m_status = STATUS_PROCESS_ERROR;
+        m_errorMessage = "No source files found in lint file";
+        qDebug() << m_errorMessage;
+    }
 }
 
 void PCLintPlus::lint() noexcept
@@ -148,10 +219,12 @@ void PCLintPlus::lint() noexcept
     m_messageSet.clear();
     m_stdOut.clear();
     m_lintedFiles.clear();
+    m_lintSourceFiles = 0;
 
     if (!parseLintFile())
     {
-        Q_ASSERT(false);
+        emit signalLintComplete(m_status, m_errorMessage);
+        return;
     }
 
     for (const auto& str : m_arguments)
@@ -198,19 +271,18 @@ void PCLintPlus::lint() noexcept
     // Start consumer thread here
     m_future = QtConcurrent::run(this, &PCLintPlus::consumerThread);
 
+    QObject::connect(m_process.get(), &QProcess::started, this, [this]()
+    {
+        qDebug() << __FUNCTION__ << "lint process started";
+        // Tell ProgressWindow the maximum number of files we have
+        emit signalUpdateProgressMax(m_lintSourceFiles);
+    });
+
     m_process->setProgram(m_lintExecutable);
     m_process->setArguments(m_arguments);
     m_process->start();
 
     // No local variables beyond this point
-
-    QObject::connect(m_process.get(), &QProcess::started, this, [this]()
-    {
-        qDebug() << __FUNCTION__ << "lint process started";
-        // Tell ProgressWindow the maximum number of files we have
-        //emit signalUpdateProgressMax(m_filesToLint.size());
-        //emit signalUpdateProcessedFiles(m_numberOfLintedFiles);
-    });
 
     QObject::connect(m_process.get(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
     [this](int exitCode, QProcess::ExitStatus exitStatus)
@@ -317,9 +389,8 @@ void PCLintPlus::lint() noexcept
 
                 qInfo() << "Linted:" << sourceFile;
 
-                // Update ProgressWindow
-                emit signalUpdateProgress(1);
-                emit signalUpdateProcessedFiles(1);
+                // Update progress
+                emit signalUpdateProgress();
             }
 
         }
@@ -517,7 +588,7 @@ QString PCLintPlus::addFullFilePath(QStringView file) const noexcept
     }
 
     // Check if it exists relative to the lint file
-    auto const lintFilePath = QFileInfo(m_lintFile).canonicalPath() + '/' + file.toString();
+    auto const lintFilePath = QFileInfo(m_lintFile).canonicalPath() + QDir::separator() + file.toString();
     auto const canonFilePath = QFileInfo(lintFilePath).canonicalFilePath();
 
     // If canonical file path doesn't exist, it means the path we constructed failed and it returned ""

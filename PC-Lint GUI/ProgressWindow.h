@@ -50,11 +50,9 @@ public:
     ~ProgressWindow();
 
 public slots:
-    void slotUpdateProgress(int value) noexcept;
+    void slotUpdateProgress() noexcept;
     void slotUpdateProgressMax(int value) noexcept;
     void slotUpdateETA(int eta) noexcept;
-    void slotUpdateProcessedFiles(int processedFiles) noexcept;
-
     void slotLintComplete(const Lint::Status& lintStatus, const QString& errorMessage) noexcept;
 
 private slots:

@@ -162,15 +162,11 @@ public slots:
     void lint() noexcept;
 
 signals:
-    void signalUpdateProgress(int value);
+    void signalUpdateProgress();
     void signalUpdateProgressMax(int value);
     void signalUpdateETA(int eta);
-    void signalUpdateProcessedFiles(int processedFiles);
-    void signalLintProgress(int value);
-
+    void signalUpdateProcessedFiles();
     void signalLintComplete(const Status& lintStatus, const QString& errorMessage);
-
-
     void signalAddTreeParent(const LintMessage& parentMessage);
     void signalAddTreeChild(const LintMessage& childMessage);
 
@@ -194,6 +190,7 @@ private:
     QFile m_stdOutFile;
     QFile m_stdErrFile;
     QFile m_remainingFile;
+    int m_lintSourceFiles;
 
     QByteArray m_stdOut;
 
@@ -204,6 +201,7 @@ private:
     void consumerThread() noexcept;
     void processModules(std::vector<QByteArray> modules);
     QString addFullFilePath(QStringView file) const noexcept;
+    void processLintSourceFiles() noexcept;
 
     LintMessagesSet m_messageSet;
 
