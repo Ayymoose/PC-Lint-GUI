@@ -167,9 +167,9 @@ void PCLintPlus::lint() noexcept
     commandFileDebug.open(QIODevice::WriteOnly);
     Q_ASSERT(commandFileDebug.isOpen());
     auto bytesWritten = commandFileDebug.write(cmdString.toLocal8Bit());
+    commandFileDebug.flush();
     Q_ASSERT(bytesWritten > 0);
     commandFileDebug.close();
-
 
     m_stdErrFile.setFileName(R"(D:\Users\Ayman\Desktop\PC-Lint GUI\test\stderr.xml)");
     m_stdErrFile.remove();
@@ -181,6 +181,13 @@ void PCLintPlus::lint() noexcept
     m_stdOutFile.setFileName(R"(D:\Users\Ayman\Desktop\PC-Lint GUI\test\stdout.xml)");
     m_stdOutFile.remove();
     if (!m_stdOutFile.open(QIODevice::WriteOnly | QIODevice::Append))
+    {
+        Q_ASSERT(false);
+    }
+
+    m_remainingFile.setFileName(R"(D:\Users\Ayman\Desktop\PC-Lint GUI\test\remaining.xml)");
+    m_remainingFile.remove();
+    if (!m_remainingFile.open(QIODevice::WriteOnly | QIODevice::Append))
     {
         Q_ASSERT(false);
     }
@@ -263,6 +270,7 @@ void PCLintPlus::lint() noexcept
             // On large projects, there's a good chance we'll get a bad_alloc thrown
             auto readStdOut = m_process->readAllStandardOutput();
             m_stdOutFile.write(readStdOut);
+            m_stdOutFile.flush();
 
             // Lock free queue needed here
             // This section must never block otherwise the GUI will hang
@@ -282,6 +290,7 @@ void PCLintPlus::lint() noexcept
         auto stdErrData = m_process->readAllStandardError();
 
         m_stdErrFile.write(stdErrData);
+        m_stdErrFile.flush();
 
         // Check if license is valid
         // PC-Lint Plus version is always the first line included in stderr
@@ -386,7 +395,8 @@ void PCLintPlus::consumerThread() noexcept
                 else
                 {
                     // Debug only
-                    //m_stdOutFile.write(m_stdOut);
+                    m_remainingFile.write(m_stdOut);
+                    m_remainingFile.flush();
                     break;
                 }
             }

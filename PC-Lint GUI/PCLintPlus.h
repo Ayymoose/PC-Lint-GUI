@@ -68,6 +68,7 @@ namespace Type
     const QString TYPE_INFORMATION = "info";
     const QString TYPE_WARNING = "warning";
     const QString TYPE_SUPPLEMENTAL = "supplemental";
+    const QString TYPE_NOTE = "note";
 };
 
 
@@ -192,6 +193,7 @@ private:
 
     QFile m_stdOutFile;
     QFile m_stdErrFile;
+    QFile m_remainingFile;
 
     QByteArray m_stdOut;
 

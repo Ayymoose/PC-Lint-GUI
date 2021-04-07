@@ -202,6 +202,10 @@ auto MainWindow::createTreeNodes(const Lint::LintMessage& message) noexcept
         icon.load(":/images/info.png");
         //messageType = PCLint::MESSAGE_SUPPLEMENTAL;
     }
+    else if (message.type == Lint::Type::TYPE_NOTE)
+    {
+        icon.load(":/images/info.png");
+    }
     else
     {
         Q_ASSERT(false);
