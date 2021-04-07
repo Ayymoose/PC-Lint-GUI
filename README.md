@@ -8,20 +8,19 @@ A Qt based GUI application written in C++ to use with the C/C++ static analysis 
 
 ## Features
 
-* 32 and 64-bit release
-* Supports old PC-Lint and newer PC-Lint Plus versions
-* Multithread support for PC-Lint (PC-Lint does not have the `-max_threads=n` option)
-* Basic code editor with syntax highlighting
+* 32/64-bit release
+* Currently supports PC-Lint Plus versions only (see below)
+* Basic code editor with limited syntax highlighting
 * Tree view of lint output to navigate through
 * Message type filtering to filter out errors, warnings and informational messages
-* Lint various project solutions (Atmel Studio, Microchip Studio, Visual Studio etc)
 
-AS this project is in early development, there are quite a few bugs to be expected.
+As this project is in early development, there are quite a few bugs to be expected.
 Newer features to be implemented soon in no particular order
 
-* Complete syntax highlighting
+* Code editor complete syntax highlighting
 * Edit lint (.lnt) file; surpress/show lint messages etc
 * Lint message help on code numbers
+* Multithread support for old PC-Lint versions
 
 ## Building
 
@@ -34,7 +33,7 @@ Build the project `PC-Lint-GUI-Test.pro` in the folder `PC-Lint GUI Test`
 
 ## Bugs
 
-See `bugs.txt` for the list of bugs/features
+See `bugs.txt` for the list of current bugs/features
 
 ## Release history
 

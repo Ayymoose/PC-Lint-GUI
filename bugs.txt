@@ -1,31 +1,19 @@
-3. Bug: Number of threads in preferences not used for PC-Lint or PC-Lint Plus
 6. Feature: Add/Edit/View lint surpressions
 7. Feature: Complete syntax highlighting (C/C++ and Preprocessor highlighting too)
-9. Feature: Support for more project solutions (Qt, Green Hills)
 11. Feature: Show lint help messages on a particular lint code
 12. Feature: Re-lint only modified files  
-14. Bug: Progress window doesn't understand the multiple passes (-vt_passes= -passes) so it won't display the information properly about ETA
 15. Bug: Clicking on entry in lint output doesn't select the correct line sometimes depending on the window size
-18. Bug: ETA gets stuck with PC-Lint Plus sometimes 
-20. Feature: New way of linting projects/files by select project and lint file. If the project changes then ask for a new lint file other use the same
 21. Feature: Code editor to have multiple tabs for viewing different files
-22. Bug: Lint got stuck on linting a particular file. Probably with an invalid configuration or PC-Lint bug. The lint should abort after 10 minutes if no progress has been made. Add lint timeout option to file with default 10 minutes
+22. Bug: Lint got stuck on linting a particular file. Probably with an invalid configuration or PC-Lint bug. The lint should abort after 2 minutes if no progress has been made. Add lint timeout option to file with default 2 minutes
 26. Bug: Zoom % not correct as in I have no idea what scale the zoom actually zooms in by
-27. Bug: Progress Window freezes on completion because it is processing all the data at once.
-30. Feature: Show lint file used during lint
 31: Bug: Existing lint options could affect output. Must filter through lint options
-32. Bug: PC-Lint Plus has multithreaded support, so we don't need to create multiple threads in the GUI for it but specify on command line
 33. Feature: Allow user to select word wrap or not for code-editor
 34. Bug: If a message is about a pointer out of bounds, there can be multiple places on a line where the index is accessed but the user has no idea which one to look at as there is no ^ arrow to show them.
-35. Bug: PC-Lint Plus sometimes produces messages without a file association. There is no way to see where they came from when displayed in the lint table.
 39. Feature: Taskbar progress shown
-41. Feature: Automatically append lint output to lint table when received not at the end of the pass.
 42. Bug: Re-linting using the refresh button shows ETA as 0
-43. Bug: Build scripts need to stop on the first error (use %errorlevel%)
-44. Bug: Linter does not append any outstanding data to the table upon an error. Linter must append any data it has when it has a critical error
-45. Bug: Linter crashes linting a huge VS solution (~550 files) and there was no information in the log about it. Must add PDB (for Visual C++ compiler) and exception handler to log crash
-46. Bug: Logger should have a filter so we can specify which errors we want to see
-48. Bug: PC-Lint Plus has a program to configure Visual Studio solutions. It generates 2 lint files which must be specified on the command line; visual studio specific lint file first and then the 2nd lint file. There is no way to specify two PC-Lint Plus lint files at the momemt so the user has to copy the 2nd file into the end of the first.
+43. Bug: Build scripts need to be tested and actually build the project instead of us manually building first in Qt then command line
+45. Bug: Linter crashes linting a huge VS solution (~550 files) and there was no information in the log about it. Must add PDB (for Visual C++ compiler only) and exception handler to log crash
+46. Bug: Debug logger should have a filter so we can specify which errors we want to see
 49. Bug: Progress Window ETA is unreliable as the ETA calculation isn't correct
 50. Feature: GUI theme (Dark + Normal)
 51. Feature: Code editor font selection and size
@@ -33,3 +21,6 @@
 53. Feature: GUI translations
 54. Feature: Set program in settings to open log with (default notepad.exe)
 55. Bug: Abort lint doesn't work properly in that it might not abort on the first click
+56. Feature: Support old PC-Lint versions
+57. Feature: Create 32-bit and 64-bit builds as part of Jenkins release process
+58. Bug: File system watcher is not implemented so files can change on disk and PC-Lint GUI will not know about it
