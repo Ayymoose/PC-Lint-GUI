@@ -598,7 +598,7 @@ LintMessageGroup PCLintPlus::groupLintMessages(LintMessages&& lintMessages) noex
         while (secondPtr != lintMessages.cend() && secondPtr->type == Type::TYPE_SUPPLEMENTAL)
         {
             message.emplace_back(*secondPtr);
-            secondPtr++;
+            ++secondPtr;
         }
 
         // Add this group
@@ -636,17 +636,17 @@ std::vector<QString> PCLintPlus::processSourceFiles(const QByteArray& data) noex
         {
             break;
         }
-        auto sourceFile = data.mid(firstIndex + sizeof(DATA_MODULE_STRING),
-                                         secondIndex-firstIndex-sizeof(DATA_MODULE_STRING));
+        auto sourceFile = data.mid(firstIndex + (sizeof(DATA_MODULE_STRING)-1),
+                                         secondIndex-firstIndex-(sizeof(DATA_MODULE_STRING)-1));
 
 
         if (sourceFile.endsWith(DATA_CPP_STRING))
         {
-            sourceFile.chop(sizeof(DATA_CPP_STRING));
+            sourceFile.chop(sizeof(DATA_CPP_STRING)-1);
         }
         else if (sourceFile.endsWith(DATA_C_STRING))
         {
-            sourceFile.chop(sizeof(DATA_C_STRING));
+            sourceFile.chop(sizeof(DATA_C_STRING)-1);
         }
         else
         {

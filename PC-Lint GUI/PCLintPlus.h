@@ -98,12 +98,6 @@ enum Message
     MESSAGE_UNKNOWN
 };
 
-constexpr int MAX_PROCESS_CHARACTERS = 8192;
-constexpr int MAX_LINT_TIME = 5 * 60 * 1000;
-constexpr int MAX_LINT_PATH = 512;
-constexpr int MAX_WAIT_TIME = 30 * 1000;
-constexpr int MAX_THREAD_WAIT = 30 * 1000;
-
 constexpr int LINT_TABLE_FILE_COLUMN = 0;
 constexpr int LINT_TABLE_NUMBER_COLUMN = 1;
 constexpr int LINT_TABLE_DESCRIPTION_COLUMN = 2;
@@ -151,7 +145,6 @@ public:
     // Return path to the lint file used (.lnt)
     QString getLintFile() const noexcept;
 
-    // Group together lint messages (PC-Lint Plus only)
     // So that supplemental messages are tied together with error/info/warnings
     LintMessageGroup groupLintMessages(LintMessages&& lintMessages) noexcept;
 
