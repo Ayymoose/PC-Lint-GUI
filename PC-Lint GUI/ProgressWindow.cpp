@@ -56,13 +56,6 @@ void ProgressWindow::slotUpdateProgressMax(int maxProgress) noexcept
     m_ui->lintProgressBar->setMaximum(maxProgress);
 }
 
-/*void ProgressWindow::slotUpdateProcessedFiles() noexcept
-{
-   m_currentFileProgress++;
-   m_ui->filesProcessed->setText(QString::number(m_currentFileProgress) +
-                                 '/' + QString::number(m_ui->lintProgressBar->maximum()));
-}*/
-
 void ProgressWindow::slotUpdateETA(int eta) noexcept
 {
     static int etaMax = 0;

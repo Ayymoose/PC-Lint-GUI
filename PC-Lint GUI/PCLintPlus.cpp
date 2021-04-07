@@ -17,8 +17,6 @@
 #include "PCLintPlus.h"
 #include "Log.h"
 
-
-// TODO: Make namespace Lint and this class PCLintPlus
 namespace Lint
 {
 
@@ -119,6 +117,8 @@ bool PCLintPlus::parseLintFile() noexcept
 
     // For PC-Lint GUI we expect the source files will be present in the lint file
     // Currently nested lint files are not supported
+    m_lintSourceFiles = 0;
+
     processLintSourceFiles();
 
     return m_lintSourceFiles > 0;
@@ -202,6 +202,13 @@ void PCLintPlus::lint() noexcept
 {
     Q_ASSERT(m_lintExecutable.size());
 
+    // Check the lint file is good
+    if (!parseLintFile())
+    {
+        emit signalLintComplete(m_status, m_errorMessage);
+        return;
+    }
+
     auto const workingDirectory = QFileInfo(m_lintFile).canonicalPath();
     qDebug() << "Setting working directory to:" << workingDirectory;
 
@@ -219,13 +226,6 @@ void PCLintPlus::lint() noexcept
     m_messageSet.clear();
     m_stdOut.clear();
     m_lintedFiles.clear();
-    m_lintSourceFiles = 0;
-
-    if (!parseLintFile())
-    {
-        emit signalLintComplete(m_status, m_errorMessage);
-        return;
-    }
 
     for (const auto& str : m_arguments)
     {
@@ -288,7 +288,7 @@ void PCLintPlus::lint() noexcept
     [this](int exitCode, QProcess::ExitStatus exitStatus)
     {
         qDebug() << "Lint process finished with exit code:" << QString::number(exitCode) << "and exit status:" << exitStatus;
-        qInfo() << "Total files linted:" << m_lintedFiles.size();
+        qInfo() << "Linted:" << m_lintSourceFiles << '/' << m_lintedFiles.size() << "source files";
 
         // Wait for consumer thread to finish
         slotAbortLint(false);
@@ -302,27 +302,17 @@ void PCLintPlus::lint() noexcept
         {
             if (m_status != STATUS_ABORT)
             {
-                m_status = STATUS_COMPLETE;
+                if (m_lintSourceFiles == m_lintedFiles.size())
+                {
+                    m_status = STATUS_COMPLETE;
+                }
+                else
+                {
+                    m_status = STATUS_PARTIAL_COMPLETE;
+                }
             }
             emit signalLintComplete(m_status, m_errorMessage);
         }
-
-
-        // TODO: Fix successful whether lint was successful or not
-
-        // if -env_push is used we'll lint "more" files than we have since it does multiple passes
-        /*if (m_numberOfLintedFiles >= m_filesToLint.size())
-        {
-            qDebug() << "Successfully linted all files";
-            m_status = STATUS_COMPLETE;
-        }
-        else
-        {
-            qDebug() << "Linted only" << m_numberOfLintedFiles << '/' << m_filesToLint.size() << "files";
-            m_status = STATUS_PARTIAL_COMPLETE;
-        }*/
-
-
     });
 
     QObject::connect(m_process.get(), &QProcess::errorOccurred, this, [&](const QProcess::ProcessError& error)

@@ -352,7 +352,7 @@ void MainWindow::slotLintComplete(const Lint::Status& lintStatus, const QString&
     switch (lintStatus)
     {
     case Lint::Status::STATUS_COMPLETE:
-        // TODO: Need to get number of warnings, information and errors
+        // All is good
         break;
     case Lint::Status::STATUS_PARTIAL_COMPLETE:
         QMessageBox::information(this, "Information", "Not all files were successfully linted as errors were generated in the lint output.");
