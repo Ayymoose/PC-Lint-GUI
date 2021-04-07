@@ -129,7 +129,7 @@ void PCLintPlus::processLintSourceFiles() noexcept
     Q_ASSERT(m_lintFile.size());
 
     // Check if file parsed exists and add to set
-
+    // TODO: Add to lint tests
     // Read the lint file and check for and source files
     // Supported source files are
     const QStringList supportedFiles = {".c", ".cc", ".cpp", ".c++", ".cp", ".cxx"};

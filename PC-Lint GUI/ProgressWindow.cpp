@@ -28,7 +28,8 @@ ProgressWindow::ProgressWindow(QWidget *parent) :
     m_fileProgressMax(0),
     m_currentFileProgress(0),
     m_aborted(false),
-    m_timer(std::make_unique<QTimer>())
+    m_timer(std::make_unique<QTimer>()),
+    m_parent(static_cast<MainWindow*>(parent))
 {
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
@@ -38,7 +39,6 @@ ProgressWindow::ProgressWindow(QWidget *parent) :
 
     QObject::connect(m_timer.get(), &QTimer::timeout, this, &ProgressWindow::slotUpdateTime);
     m_ui->eta->setText("Calculating...");
-    //m_ui->lintGroupBox->setTitle(title);
 }
 
 void ProgressWindow::slotUpdateProgress() noexcept
@@ -83,19 +83,26 @@ void ProgressWindow::slotLintComplete(const Lint::Status& lintStatus, const QStr
     close();
 
     emit signalLintComplete(lintStatus, errorMessage);
+
+    // TODO: Title bar progress for Windows only
+    if (m_aborted == true)
+    {
+        m_parent->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION);
+    }
+    else if (lintStatus != Lint::STATUS_LICENSE_ERROR)
+    {
+        m_parent->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION " - " + m_ui->lintGroupBox->title());
+    }
+}
+
+void ProgressWindow::setTitle(const QString& title) noexcept
+{
+    m_ui->lintGroupBox->setTitle(title);
+    m_parent->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION " - " + m_ui->lintGroupBox->title());
 }
 
 ProgressWindow::~ProgressWindow()
 {
-    if (m_aborted == true)
-    {
-        //m_parent->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION);
-    }
-    else
-    {
-        // TODO: Don't set this if there was a license error
-        //m_parent->setWindowTitle(APPLICATION_NAME " " BUILD_VERSION " - " + m_windowTitle);
-    }
     delete m_ui;
 }
 

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>318</width>
+    <width>393</width>
     <height>208</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <widget class="QGroupBox" name="lintGroupBox">
      <property name="maximumSize">
       <size>
-       <width>300</width>
+       <width>400</width>
        <height>16777215</height>
       </size>
      </property>

@@ -48,6 +48,7 @@ class ProgressWindow : public QDialog
 public:
     explicit ProgressWindow(QWidget *parent = nullptr);
     ~ProgressWindow();
+    void setTitle(const QString& title) noexcept;
 
 public slots:
     void slotUpdateProgress() noexcept;
@@ -72,5 +73,5 @@ private:
     int m_currentFileProgress;
     bool m_aborted;
     std::unique_ptr<QTimer> m_timer;
-    QString m_windowTitle;
+    QMainWindow* m_parent;
 };
