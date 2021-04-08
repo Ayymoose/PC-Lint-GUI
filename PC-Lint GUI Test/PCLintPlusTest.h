@@ -5,6 +5,7 @@
 #include <QString>
 #include <QByteArray>
 #include <QFile>
+#include <QTest>
 
 namespace Test
 {
@@ -21,8 +22,7 @@ public:
         // PC-Lint Plus tests
         {"pclintplusParseSourceFileTest", &PCLintPlusTest::pclintplusParseSourceFileTest},
         {"pclintplusGroupLintMessagesTest", &PCLintPlusTest::pclintplusGroupLintMessagesTest},
-        {"pclintplusConsumeLintChunkTest", &PCLintPlusTest::pclintplusConsumeLintChunkTest}
-
+        {"pclintplusConsumeLintChunkTest", &PCLintPlusTest::pclintplusConsumeLintChunkTest},
     };
 
 private:
@@ -30,8 +30,6 @@ private:
     void pclintplusParseSourceFileTest() noexcept;
     void pclintplusGroupLintMessagesTest() noexcept;
     void pclintplusConsumeLintChunkTest() noexcept;
-
-    QByteArray simulateModuleChunk(const QByteArray& data) noexcept;
 };
 
 };

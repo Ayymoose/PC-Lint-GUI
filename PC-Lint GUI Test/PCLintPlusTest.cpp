@@ -1,5 +1,5 @@
-#include "LinterTest.h"
-#include "../PC-Lint GUI/Lint.h"
+#include "PCLintPlusTest.h"
+#include "../PC-Lint GUI/PCLintPlus.h"
 #include <cstdlib>
 
 namespace Test
@@ -8,7 +8,7 @@ namespace Test
 
 void PCLintPlusTest::pclintplusParseSourceFileTest() noexcept
 {
-    PCLint::Lint lint;
+    Lint::PCLintPlus lint;
 
     QFile file(R"(..\PC-Lint GUI Test\data\pc-lint-plus\parseSourceFile.xml)");
     file.open(QIODevice::ReadOnly);
@@ -19,7 +19,7 @@ void PCLintPlusTest::pclintplusParseSourceFileTest() noexcept
 
     try
     {
-        auto sourceFiles = lint.parseSourceFileInformation(data);
+        auto sourceFiles = lint.processSourceFiles(data);
         TEST_COMPARE(sourceFiles.size(), (size_t)29);
     }
     catch (const std::exception& e)
@@ -30,7 +30,7 @@ void PCLintPlusTest::pclintplusParseSourceFileTest() noexcept
 
 void PCLintPlusTest::pclintplusGroupLintMessagesTest() noexcept
 {
-    PCLint::Lint lint1;
+    Lint::PCLintPlus lint1;
 
     QFile file1(R"(..\PC-Lint GUI Test\data\pc-lint-plus\groupLintMessages1.xml)");
     file1.open(QIODevice::ReadOnly);
@@ -50,19 +50,19 @@ void PCLintPlusTest::pclintplusGroupLintMessagesTest() noexcept
         int supplementals = 0;
         for (auto const& message : lintMessages1)
         {
-            if (message.type == PCLint::Type::TYPE_WARNING)
+            if (message.type == Lint::Type::TYPE_WARNING)
             {
                 warnings++;
             }
-            else if (message.type == PCLint::Type::TYPE_INFO)
+            else if (message.type == Lint::Type::TYPE_INFORMATION)
             {
                 informations++;
             }
-            else if (message.type == PCLint::Type::TYPE_ERROR)
+            else if (message.type == Lint::Type::TYPE_ERROR)
             {
                 errors++;
             }
-            else if (message.type == PCLint::Type::TYPE_SUPPLEMENTAL)
+            else if (message.type == Lint::Type::TYPE_SUPPLEMENTAL)
             {
                 supplementals++;
             }
@@ -84,64 +84,64 @@ void PCLintPlusTest::pclintplusGroupLintMessagesTest() noexcept
 
         auto group1 = groupedLintMessages[0];
         TEST_COMPARE(group1.size(), size_t(1));
-        TEST_COMPARE(group1[0].type, PCLint::Type::TYPE_WARNING);
+        TEST_COMPARE(group1[0].type, Lint::Type::TYPE_WARNING);
 
         auto group2 = groupedLintMessages[1];
         TEST_COMPARE(group2.size(), size_t(2));
-        TEST_COMPARE(group2[0].type, PCLint::Type::TYPE_WARNING);
-        TEST_COMPARE(group2[1].type, PCLint::Type::TYPE_SUPPLEMENTAL);
+        TEST_COMPARE(group2[0].type, Lint::Type::TYPE_WARNING);
+        TEST_COMPARE(group2[1].type, Lint::Type::TYPE_SUPPLEMENTAL);
 
         auto group3 = groupedLintMessages[2];
         TEST_COMPARE(group3.size(), size_t(1));
-        TEST_COMPARE(group3[0].type, PCLint::Type::TYPE_WARNING);
+        TEST_COMPARE(group3[0].type, Lint::Type::TYPE_WARNING);
 
         auto group4 = groupedLintMessages[3];
         TEST_COMPARE(group4.size(), size_t(4));
-        TEST_COMPARE(group4[0].type, PCLint::Type::TYPE_INFO);
-        TEST_COMPARE(group4[1].type, PCLint::Type::TYPE_SUPPLEMENTAL);
-        TEST_COMPARE(group4[2].type, PCLint::Type::TYPE_SUPPLEMENTAL);
-        TEST_COMPARE(group4[3].type, PCLint::Type::TYPE_SUPPLEMENTAL);
+        TEST_COMPARE(group4[0].type, Lint::Type::TYPE_INFORMATION);
+        TEST_COMPARE(group4[1].type, Lint::Type::TYPE_SUPPLEMENTAL);
+        TEST_COMPARE(group4[2].type, Lint::Type::TYPE_SUPPLEMENTAL);
+        TEST_COMPARE(group4[3].type, Lint::Type::TYPE_SUPPLEMENTAL);
 
         auto group5 = groupedLintMessages[4];
         TEST_COMPARE(group5.size(), size_t(2));
-        TEST_COMPARE(group5[0].type, PCLint::Type::TYPE_ERROR);
-        TEST_COMPARE(group5[1].type, PCLint::Type::TYPE_SUPPLEMENTAL);
+        TEST_COMPARE(group5[0].type, Lint::Type::TYPE_ERROR);
+        TEST_COMPARE(group5[1].type, Lint::Type::TYPE_SUPPLEMENTAL);
 
         auto group6 = groupedLintMessages[5];
         TEST_COMPARE(group6.size(), size_t(1));
-        TEST_COMPARE(group6[0].type, PCLint::Type::TYPE_WARNING);
+        TEST_COMPARE(group6[0].type, Lint::Type::TYPE_WARNING);
 
         auto group7 = groupedLintMessages[6];
         TEST_COMPARE(group7.size(), size_t(3));
-        TEST_COMPARE(group7[0].type, PCLint::Type::TYPE_ERROR);
-        TEST_COMPARE(group7[1].type, PCLint::Type::TYPE_SUPPLEMENTAL);
-        TEST_COMPARE(group7[2].type, PCLint::Type::TYPE_SUPPLEMENTAL);
+        TEST_COMPARE(group7[0].type, Lint::Type::TYPE_ERROR);
+        TEST_COMPARE(group7[1].type, Lint::Type::TYPE_SUPPLEMENTAL);
+        TEST_COMPARE(group7[2].type, Lint::Type::TYPE_SUPPLEMENTAL);
 
         auto group8 = groupedLintMessages[7];
         TEST_COMPARE(group8.size(), size_t(1));
-        TEST_COMPARE(group8[0].type, PCLint::Type::TYPE_WARNING);
+        TEST_COMPARE(group8[0].type, Lint::Type::TYPE_WARNING);
 
         auto group9 = groupedLintMessages[8];
         TEST_COMPARE(group9.size(), size_t(2));
-        TEST_COMPARE(group9[0].type, PCLint::Type::TYPE_WARNING);
-        TEST_COMPARE(group9[1].type, PCLint::Type::TYPE_SUPPLEMENTAL);
+        TEST_COMPARE(group9[0].type, Lint::Type::TYPE_WARNING);
+        TEST_COMPARE(group9[1].type, Lint::Type::TYPE_SUPPLEMENTAL);
 
         auto group10 = groupedLintMessages[9];
         TEST_COMPARE(group10.size(), size_t(1));
-        TEST_COMPARE(group10[0].type, PCLint::Type::TYPE_WARNING);
+        TEST_COMPARE(group10[0].type, Lint::Type::TYPE_WARNING);
 
         auto group11 = groupedLintMessages[10];
         TEST_COMPARE(group11.size(), size_t(2));
-        TEST_COMPARE(group11[0].type, PCLint::Type::TYPE_INFO);
-        TEST_COMPARE(group11[1].type, PCLint::Type::TYPE_SUPPLEMENTAL);
+        TEST_COMPARE(group11[0].type, Lint::Type::TYPE_INFORMATION);
+        TEST_COMPARE(group11[1].type, Lint::Type::TYPE_SUPPLEMENTAL);
 
         auto group12 = groupedLintMessages[11];
         TEST_COMPARE(group12.size(), size_t(1));
-        TEST_COMPARE(group12[0].type, PCLint::Type::TYPE_INFO);
+        TEST_COMPARE(group12[0].type, Lint::Type::TYPE_INFORMATION);
 
         auto group13 = groupedLintMessages[12];
         TEST_COMPARE(group13.size(), size_t(1));
-        TEST_COMPARE(group13[0].type, PCLint::Type::TYPE_INFO);
+        TEST_COMPARE(group13[0].type, Lint::Type::TYPE_INFORMATION);
 
     }
     catch (const std::exception& e)
@@ -149,7 +149,7 @@ void PCLintPlusTest::pclintplusGroupLintMessagesTest() noexcept
         qCritical() << e.what();
     }
 
-    PCLint::Lint lint2;
+    Lint::PCLintPlus lint2;
 
     QFile file2(R"(..\PC-Lint GUI Test\data\pc-lint-plus\groupLintMessages2.xml)");
     file2.open(QIODevice::ReadOnly);
@@ -169,19 +169,19 @@ void PCLintPlusTest::pclintplusGroupLintMessagesTest() noexcept
         int supplementals = 0;
         for (auto const& message : lintMessages2)
         {
-            if (message.type == PCLint::Type::TYPE_WARNING)
+            if (message.type == Lint::Type::TYPE_WARNING)
             {
                 warnings++;
             }
-            else if (message.type == PCLint::Type::TYPE_INFO)
+            else if (message.type == Lint::Type::TYPE_INFORMATION)
             {
                 informations++;
             }
-            else if (message.type == PCLint::Type::TYPE_ERROR)
+            else if (message.type == Lint::Type::TYPE_ERROR)
             {
                 errors++;
             }
-            else if (message.type == PCLint::Type::TYPE_SUPPLEMENTAL)
+            else if (message.type == Lint::Type::TYPE_SUPPLEMENTAL)
             {
                 supplementals++;
             }
@@ -203,35 +203,35 @@ void PCLintPlusTest::pclintplusGroupLintMessagesTest() noexcept
 
         auto group1 = groupedLintMessages[0];
         TEST_COMPARE(group1.size(), size_t(1));
-        TEST_COMPARE(group1[0].type, PCLint::Type::TYPE_WARNING);
+        TEST_COMPARE(group1[0].type, Lint::Type::TYPE_WARNING);
 
         auto group2 = groupedLintMessages[1];
         TEST_COMPARE(group2.size(), size_t(1));
-        TEST_COMPARE(group2[0].type, PCLint::Type::TYPE_INFO);
+        TEST_COMPARE(group2[0].type, Lint::Type::TYPE_INFORMATION);
 
         auto group3 = groupedLintMessages[2];
         TEST_COMPARE(group3.size(), size_t(1));
-        TEST_COMPARE(group3[0].type, PCLint::Type::TYPE_INFO);
+        TEST_COMPARE(group3[0].type, Lint::Type::TYPE_INFORMATION);
 
         auto group4 = groupedLintMessages[3];
         TEST_COMPARE(group4.size(), size_t(1));
-        TEST_COMPARE(group4[0].type, PCLint::Type::TYPE_WARNING);
+        TEST_COMPARE(group4[0].type, Lint::Type::TYPE_WARNING);
 
         auto group5 = groupedLintMessages[4];
         TEST_COMPARE(group5.size(), size_t(1));
-        TEST_COMPARE(group5[0].type, PCLint::Type::TYPE_INFO);
+        TEST_COMPARE(group5[0].type, Lint::Type::TYPE_INFORMATION);
 
         auto group6 = groupedLintMessages[5];
         TEST_COMPARE(group6.size(), size_t(1));
-        TEST_COMPARE(group6[0].type, PCLint::Type::TYPE_ERROR);
+        TEST_COMPARE(group6[0].type, Lint::Type::TYPE_ERROR);
 
         auto group7 = groupedLintMessages[6];
         TEST_COMPARE(group7.size(), size_t(1));
-        TEST_COMPARE(group7[0].type, PCLint::Type::TYPE_ERROR);
+        TEST_COMPARE(group7[0].type, Lint::Type::TYPE_ERROR);
 
         auto group8 = groupedLintMessages[7];
         TEST_COMPARE(group8.size(), size_t(1));
-        TEST_COMPARE(group8[0].type, PCLint::Type::TYPE_INFO);
+        TEST_COMPARE(group8[0].type, Lint::Type::TYPE_INFORMATION);
 
     }
     catch (const std::exception& e)
@@ -242,7 +242,7 @@ void PCLintPlusTest::pclintplusGroupLintMessagesTest() noexcept
 
 void PCLintPlusTest::pclintplusConsumeLintChunkTest() noexcept
 {
-    PCLint::Lint lint1;
+    Lint::PCLintPlus lint1;
 
     QFile file1(R"(..\PC-Lint GUI Test\data\pc-lint-plus\chunk1.xml)");
     file1.open(QIODevice::ReadOnly);
@@ -280,7 +280,7 @@ void PCLintPlusTest::pclintplusConsumeLintChunkTest() noexcept
     TEST_COMPARE(moduleData1.size(), size_t(11));
 
 
-    PCLint::Lint lint2;
+    Lint::PCLintPlus lint2;
 
     QFile file2(R"(..\PC-Lint GUI Test\data\pc-lint-plus\chunk2.xml)");
     file2.open(QIODevice::ReadOnly);
