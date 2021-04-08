@@ -20,9 +20,10 @@ public:
     PCLintPlusFunctionMap m_tests =
     {
         // PC-Lint Plus tests
-        {"pclintplusParseSourceFileTest", &PCLintPlusTest::pclintplusParseSourceFileTest},
-        {"pclintplusGroupLintMessagesTest", &PCLintPlusTest::pclintplusGroupLintMessagesTest},
-        {"pclintplusConsumeLintChunkTest", &PCLintPlusTest::pclintplusConsumeLintChunkTest},
+        {"parseSourceFileTest", &PCLintPlusTest::pclintplusParseSourceFileTest},
+        {"groupLintMessagesTest", &PCLintPlusTest::pclintplusGroupLintMessagesTest},
+        {"consumeLintChunkTest", &PCLintPlusTest::pclintplusConsumeLintChunkTest},
+        {"parseLintFileTest", &PCLintPlusTest::parseLintFileTest}
     };
 
 private:
@@ -30,6 +31,7 @@ private:
     void pclintplusParseSourceFileTest() noexcept;
     void pclintplusGroupLintMessagesTest() noexcept;
     void pclintplusConsumeLintChunkTest() noexcept;
+    void parseLintFileTest() noexcept;
 };
 
 };

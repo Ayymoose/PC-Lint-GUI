@@ -5,6 +5,13 @@
 namespace Test
 {
 
+void PCLintPlusTest::parseLintFileTest() noexcept
+{
+    Lint::PCLintPlus lint;
+    lint.setLintFile(R"(..\PC-Lint GUI Test\data\pc-lint-plus\parseSourceFile\parseLintFile.lnt)");
+    int sourceFiles = lint.processLintSourceFiles();
+    TEST_COMPARE(sourceFiles, 3);
+}
 
 void PCLintPlusTest::pclintplusParseSourceFileTest() noexcept
 {

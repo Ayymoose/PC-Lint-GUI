@@ -117,26 +117,26 @@ bool PCLintPlus::parseLintFile() noexcept
 
     // For PC-Lint GUI we expect the source files will be present in the lint file
     // Currently nested lint files are not supported
-    m_lintSourceFiles = 0;
-
-    processLintSourceFiles();
+    m_lintSourceFiles = processLintSourceFiles();
 
     return m_lintSourceFiles > 0;
 }
 
-void PCLintPlus::processLintSourceFiles() noexcept
+int PCLintPlus::processLintSourceFiles() noexcept
 {
     Q_ASSERT(m_lintFile.size());
 
     // Check if file parsed exists and add to set
-    // TODO: Add to lint tests
     // Read the lint file and check for and source files
-    // Supported source files are
-    const QStringList supportedFiles = {".c", ".cc", ".cpp", ".c++", ".cp", ".cxx"};
+    int sourceFiles = 0;
 
     QFile lintFile(m_lintFile);
     lintFile.open(QIODevice::ReadOnly);
-    Q_ASSERT(lintFile.isOpen());
+    if (!lintFile.isOpen())
+    {
+        qCritical() << "Failed to open lint file:" << m_lintFile;
+        return sourceFiles;
+    }
     QTextStream file(&lintFile);
     while (!file.atEnd())
     {
@@ -153,32 +153,34 @@ void PCLintPlus::processLintSourceFiles() noexcept
         // TODO: Can we have nested /* */ blocks?
 
         // .c, .cc, .cpp, .c++, .cp, .cxx
-        if (std::any_of(supportedFiles.begin(), supportedFiles.end(),[&line](const QString& type){ return line.contains(type);}))
+        if (line.contains(".c"))
         {
+            QString sourceFile = line;
+
             // Check if the file is wrapped in quotes
             if (line.endsWith('\"') && line.startsWith('\"'))
             {
                 // Strip quotes
-                auto const sourceFile = line.mid(1, line.length()-1-1);
+                sourceFile = line.mid(1, line.length()-1-1);
+            }
 
-                // Check if the absolute file exists
-                if (QFileInfo(sourceFile).exists())
-                {
-                    qDebug() << "Absolute file:" << sourceFile;
-                    m_lintSourceFiles++;
-                }
-                else
-                {
-                    // Otherwise it must be a relative file then
-                    auto const lintWorkingDirectory = QFileInfo(m_lintFile).canonicalPath();
-                    auto const relativePath = lintWorkingDirectory + QDir::separator() + sourceFile;
-                    auto const canonPath = QFileInfo(relativePath).canonicalFilePath();
+            // Check if the absolute file exists
+            if (QFileInfo(sourceFile).exists())
+            {
+                qDebug() << "Absolute file:" << sourceFile;
+                sourceFiles++;
+            }
+            else
+            {
+                // Otherwise it must be a relative file then
+                auto const lintWorkingDirectory = QFileInfo(m_lintFile).canonicalPath();
+                auto const relativePath = lintWorkingDirectory + QDir::separator() + sourceFile;
+                auto const canonPath = QFileInfo(relativePath).canonicalFilePath();
 
-                    if (QFileInfo(canonPath).exists())
-                    {
-                        qDebug() << "Relative file:" << sourceFile;
-                        m_lintSourceFiles++;
-                    }
+                if (QFileInfo(canonPath).exists())
+                {
+                    qDebug() << "Relative file:" << sourceFile;
+                    sourceFiles++;
                 }
             }
         }
@@ -186,9 +188,9 @@ void PCLintPlus::processLintSourceFiles() noexcept
     }
     lintFile.close();
 
-    if (m_lintSourceFiles > 0)
+    if (sourceFiles > 0)
     {
-        qDebug() << "Found" << m_lintSourceFiles << "source files to lint";
+        qDebug() << "Found" << sourceFiles << "source files to lint";
     }
     else
     {
@@ -196,6 +198,7 @@ void PCLintPlus::processLintSourceFiles() noexcept
         m_errorMessage = "No source files found in lint file";
         qDebug() << m_errorMessage;
     }
+    return sourceFiles;
 }
 
 void PCLintPlus::lint() noexcept

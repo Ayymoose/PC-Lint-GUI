@@ -155,6 +155,7 @@ public:
     std::vector<QByteArray> stitchModule(const QByteArray& data);
 
     bool parseLintFile() noexcept;
+    int processLintSourceFiles() noexcept;
 
 public slots:
 
@@ -201,7 +202,6 @@ private:
     void consumerThread() noexcept;
     void processModules(std::vector<QByteArray> modules);
     QString addFullFilePath(QStringView file) const noexcept;
-    void processLintSourceFiles() noexcept;
 
     LintMessagesSet m_messageSet;
 

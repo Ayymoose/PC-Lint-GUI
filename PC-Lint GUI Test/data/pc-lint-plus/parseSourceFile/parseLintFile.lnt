@@ -1,0 +1,29 @@
+/* 
+
+This source file is used to test the parsing phase
+
+*/
+
+
++cpp(.cc)  // Make .cc a C++ file extension in addition to the default of .cpp and .cxx
+
+-env_push
++fcu
+-dDEBUG
+-i"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\XMEGAA_DFP\1.1.68\include"
+-i"../../src/applcb"
+-i"../../src/ccxm_config"
+-i" C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\XMEGAA_DFP\1.1.68\gcc\dev\atxmega128a1/include"
+-std=c99
+"parseSourceFile3.c"
+"parseSourceFile2.cpp"
+ // "parseSourceFile.c"
+ 
+../parseSourceFile4.c
+
+
+	"../parseSourceFile1.c"
+	"../parseSourceFile2.cpp"
+
+"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\XMEGAA_DFP\1.1.68\include"
+-env_pop
